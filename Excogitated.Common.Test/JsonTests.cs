@@ -18,7 +18,7 @@ namespace Excogitated.Common.Test
             ListDate = Date.Today,
             MarginRatio = Rng.Pseudo.GetInt32(),
             Name = "Test Instrument Document",
-            //Prices = Enumerable.Range(0, 2).Select(i => new PriceDocument
+            //Prices = Enumerable.Range(0, 2).Select(i => new TestItem1
             Prices = Enumerable.Range(0, 5 * 365).Select(i => new TestItem1
             {
                 Close = Rng.Pseudo.GetDecimal(),
@@ -31,7 +31,7 @@ namespace Excogitated.Common.Test
             }).ToList(),
             Symbol = "TEST",
             Type = Rng.Pseudo.SelectOne<TestEnum1>(),
-            //Dividends = Enumerable.Range(0, 2).Select(i => new DividendDocument
+            //Dividends = Enumerable.Range(0, 2).Select(i => new TestItem2
             Dividends = Enumerable.Range(0, 5 * 12).Select(i => new TestItem2
             {
                 Amount = Rng.Pseudo.GetDecimal(),
@@ -129,11 +129,11 @@ namespace Excogitated.Common.Test
         }
     }
 
-    internal enum TestEnum2 { test1, test2, test3, test4, test5 }
-    internal enum TestEnum1 { test1, test2, test3, test4, test5 }
-    internal enum TestEnum0 { test1, test2, test3, test4, test5 }
+    public enum TestEnum2 { test1, test2, test3, test4, test5 }
+    public enum TestEnum1 { test1, test2, test3, test4, test5 }
+    public enum TestEnum0 { test1, test2, test3, test4, test5 }
 
-    internal class TestItem2
+    public class TestItem2
     {
         public decimal Amount { get; set; }
         public Date DeclaredDate { get; set; }
@@ -142,7 +142,7 @@ namespace Excogitated.Common.Test
         public TestEnum2 Type { get; set; }
     }
 
-    internal class TestItem1
+    public class TestItem1
     {
         public decimal Close { get; set; }
         public Date Date { get; set; }
@@ -153,18 +153,18 @@ namespace Excogitated.Common.Test
         public long Volume { get; set; }
     }
 
-    internal class TestItem0
+    public class TestItem0
     {
-        public int Version { get; internal set; }
-        public double AverageVolume { get; internal set; }
-        public List<string> Codes { get; internal set; }
-        public Date ListDate { get; internal set; }
-        public int MarginRatio { get; internal set; }
-        public string Name { get; internal set; }
-        public List<TestItem1> Prices { get; internal set; }
-        public string Symbol { get; internal set; }
-        public TestEnum1 Type { get; internal set; }
-        public List<TestItem2> Dividends { get; internal set; }
-        public Date DividendsFullUpdate { get; internal set; }
+        public int Version { get; set; }
+        public double AverageVolume { get; set; }
+        public List<string> Codes { get; set; }
+        public Date ListDate { get; set; }
+        public int MarginRatio { get; set; }
+        public string Name { get; set; }
+        public List<TestItem1> Prices { get; set; }
+        public string Symbol { get; set; }
+        public TestEnum1 Type { get; set; }
+        public List<TestItem2> Dividends { get; set; }
+        public Date DividendsFullUpdate { get; set; }
     }
 }

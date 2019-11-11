@@ -63,6 +63,7 @@ namespace Excogitated.Common
             var settings = new JsonSerializerSettings();
             settings.NullValueHandling = NullValueHandling.Ignore;
             settings.DateFormatString = "o";
+            settings.MissingMemberHandling = MissingMemberHandling.Error;
             settings.Formatting = formatted ? Formatting.Indented : Formatting.None;
             settings.AddStructConverter<Date>(d => d, (s, t) => s);
             settings.AddClassConverter(e => e.ToString(), (s, t) =>
