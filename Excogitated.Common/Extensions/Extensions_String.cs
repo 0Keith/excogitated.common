@@ -15,6 +15,7 @@ namespace Excogitated.Common
         public static bool IsLetter(this char c) => char.IsLetter(c);
         public static bool IsDigit(this char c) => char.IsDigit(c);
         public static int ToInt(this char c) => c - '0';
+        public static char ToChar(this int i) => (char)(i + '0');
 
         public static StringBuilder AppendCSV(this StringBuilder csv, object value = null)
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Excogitated.Common
@@ -12,18 +13,22 @@ namespace Excogitated.Common
         {
             if (duration <= TimeSpan.Zero)
                 throw new ArgumentException("duration <= TimeSpan.Zero");
-            var executions = 0;
             var w = Stopwatch.StartNew();
             var d = duration.TotalMilliseconds;
-            while (w.ElapsedMilliseconds < d)
+            var threads = Environment.ProcessorCount / 2;
+            var executions = Task.WhenAll(Enumerable.Repeat(0, threads).Select(i => Task.Run(() =>
             {
-                action();
-                executions++;
-            }
-            var elapsed = w.Elapsed;
+                var count = 0L;
+                while (w.ElapsedMilliseconds < d)
+                {
+                    action();
+                    count++;
+                }
+                return count;
+            }))).Result.Sum();
             return new BenchmarkResult
             {
-                Elapsed = elapsed,
+                Elapsed = w.Elapsed,
                 Executions = executions
             };
         }
@@ -34,19 +39,23 @@ namespace Excogitated.Common
         {
             if (duration <= TimeSpan.Zero)
                 throw new ArgumentException("duration <= TimeSpan.Zero");
-            var executions = 0L;
             var w = Stopwatch.StartNew();
             var d = duration.TotalMilliseconds;
-            while (w.ElapsedMilliseconds < d)
+            var threads = Environment.ProcessorCount / 2;
+            var executions = await Task.WhenAll(Enumerable.Repeat(0, threads).Select(i => Task.Run(async () =>
             {
-                await action();
-                executions++;
-            }
-            var elapsed = w.Elapsed;
+                var count = 0L;
+                while (w.ElapsedMilliseconds < d)
+                {
+                    await action();
+                    count++;
+                }
+                return count;
+            })));
             return new BenchmarkResult
             {
-                Elapsed = elapsed,
-                Executions = executions
+                Elapsed = w.Elapsed,
+                Executions = executions.Sum()
             };
         }
     }

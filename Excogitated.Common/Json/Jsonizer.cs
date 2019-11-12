@@ -31,17 +31,18 @@ namespace Excogitated.Common
         }
     }
 
+
+    public delegate T JsonConverterRead<T>(ref Utf8JsonReader reader);
+    public delegate void JsonConverterWrite<T>(Utf8JsonWriter writer, T value);
     public class StructConverter<T> : JsonConverter<T>
     {
-        private readonly Func<T, string> _serializer;
-        private readonly Func<string, T> _deserializer;
+        private readonly JsonConverterWrite<T> _serializer;
+        private readonly JsonConverterRead<T> _deserializer;
 
-        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-            _deserializer(reader.GetString());
-        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) =>
-            writer.WriteStringValue(_serializer(value));
+        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => _deserializer(ref reader);
+        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) => _serializer(writer, value);
 
-        public StructConverter(Func<T, string> serializer, Func<string, T> deserializer)
+        public StructConverter(JsonConverterWrite<T> serializer, JsonConverterRead<T> deserializer)
         {
             _serializer = serializer.NotNull(nameof(serializer));
             _deserializer = deserializer.NotNull(nameof(deserializer));
@@ -59,9 +60,9 @@ namespace Excogitated.Common
             options.IgnoreNullValues = true;
             options.WriteIndented = formatted;
             options.PropertyNameCaseInsensitive = true;
-            options.AddStructConverter<Date>(d => d, d => d);
-            options.AddStructConverter<MonthDayYear>(d => d, d => d);
-            options.AddStructConverter(d => d.ToString(), s => s.ToDecimal());
+            options.AddStructConverter<Date>((w, v) => w.WriteStringValue(v.ToCharSpan()), (ref Utf8JsonReader r) => r.GetString());
+            options.AddStructConverter<MonthDayYear>((w, v) => w.WriteStringValue(v.ToCharSpan()), (ref Utf8JsonReader r) => r.GetString());
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TryGetDecimal(out var d) ? d : r.GetString().ToDecimal());
             //options.MissingMemberHandling = MissingMemberHandling.Error;
             options.AddClassConverter(e => e.ToString(), (s, t) =>
             {
@@ -84,21 +85,22 @@ namespace Excogitated.Common
             converters.Add(new ClassConverter<T>(serializer, deserializer));
         }
 
-        public static void AddStructConverter<T>(this JsonSerializerOptions settings, Func<T, string> serializer, Func<string, T> deserializer)
+        public static void AddStructConverter<T>(this JsonSerializerOptions settings, JsonConverterWrite<T> serializer, JsonConverterRead<T> deserializer)
             where T : struct
         {
             var converters = settings?.Converters.NotNull(nameof(settings));
             converters.Add(new StructConverter<T>(serializer, deserializer));
-            converters.Add(new StructConverter<T?>(v =>
+            converters.Add(new StructConverter<T?>((writer, value) =>
             {
-                if (v.HasValue)
-                    return serializer(v.Value);
-                return null;
-            }, s =>
+                if (value.HasValue)
+                    serializer(writer, value.Value);
+                else
+                    writer.WriteNullValue();
+            }, (ref Utf8JsonReader reader) =>
             {
-                if (s.IsNullOrWhiteSpace())
+                if (reader.TokenType == JsonTokenType.Null)
                     return null;
-                return deserializer(s);
+                return deserializer(ref reader);
             }));
         }
 

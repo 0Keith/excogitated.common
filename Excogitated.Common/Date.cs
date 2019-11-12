@@ -40,12 +40,26 @@ namespace Excogitated.Common
 
         public override bool Equals(object obj) => obj is MonthDayYear d && d.Value == Value;
         public override int GetHashCode() => Value.GetHashCode();
-        public override string ToString()
+        public override string ToString() => ToCharSpan().ToString();
+
+        public ReadOnlySpan<char> ToCharSpan()
         {
-            var month = Value.Month.ToString().PadLeft(2, '0');
-            var day = Value.Day.ToString().PadLeft(2, '0');
-            var year = Value.Year.ToString().PadLeft(4, '0');
-            return $"{month}-{day}-{year}";
+            var chars = new char[Date.DefaultYearLength + 6];
+            var month = Value.Month;
+            chars[1] = (month % 10).ToChar();
+            chars[0] = (month / 10 % 10).ToChar();
+            chars[2] = '-';
+
+            var day = Value.Day;
+            chars[4] = (day % 10).ToChar();
+            chars[3] = (day / 10 % 10).ToChar();
+            chars[5] = '-';
+
+            var year = Value.Year;
+            chars[^1] = (year % 10).ToChar();
+            for (var i = Date.DefaultYearLength + 4; i > 5; i--)
+                chars[i] = ((year /= 10) % 10).ToChar();
+            return new ReadOnlySpan<char>(chars);
         }
     }
 
@@ -189,12 +203,29 @@ namespace Excogitated.Common
         public override bool Equals(object obj) => obj is Date d && Equals(d);
         public override int GetHashCode() => YearMonthDay.GetHashCode();
 
-        public override string ToString()
+        public override string ToString() => ToCharSpan().ToString();
+
+        public static int DefaultYearLength = DateTime.Now.Year.ToString().Length;
+
+        public ReadOnlySpan<char> ToCharSpan()
         {
-            var year = Year.ToString().PadLeft(4, '0');
-            var month = Month.ToString().PadLeft(2, '0');
-            var day = Day.ToString().PadLeft(2, '0');
-            return $"{year}-{month}-{day}";
+            var year = Year;
+            var dyl = DefaultYearLength;
+            var chars = new char[dyl + 6];
+            chars[dyl - 1] = (year % 10).ToChar();
+            for (var i = dyl - 2; i >= 0; i--)
+                chars[i] = ((year /= 10) % 10).ToChar();
+            chars[dyl] = '-';
+
+            var month = Month;
+            chars[dyl + 2] = (month % 10).ToChar();
+            chars[dyl + 1] = (month / 10 % 10).ToChar();
+            chars[dyl + 3] = '-';
+
+            var day = Day;
+            chars[dyl + 5] = (day % 10).ToChar();
+            chars[dyl + 4] = (day / 10 % 10).ToChar();
+            return new ReadOnlySpan<char>(chars);
         }
 
         public bool IsMarketHoliday()
