@@ -33,5 +33,17 @@ namespace Excogitated.Common
             await source.CopyToAsync(file);
             await file.FlushAsync();
         }
+
+        public static ValueTask MoveAsync(this FileInfo source, string destination) => source.MoveAsync(new FileInfo(destination));
+        public static async ValueTask MoveAsync(this FileInfo source, FileInfo destination)
+        {
+            source.NotNull(nameof(source));
+            source.Refresh();
+            if (source.Exists)
+            {
+                await destination.DeleteAsync();
+                await Task.Run(() => source.MoveTo(destination.FullName));
+            }
+        }
     }
 }

@@ -71,7 +71,7 @@ namespace Excogitated.Common
                                     await reader.CopyToAsync(stream);
                                     await stream.FlushAsync();
                                 }
-                        File.Move(tempFile.FullName, _settings.BackupFile);
+                        await tempFile.MoveAsync(_settings.BackupFile);
                     }
                 }
                 catch (Exception e)
@@ -206,18 +206,18 @@ namespace Excogitated.Common
                     throw new Exception($"Upsert failed, key is null. Key: {keySelectorExpression.ToString()}, Document: {typeof(T).FullName}");
                 if (transaction.Write && _settings.DataDir.IsNotNullOrWhiteSpace())
                 {
-                    var zip = GetFile(key.ToString());
-                    var zipPath = zip.FullName;
+                    var zipFile = GetFile(key.ToString());
+                    var zipPath = zipFile.FullName;
                     using (await _fileLocks.GetOrAdd(zipPath).EnterAsync())
                     {
-                        var tempFile = $"{zipPath}.temp";
-                        using (var zipFile = ZipFile.Open(tempFile, ZipArchiveMode.Update))
+                        var tempFile = new FileInfo($"{zipPath}.temp");
+                        using (var zip = ZipFile.Open(tempFile.FullName, ZipArchiveMode.Update))
                         {
-                            var name = zip.Name.SkipLast(zip.Extension.Length).AsString();
-                            using var stream = zipFile.CreateEntry(name, CompressionLevel.Optimal).Open();
+                            var name = zipFile.Name.SkipLast(zipFile.Extension.Length).AsString();
+                            using var stream = zip.CreateEntry(name, CompressionLevel.Optimal).Open();
                             await Jsonizer.SerializeAsync(transaction.Item, stream);
                         }
-                        File.Move(tempFile, zipPath);
+                        await tempFile.MoveAsync(zipFile);
                     }
                 }
                 else if (index.ContainsKey(key))
