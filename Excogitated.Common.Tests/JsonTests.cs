@@ -12,7 +12,7 @@ namespace Excogitated.Common.Test
     {
         public static TestItem0 Item { get; } = new TestItem0
         {
-            MDY = Date.Today,
+            mdy = Date.Today,
             Now = DateTime.Now,
             NowOffset = DateTimeOffset.Now,
             Version = 0,
@@ -160,7 +160,9 @@ namespace Excogitated.Common.Test
 
     public class TestItem0
     {
-        public MonthDayYear MDY { get; set; }
+        public MonthDayYear mdy { get; set; }
+        public MonthDayYear MonthDayYear => mdy;
+
         public DateTime Now { get; set; }
         public DateTimeOffset NowOffset { get; set; }
         public int Version { get; set; }
