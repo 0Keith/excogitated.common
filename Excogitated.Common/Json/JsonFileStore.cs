@@ -71,7 +71,7 @@ namespace Excogitated.Common
                                     await reader.CopyToAsync(stream);
                                     await stream.FlushAsync();
                                 }
-                        File.Move(tempFile.FullName, _settings.BackupFile, true);
+                        File.Move(tempFile.FullName, _settings.BackupFile);
                     }
                 }
                 catch (Exception e)
@@ -217,7 +217,7 @@ namespace Excogitated.Common
                             using var stream = zipFile.CreateEntry(name, CompressionLevel.Optimal).Open();
                             await Jsonizer.SerializeAsync(transaction.Item, stream);
                         }
-                        File.Move(tempFile, zipPath, true);
+                        File.Move(tempFile, zipPath);
                     }
                 }
                 else if (index.ContainsKey(key))

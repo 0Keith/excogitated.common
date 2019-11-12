@@ -152,13 +152,13 @@ namespace Excogitated.Common
                 actual = actual.Where(c => !c.IsWhiteSpace());
             }
 
-            var chars = expected.Zip(actual).SkipWhile(e => e.First == e.Second).Take(diffLength).ToList();
-            if (chars.Count > 0)
+            var zip = expected.Zip(actual, (e, a) => (Expected: e, Actual: a)).SkipWhile(z => z.Expected == z.Actual).Take(diffLength).ToList();
+            if (zip.Count > 0)
                 return new DiffResult
                 {
                     DifferenceFound = true,
-                    Expected = chars.Select(c => c.First).AsString(),
-                    Actual = chars.Select(c => c.Second).AsString(),
+                    Expected = zip.Select(z => z.Expected).AsString(),
+                    Actual = zip.Select(z => z.Actual).AsString(),
                 };
             return default;
         }
