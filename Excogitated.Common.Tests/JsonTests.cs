@@ -12,6 +12,7 @@ namespace Excogitated.Common.Test
     {
         public static TestItem0 Item { get; } = new TestItem0
         {
+            MDY = Date.Today,
             Now = DateTime.Now,
             NowOffset = DateTimeOffset.Now,
             Version = 0,
@@ -157,6 +158,9 @@ namespace Excogitated.Common.Test
 
     public class TestItem0
     {
+        public MonthDayYear MDY { get; set; }
+        public DateTime Now { get; set; }
+        public DateTimeOffset NowOffset { get; set; }
         public int Version { get; set; }
         public double AverageVolume { get; set; }
         public List<string> Codes { get; set; }
@@ -168,7 +172,5 @@ namespace Excogitated.Common.Test
         public TestEnum1 Type { get; set; }
         public List<TestItem2> Dividends { get; set; }
         public Date DividendsFullUpdate { get; set; }
-        public DateTime Now { get; set; }
-        public DateTimeOffset NowOffset { get; set; }
     }
 }

@@ -59,7 +59,7 @@ namespace Excogitated.Common
             _consumers.Increment();
             var success = await _flow.ConsumeAsync().LogExecutionTime();
             _consumers.Decrement();
-            if (!success)
+            if (!success.HasValue || !success.Value)
                 throw new Exception("Throttle was closed.");
         }
     }

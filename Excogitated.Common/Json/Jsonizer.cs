@@ -59,9 +59,8 @@ namespace Excogitated.Common
             options.IgnoreNullValues = true;
             options.WriteIndented = formatted;
             options.AddStructConverter<Date>(d => d, d => d);
+            options.AddStructConverter<MonthDayYear>(d => d, d => d);
             options.AddStructConverter(d => d.ToString(), s => s.ToDecimal());
-            //options.AddStructConverter(d => d.ToString("o"), d => DateTime.Parse(d));
-            //options.AddStructConverter(d => d.ToString("o"), d => DateTimeOffset.Parse(d));
             //options.MissingMemberHandling = MissingMemberHandling.Error;
             options.AddClassConverter(e => e.ToString(), (s, t) =>
             {
@@ -124,7 +123,7 @@ namespace Excogitated.Common
             }
         }
 
-        public static ValueTask<T> DeserializeAsync<T>(Stream stream) => 
+        public static ValueTask<T> DeserializeAsync<T>(Stream stream) =>
             JsonSerializer.DeserializeAsync<T>(stream, DefaultSettings);
     }
 }

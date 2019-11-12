@@ -18,9 +18,16 @@ namespace Excogitated.Common
     public struct MonthDayYear
     {
         public static implicit operator MonthDayYear(string mdy) => new MonthDayYear(mdy);
+        public static implicit operator MonthDayYear(Date date) => new MonthDayYear(date);
+        public static implicit operator string(MonthDayYear mdy) => mdy.ToString();
         public static implicit operator Date(MonthDayYear mdy) => mdy.Value;
 
         public Date Value { get; }
+
+        public MonthDayYear(Date date)
+        {
+            Value = date;
+        }
 
         public MonthDayYear(string dmy)
         {
@@ -33,7 +40,13 @@ namespace Excogitated.Common
 
         public override bool Equals(object obj) => obj is MonthDayYear d && d.Value == Value;
         public override int GetHashCode() => Value.GetHashCode();
-        public override string ToString() => Value.ToString();
+        public override string ToString()
+        {
+            var month = Value.Month.ToString().PadLeft(2, '0');
+            var day = Value.Day.ToString().PadLeft(2, '0');
+            var year = Value.Year.ToString().PadLeft(4, '0');
+            return $"{month}-{day}-{year}";
+        }
     }
 
     public struct Date : IComparable<Date>, IEquatable<Date>
