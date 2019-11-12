@@ -48,5 +48,20 @@ namespace Excogitated.Common.Test
             var base10 = actual.ToBase10(digits);
             Assert.AreEqual(value, base10);
         }
+
+        [TestMethod]
+        public void DiffTest()
+        {
+            var item = Jsonizer.DeepCopy(JsonTests.Item);
+            var expected = Jsonizer.Serialize(item);
+            item.ListDate = Date.Today.AddDays(17);
+            var actual = Jsonizer.Serialize(item);
+            var diff = expected.Diff(actual);
+            Console.WriteLine(diff);
+            Assert.IsTrue(diff.DifferenceFound);
+            Assert.IsTrue(diff.Expected.IsNotNullOrWhiteSpace());
+            Assert.IsTrue(diff.Actual.IsNotNullOrWhiteSpace());
+            Assert.AreNotEqual(diff.Expected, diff.Actual);
+        }
     }
 }

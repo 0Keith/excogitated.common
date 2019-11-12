@@ -10,8 +10,10 @@ namespace Excogitated.Common.Test
     [TestClass]
     public class JsonTests
     {
-        private readonly TestItem0 _item = new TestItem0
+        public static TestItem0 Item { get; } = new TestItem0
         {
+            Now = DateTime.Now,
+            NowOffset = DateTimeOffset.Now,
             Version = 0,
             AverageVolume = Rng.Pseudo.GetDouble(),
             Codes = Enumerable.Range(0, 10).Select(i => Guid.NewGuid().ToString()).ToList(),
@@ -46,32 +48,32 @@ namespace Excogitated.Common.Test
         [TestMethod]
         public void CompareJson()
         {
-            var expected = Jsonizer.Serialize(_item);
+            var expected = Jsonizer.Serialize(Item);
             Console.WriteLine($"Expected: {expected}\n");
             var clone = Jsonizer.Deserialize<TestItem0>(expected);
             var actual = Jsonizer.Serialize(clone);
             Console.WriteLine($"  Actual: {actual}\n");
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected.GetHashCode(), actual.GetHashCode(), expected.Diff(actual).ToString());
         }
 
         [TestMethod]
         public void CompareJsonFormatted()
         {
-            var expected = Jsonizer.Serialize(_item, true);
+            var expected = Jsonizer.Serialize(Item, true);
             Console.WriteLine($"Expected: {expected}\n");
             var clone = Jsonizer.Deserialize<TestItem0>(expected);
             var actual = Jsonizer.Serialize(clone, true);
             Console.WriteLine($"  Actual: {actual}\n");
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected.GetHashCode(), actual.GetHashCode(), expected.Diff(actual).ToString());
         }
 
         [TestMethod]
         public void CompareJsonSerializePerformance()
         {
-            var r1 = Benchmark.Run(() => Newtonsoft.Json.JsonConvert.SerializeObject(_item));
-            var r2 = Benchmark.Run(() => Utf8Json.JsonSerializer.ToJsonString(_item));
-            var r3 = Benchmark.Run(() => System.Text.Json.JsonSerializer.Serialize(_item));
-            var r4 = Benchmark.Run(() => Jsonizer.Serialize(_item));
+            var r1 = Benchmark.Run(() => Newtonsoft.Json.JsonConvert.SerializeObject(Item));
+            var r2 = Benchmark.Run(() => Utf8Json.JsonSerializer.ToJsonString(Item));
+            var r3 = Benchmark.Run(() => System.Text.Json.JsonSerializer.Serialize(Item));
+            var r4 = Benchmark.Run(() => Jsonizer.Serialize(Item));
             var stats = new StatsBuilder()
                 .Add(typeof(Newtonsoft.Json.JsonConvert).FullName, r1)
                 .Add(typeof(Utf8Json.JsonSerializer).FullName, r2)
@@ -84,16 +86,16 @@ namespace Excogitated.Common.Test
         [TestMethod]
         public void CompareJsonDeserializePerformance()
         {
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(_item);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(Item);
             var r1 = Benchmark.Run(() => Newtonsoft.Json.JsonConvert.DeserializeObject<TestItem0>(json));
 
-            json = Utf8Json.JsonSerializer.ToJsonString(_item);
+            json = Utf8Json.JsonSerializer.ToJsonString(Item);
             var r2 = Benchmark.Run(() => Utf8Json.JsonSerializer.Deserialize<TestItem0>(json));
 
-            json = System.Text.Json.JsonSerializer.Serialize(_item);
+            json = System.Text.Json.JsonSerializer.Serialize(Item);
             var r3 = Benchmark.Run(() => System.Text.Json.JsonSerializer.Deserialize<TestItem0>(json));
 
-            json = Jsonizer.Serialize(_item);
+            json = Jsonizer.Serialize(Item);
             var r4 = Benchmark.Run(() => Jsonizer.Deserialize<TestItem0>(json));
             var stats = new StatsBuilder()
                 .Add(typeof(Newtonsoft.Json.JsonConvert).FullName, r1)
@@ -166,5 +168,7 @@ namespace Excogitated.Common.Test
         public TestEnum1 Type { get; set; }
         public List<TestItem2> Dividends { get; set; }
         public Date DividendsFullUpdate { get; set; }
+        public DateTime Now { get; set; }
+        public DateTimeOffset NowOffset { get; set; }
     }
 }

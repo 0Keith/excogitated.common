@@ -139,5 +139,37 @@ namespace Excogitated.Common
                 return null;
             return new string(source.ToArray());
         }
+
+        public static DiffResult Diff(this IEnumerable<char> expected, IEnumerable<char> actual, bool ignoreWhitespace = false, int diffLength = 100)
+        {
+            if (expected is null)
+                expected = string.Empty;
+            if (actual is null)
+                actual = string.Empty;
+            if (ignoreWhitespace)
+            {
+                expected = expected.Where(c => !c.IsWhiteSpace());
+                actual = actual.Where(c => !c.IsWhiteSpace());
+            }
+
+            var chars = expected.Zip(actual).SkipWhile(e => e.First == e.Second).Take(diffLength).ToList();
+            if (chars.Count > 0)
+                return new DiffResult
+                {
+                    DifferenceFound = true,
+                    Expected = chars.Select(c => c.First).AsString(),
+                    Actual = chars.Select(c => c.Second).AsString(),
+                };
+            return default;
+        }
+    }
+
+    public struct DiffResult
+    {
+        public bool DifferenceFound { get; internal set; }
+        public string Expected { get; set; }
+        public string Actual { get; set; }
+
+        public override string ToString() => $"Different: {DifferenceFound}, Expected: {Expected}, Actual: {Actual}";
     }
 }
