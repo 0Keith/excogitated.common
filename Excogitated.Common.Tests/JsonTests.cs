@@ -82,6 +82,7 @@ namespace Excogitated.Common.Test
                 .Add(typeof(Jsonizer).FullName, r4)
                 .ToString();
             Console.WriteLine(stats);
+            Assert.IsTrue(r4.PerSecond > r1.PerSecond);
         }
 
         [TestMethod]
@@ -105,6 +106,7 @@ namespace Excogitated.Common.Test
                 .Add(typeof(Jsonizer).FullName, r4)
                 .ToString();
             Console.WriteLine(stats);
+            Assert.IsTrue(r4.PerSecond > r1.PerSecond);
         }
 
         [TestMethod]

@@ -58,6 +58,7 @@ namespace Excogitated.Common
             var options = new JsonSerializerOptions();
             options.IgnoreNullValues = true;
             options.WriteIndented = formatted;
+            options.PropertyNameCaseInsensitive = true;
             options.AddStructConverter<Date>(d => d, d => d);
             options.AddStructConverter<MonthDayYear>(d => d, d => d);
             options.AddStructConverter(d => d.ToString(), s => s.ToDecimal());
