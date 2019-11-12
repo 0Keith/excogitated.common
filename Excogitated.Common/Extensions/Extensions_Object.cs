@@ -61,5 +61,11 @@ namespace Excogitated.Common
             }
             return false;
         }
+
+        public static bool NotEquals<T>(this EqualityComparer<T> comparer, T value1, T value2)
+        {
+            comparer.NotNull(nameof(comparer));
+            return !comparer.Equals(value1, value2);
+        }
     }
 }

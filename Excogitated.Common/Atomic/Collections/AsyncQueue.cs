@@ -1,15 +1,31 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Excogitated.Common
 {
+    /// <summary>
+    /// Holds a Value and indicates whether or not a Value is held.
+    /// </summary>
+    /// <typeparam name="T">Specifies the Type of Value held.</typeparam>
     public struct Result<T>
     {
+        /// <summary>
+        /// Whether or not a value has been assigned to Value.
+        /// </summary>
         public bool HasValue { get; }
+
+        /// <summary>
+        /// The assigned value.
+        /// </summary>
         public T Value { get; }
 
+        /// <summary>
+        /// Set HasValue to True and Value to the passed value. To set HasValue to false use the default constructor.
+        /// </summary>
+        /// <param name="value">The value to assign to Value</param>
         public Result(T value)
         {
             HasValue = true;
@@ -17,15 +33,36 @@ namespace Excogitated.Common
         }
     }
 
+    /// <summary>
+    /// A wrapper for TaskCompletionSource that executes TrySetResult with Task.Run().
+    /// This prevents TrySetResult from blocking the current thread if a long running operation is awaiting its completion.
+    /// </summary>
+    /// <typeparam name="T">Specifies the Type returned on completion.</typeparam>
     public class AsyncResult<T>
     {
         private readonly TaskCompletionSource<T> _source = new TaskCompletionSource<T>();
         private readonly AtomicBool _complete = new AtomicBool();
 
+        /// <summary>
+        /// Returns a ValueTask to await completion.
+        /// </summary>
         public ValueTask<T> Source => new ValueTask<T>(_source.Task);
-        public bool Completed => _complete.Value;
-        public T Value => Completed ? _source.Task.Result : default;
 
+        /// <summary>
+        /// Whether or not a result has been set.
+        /// </summary>
+        public bool Completed => _complete;
+
+        /// <summary>
+        /// Returns the completed value if result has been set otherwise returns the default for T.
+        /// </summary>
+        public T ValueOrDefault => Completed ? Source.Result : default;
+
+        /// <summary>
+        /// Attempts to set the result value. If already completed will return false.
+        /// </summary>
+        /// <param name="result">The value for completion</param>
+        /// <returns>Whether or not the passed result has been set as the completed value.</returns>
         public bool TryComplete(T result)
         {
             if (!_complete.TrySet(true))
@@ -35,14 +72,28 @@ namespace Excogitated.Common
         }
     }
 
+    /// <summary>
+    /// <para>A Queue of values that can be awaited for a new value to be queued.</para>
+    /// <para>Enumeration will create a snapshot of items in the queue. This allows concurrent modification but changes will not be reflected in the snapshot.</para>
+    /// <para>Locking on an instance of this class will block all methods from executing outside of the lock until it is released.
+    /// This can be used to ensure a group of transactions are completely atomic.</para>
+    /// </summary>
+    /// <typeparam name="T">Specifies the Type of items that will be queued.</typeparam>
     public class AsyncQueue<T> : IAtomicCollection<T>
     {
         private readonly Queue<AsyncResult<Result<T>>> _waiters = new Queue<AsyncResult<Result<T>>>();
         private readonly Queue<AsyncResult<Result<T>>> _peekers = new Queue<AsyncResult<Result<T>>>();
         private readonly Queue<T> _items = new Queue<T>();
 
+        /// <summary>
+        /// An estimate of items available in the queue. This is an eventually accurate estimate multiple reads may be necessary to determine true item count.
+        /// </summary>
         public int Count => _items.Count;
 
+        /// <summary>
+        /// Adds an item to the queue. The first consumer awaiting an item will be notified.
+        /// </summary>
+        /// <param name="item">The item to add to the queue.</param>
         public void Add(T item)
         {
             lock (this)
@@ -58,6 +109,9 @@ namespace Excogitated.Common
             }
         }
 
+        /// <summary>
+        /// Notifies all consumers that no more items are expected to be added to the queue.
+        /// </summary>
         public void Complete()
         {
             lock (this)
@@ -69,32 +123,64 @@ namespace Excogitated.Common
             }
         }
 
+        /// <summary>
+        /// Adds a range of items to the queue.
+        /// </summary>
+        /// <param name="items">Items to add to the queue.</param>
         public void AddRange(IEnumerable<T> items)
         {
+            items.NotNull(nameof(items));
+            foreach (var item in items)
+                Add(item);
+        }
+
+        /// <summary>
+        /// Adds a range of items to the queue. This will block other methods from executing until all items have been enumerated and added to the queue.
+        /// </summary>
+        /// <param name="items">Items to add to the queue.</param>
+        public void AddRangeUnsafe(IEnumerable<T> items)
+        {
+            items.NotNull(nameof(items));
             lock (this)
                 foreach (var item in items)
                     Add(item);
         }
 
+        /// <summary>
+        /// Adds an item to the queue. This will always return true.
+        /// </summary>
+        /// <param name="item">The item to add to the queue.</param>
+        /// <returns>true</returns>
         public bool TryAdd(T item)
         {
             Add(item);
             return true;
         }
 
+        /// <summary>
+        /// Implemented for compatibility but use of this method should generally be avoided. It will remove all items from the queue and re-add them except for the specified item.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns>The item to remove.</returns>
         public bool TryRemove(T item)
         {
             lock (this)
             {
                 if (_items.Contains(item))
                 {
-                    AddRange(GetAndClear().Except(new[] { item }));
+                    var comparer = EqualityComparer<T>.Default;
+                    AddRangeUnsafe(GetAndClear().Where(i => comparer.NotEquals(i, item)));
                     return true;
                 }
                 return false;
             }
         }
 
+        /// <summary>
+        /// Synchronously attempt to consume an item from the list. Asynchronous consumers will have priority over calls to this method.
+        /// </summary>
+        /// <param name="item">The item consumed from the queue.</param>
+        /// <returns>Whether or not an item was consumed from the queue.</returns>
         public bool TryConsume(out T item)
         {
             lock (this)
@@ -109,19 +195,28 @@ namespace Excogitated.Common
             }
         }
 
-        public ValueTask<T> ConsumeAsync()
+        /// <summary>
+        /// Consumes an item from the queue immediately, awaits indefinitely for an item to be added to the queue, or awaits until the queue is Completed.
+        /// </summary>
+        /// <returns>A result indicating whether or not a value was consumed and the value that was or was not consumed.</returns>
+        public ValueTask<Result<T>> ConsumeAsync()
         {
             lock (this)
             {
                 if (_items.Count > 0)
-                    return new ValueTask<T>(_items.Dequeue());
+                    return new ValueTask<Result<T>>(new Result<T>(_items.Dequeue()));
                 var waiter = new AsyncResult<Result<T>>();
                 _waiters.Enqueue(waiter);
-                return waiter.Source.Select(r => r.Value);
+                return waiter.Source;
             }
         }
 
-        public ValueTask<Result<T>> ConsumeAsync(int timeout)
+        /// <summary>
+        /// Consumes an item from the queue immediately, awaits the specified amount of time for an item to be added to the queue, or awaits until the queue is Completed.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait for an item.</param>
+        /// <returns>A result indicating whether or not a value was consumed and the value that was or was not consumed.</returns>
+        public ValueTask<Result<T>> ConsumeAsync(int millisecondsTimeout)
         {
             lock (this)
             {
@@ -132,7 +227,7 @@ namespace Excogitated.Common
                 var waiter = new AsyncResult<Result<T>>();
                 Task.Run(async () =>
                 {
-                    await Task.Delay(timeout);
+                    await Task.Delay(millisecondsTimeout);
                     waiter.TryComplete(default);
                 });
                 _waiters.Enqueue(waiter);
@@ -140,19 +235,28 @@ namespace Excogitated.Common
             }
         }
 
-        public ValueTask<T> PeekAsync()
+        /// <summary>
+        /// Returns the first item from the queue immediately without consuming it, awaits indefinitely for an item to be added to the queue, or awaits until the queue is Completed.
+        /// </summary>
+        /// <returns>A result indicating whether or not a value was consumed and the value that was or was not consumed.</returns>
+        public ValueTask<Result<T>> PeekAsync()
         {
             lock (this)
             {
                 if (_items.Count > 0)
-                    return new ValueTask<T>(_items.Peek());
+                    return new ValueTask<Result<T>>(new Result<T>(_items.Peek()));
                 var peeker = new AsyncResult<Result<T>>();
                 _peekers.Enqueue(peeker);
-                return peeker.Source.Select(r => r.Value);
+                return peeker.Source;
             }
         }
 
-        public ValueTask<Result<T>> PeekAsync(int timeout)
+        /// <summary>
+        /// Returns the first item from the queue immediately without consuming it, awaits the specified amount of time for an item to be added to the queue, or awaits until the queue is Completed.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait for an item.</param>
+        /// <returns>A result indicating whether or not a value was consumed and the value that was or was not consumed.</returns>
+        public ValueTask<Result<T>> PeekAsync(int millisecondsTimeout)
         {
             lock (this)
             {
@@ -163,7 +267,7 @@ namespace Excogitated.Common
                 var peeker = new AsyncResult<Result<T>>();
                 Task.Run(async () =>
                 {
-                    await Task.Delay(timeout);
+                    await Task.Delay(millisecondsTimeout);
                     peeker.TryComplete(default);
                 });
                 _peekers.Enqueue(peeker);
@@ -171,6 +275,10 @@ namespace Excogitated.Common
             }
         }
 
+        /// <summary>
+        /// Clears the queue and returns the items cleared.
+        /// </summary>
+        /// <returns>The items cleared from the queue.</returns>
         public IEnumerable<T> GetAndClear()
         {
             lock (this)
@@ -181,6 +289,9 @@ namespace Excogitated.Common
             }
         }
 
+        /// <summary>
+        /// Clears the queue.
+        /// </summary>
         public void Clear()
         {
             lock (this)
@@ -188,11 +299,15 @@ namespace Excogitated.Common
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        /// <summary>
+        /// Creates a snapshot of the queue and returns an enumerator for the snapshot.
+        /// </summary>
+        /// <returns>Enumerator for the snapshot</returns>
         public IEnumerator<T> GetEnumerator()
         {
             lock (this)
                 return _items.ToList().GetEnumerator();
         }
-
     }
 }
