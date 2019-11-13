@@ -3,7 +3,7 @@ Currently working on documentation and test cases for the contained classes. Fee
 
 Notable classes:
 
-Module<T> - Micro IOC framework using static generic fields.
+Module<T> - Micro IOC framework using static generic fields. Should be faster than any other solution available but has an extremely limited feature set.
   
 AsyncQueue<T> - Created before IAsyncEnumerable<T> was available but still useful.  
   
