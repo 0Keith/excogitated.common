@@ -62,7 +62,8 @@ namespace Excogitated.Common
             options.PropertyNameCaseInsensitive = true;
             options.AddStructConverter<Date>((w, v) => w.WriteStringValue(v.ToCharSpan()), (ref Utf8JsonReader r) => r.GetString());
             options.AddStructConverter<MonthDayYear>((w, v) => w.WriteStringValue(v.ToCharSpan()), (ref Utf8JsonReader r) => r.GetString());
-            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TryGetDecimal(out var d) ? d : r.GetString().ToDecimal());
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v),
+                (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetDecimal(out var d) ? d : r.GetString().ToDecimal());
             //options.MissingMemberHandling = MissingMemberHandling.Error;
             options.AddClassConverter(e => e.ToString(), (s, t) =>
             {
