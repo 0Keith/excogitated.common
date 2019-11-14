@@ -62,8 +62,19 @@ namespace Excogitated.Common
             options.PropertyNameCaseInsensitive = true;
             options.AddStructConverter<Date>((w, v) => w.WriteStringValue(v.ToCharSpan()), (ref Utf8JsonReader r) => r.GetString());
             options.AddStructConverter<MonthDayYear>((w, v) => w.WriteStringValue(v.ToCharSpan()), (ref Utf8JsonReader r) => r.GetString());
-            options.AddStructConverter((w, v) => w.WriteNumberValue(v),
-                (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetDecimal(out var d) ? d : r.GetString().ToDecimal());
+
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetByte(out var d) ? d : byte.Parse(r.GetString()));
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetSByte(out var d) ? d : sbyte.Parse(r.GetString()));
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetInt16(out var d) ? d : short.Parse(r.GetString()));
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetUInt16(out var d) ? d : ushort.Parse(r.GetString()));
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetInt32(out var d) ? d : int.Parse(r.GetString()));
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetUInt32(out var d) ? d : uint.Parse(r.GetString()));
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetInt64(out var d) ? d : long.Parse(r.GetString()));
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetUInt64(out var d) ? d : ulong.Parse(r.GetString()));
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetSingle(out var d) ? d : float.Parse(r.GetString()));
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetDouble(out var d) ? d : double.Parse(r.GetString()));
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetDecimal(out var d) ? d : r.GetString().ToDecimal());
+
             //options.MissingMemberHandling = MissingMemberHandling.Error;
             options.AddClassConverter(e => e.ToString(), (s, t) =>
             {
