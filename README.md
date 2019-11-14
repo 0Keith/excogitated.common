@@ -3,8 +3,10 @@ This is a library that I've built over the last decade of software development. 
 
 Currently working on documentation and test cases for the contained classes. Feels like that might take longer than it took to actually write them. Until that is completed it'll remain in an alpha state.
 
-Notable classes:
+# NuGet Package:
+https://www.nuget.org/packages/excogitated.common/
 
+# Notable classes:
 Module - Micro IOC framework using static generic fields. Should be faster than any other solution available but has an extremely limited feature set.
   
 AsyncQueue - Created before IAsyncEnumerable was available but still useful for multiple producer and or multiple consumer scenarios.
