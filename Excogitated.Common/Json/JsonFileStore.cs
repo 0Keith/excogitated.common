@@ -211,6 +211,7 @@ namespace Excogitated.Common
                     using (await _fileLocks.GetOrAdd(zipPath).EnterAsync())
                     {
                         var tempFile = new FileInfo($"{zipPath}.temp");
+                        await tempFile.DeleteAsync();
                         using (var zip = ZipFile.Open(tempFile.FullName, ZipArchiveMode.Update))
                         {
                             var name = zipFile.Name.SkipLast(zipFile.Extension.Length).AsString();
