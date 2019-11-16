@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Excogitated.Common
 {
@@ -66,6 +68,12 @@ namespace Excogitated.Common
         {
             comparer.NotNull(nameof(comparer));
             return !comparer.Equals(value1, value2);
+        }
+
+        public static bool HasAttribute<TAttribute>(this MemberInfo info)
+        {
+            info.NotNull(nameof(info));
+            return info.CustomAttributes.Any(a => a.AttributeType == typeof(TAttribute));
         }
     }
 }

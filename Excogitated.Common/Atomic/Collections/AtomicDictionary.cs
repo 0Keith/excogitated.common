@@ -10,7 +10,7 @@ namespace Excogitated.Common
     /// A synchronized Dictionary wrapper.
     /// AtomicDictionary should be used when a workload will be mostly single or lightly threaded but still needs to remain thread safe.
     /// In this scenario AtomicDictionary is faster and more efficient than ConcurrentDictionary.
-    /// Enumeration will create a snapshot of the current keys and values, use sparringly since this incurs significant overhead.
+    /// Enumeration will create a snapshot of the current keys and or values, use sparringly since this incurs significant overhead.
     /// </summary>
     /// <typeparam name="TKey">The Type of keys in the dictionary.</typeparam>
     /// <typeparam name="TValue">The Type of values in the dictionary.</typeparam>
@@ -33,7 +33,7 @@ namespace Excogitated.Common
 
         public void Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
         public void Add(TKey key, TValue value)
-        {            
+        {
             lock (this)
                 _items.Add(key, value);
         }

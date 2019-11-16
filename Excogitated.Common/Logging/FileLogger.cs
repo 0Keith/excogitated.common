@@ -18,19 +18,20 @@ namespace Excogitated.Common
         private readonly AsyncLock _fileLock = new AsyncLock();
         private readonly bool _all;
         private readonly LogLevel[] _levels;
-        private readonly FileInfo _file;
         private readonly bool _formatMessage;
         private readonly Task _task;
         private bool _running = true;
+
+        public FileInfo LogFile { get; }
 
         public FileLogger(LogLevel[] levels, string fileName, bool formatMessage = true)
         {
             _all = levels == null || levels.Length == 0 || levels.Contains(LogLevel.All);
             _levels = levels;
             _formatMessage = formatMessage;
-            _file = new FileInfo(fileName);
-            if (!_file.Directory.Exists)
-                _file.Directory.Create();
+            LogFile = new FileInfo(fileName);
+            if (!LogFile.Directory.Exists)
+                LogFile.Directory.Create();
             _task = StartLogging();
         }
 
@@ -44,8 +45,10 @@ namespace Excogitated.Common
         {
             _messages.Clear();
             using (await _fileLock.EnterAsync())
-                if (_file.Exists && _file.Length > 0)
-                    File.WriteAllText(_file.FullName, string.Empty);
+            {
+                LogFile.Directory.CreateStrong();
+                File.WriteAllText(LogFile.FullName, string.Empty);
+            }
         }
 
         public void Log(LogMessage message)
@@ -63,7 +66,7 @@ namespace Excogitated.Common
                     var result = await _messages.PeekAsync(1000);
                     if (result.HasValue)
                         using (await _fileLock.EnterAsync())
-                        using (var writer = _file.AppendText())
+                        using (var writer = LogFile.AppendText())
                         using (var messages = _messages.Consume().OrderBy(m => m.Item.Id).ToList().AsDisposable())
                         {
                             foreach (var message in messages)
