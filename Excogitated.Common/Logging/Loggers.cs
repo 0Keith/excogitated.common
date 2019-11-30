@@ -78,29 +78,5 @@ namespace Excogitated.Common
             var message = $"{nameof(Finished)} {type.FullName}.{methodName}";
             logger.Log(new LogMessage(level, message));
         }
-
-        public static async void Catch(this ILogger logger, Task task)
-        {
-            try
-            {
-                await task;
-            }
-            catch (Exception e)
-            {
-                logger?.Error(e);
-            }
-        }
-
-        public static async void Catch(this Task task)
-        {
-            try
-            {
-                await task;
-            }
-            catch (Exception e)
-            {
-                Loggers.Error(e);
-            }
-        }
     }
 }

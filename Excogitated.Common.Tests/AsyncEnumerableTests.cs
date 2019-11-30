@@ -1,5 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Excogitated.Common.Test
@@ -24,15 +26,15 @@ namespace Excogitated.Common.Test
         [TestMethod]
         public async Task Min()
         {
-            var count = await Enumerable.Range(-100, 100).ToAsync().Min();
-            Assert.AreEqual(-100, count);
+            var min = await Enumerable.Range(-100, 200).ToAsync().Min();
+            Assert.AreEqual(-100, min);
         }
 
         [TestMethod]
         public async Task Max()
         {
-            var count = await Enumerable.Range(1, 100).ToAsync().Max();
-            Assert.AreEqual(100, count);
+            var max = await Enumerable.Range(1, 100).ToAsync().Max();
+            Assert.AreEqual(100, max);
         }
 
         [TestMethod]
@@ -45,10 +47,20 @@ namespace Excogitated.Common.Test
         [TestMethod]
         public void ReverseFast()
         {
-            var items = Enumerable.Range(-1000, 1000).ToList();
+            var items = Enumerable.Range(-1000, 2000).ToList();
             var reversed = items.ReverseFast().ToList();
             Assert.AreEqual(items.Count, reversed.Count);
             Assert.IsTrue(items.SequenceEqual(reversed.ReverseFast()));
+        }
+
+        [TestMethod]
+        public async Task Batch()
+        {
+            var items = Enumerable.Range(-1000, 2000).ToList();
+            var threadCount = Environment.ProcessorCount / 2;
+            var ids = await items.ToAsync().Batch(threadCount, async i => Thread.GetCurrentProcessorId()).ToList();
+            Assert.AreEqual(items.Count, ids.Count);
+            Assert.AreEqual(threadCount, ids.Distinct().Count());
         }
     }
 }
