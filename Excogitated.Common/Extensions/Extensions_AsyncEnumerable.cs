@@ -408,10 +408,16 @@ namespace Excogitated.Common
             action.NotNull(nameof(action));
             var results = new AsyncQueue<R>();
             var batch = source.Batch(threadCount, async i => results.Add(await action(i)))
-                .Continue(() => results.Complete());
-            await foreach (var result in results.ConsumeAsync(15000))
-                yield return result;
-            await batch;
+                .Finally(() => results.Complete());
+            try
+            {
+                await foreach (var result in results.ConsumeAsync())
+                    yield return result;
+            }
+            finally
+            {
+                await batch;
+            }
         }
     }
 }

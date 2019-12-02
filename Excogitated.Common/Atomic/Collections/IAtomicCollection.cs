@@ -11,7 +11,6 @@ namespace Excogitated.Common
         bool TryAdd(T item);
         bool TryRemove(T item);
         bool TryConsume(out T item);
-        ValueTask<Result<T>> TryConsumeAsync(int millisecondsTimeout = 1000);
         IEnumerable<T> GetAndClear();
         void Clear();
     }
@@ -29,19 +28,6 @@ namespace Excogitated.Common
             items.NotNull(nameof(items));
             while (items.TryConsume(out var item))
                 yield return item;
-        }
-
-        public static async IAsyncEnumerable<T> ConsumeAsync<T>(this IAtomicCollection<T> items, int millisecondsTimeout = 1000)
-        {
-            items.NotNull(nameof(items));
-            if (millisecondsTimeout <= 0)
-                millisecondsTimeout = 1000;
-            var result = await items.TryConsumeAsync(millisecondsTimeout);
-            while (result.HasValue)
-            {
-                yield return result.Value;
-                result = await items.TryConsumeAsync(millisecondsTimeout);
-            }
         }
     }
 }

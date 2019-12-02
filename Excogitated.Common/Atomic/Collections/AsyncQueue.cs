@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -227,6 +228,35 @@ namespace Excogitated.Common
                 Task.Delay(millisecondsTimeout).Continue(() => waiter.TryComplete(default)).Catch();
                 _waiters.Enqueue(waiter);
                 return waiter.Source;
+            }
+        }
+
+        /// <summary>
+        /// Creates an IAsyncEnumerable that will consume items from the queue until it is Complete() is invoked.
+        /// </summary>
+        public async IAsyncEnumerable<T> ConsumeAsync()
+        {
+            var result = await TryConsumeAsync();
+            while (result.HasValue)
+            {
+                yield return result.Value;
+                result = await TryConsumeAsync();
+            }
+        }
+
+        /// <summary>
+        /// Creates an IAsyncEnumerable that will consume items from the queue until it is exhausted, Complete() is invoked, or timeout is reached.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait for an item before terminating consumption. Must be greater than 0.</param>
+        public async IAsyncEnumerable<T> ConsumeAsync(int millisecondsTimeout)
+        {
+            if (millisecondsTimeout <= 0)
+                throw new ArgumentException("millisecondsTimeout <= 0");
+            var result = await TryConsumeAsync(millisecondsTimeout);
+            while (result.HasValue)
+            {
+                yield return result.Value;
+                result = await TryConsumeAsync(millisecondsTimeout);
             }
         }
 

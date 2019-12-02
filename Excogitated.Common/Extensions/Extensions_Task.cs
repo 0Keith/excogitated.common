@@ -47,7 +47,7 @@ namespace Excogitated.Common
             return await selector.NotNull(nameof(selector)).Invoke();
         }
 
-        public static async ValueTask Continue<R>(this ValueTask task, Func<ValueTask> selector)
+        public static async ValueTask Continue(this ValueTask task, Func<ValueTask> selector)
         {
             await task;
             await selector.NotNull(nameof(selector)).Invoke();
@@ -122,7 +122,7 @@ namespace Excogitated.Common
             return await selector.NotNull(nameof(selector)).Invoke();
         }
 
-        public static async ValueTask Continue<R>(this Task task, Func<ValueTask> selector)
+        public static async ValueTask Continue(this Task task, Func<ValueTask> selector)
         {
             await task.NotNull(nameof(task));
             await selector.NotNull(nameof(selector)).Invoke();
@@ -150,6 +150,156 @@ namespace Excogitated.Common
         {
             await task.NotNull(nameof(task));
             action.NotNull(nameof(action)).Invoke();
+        }
+    }
+
+    public static class Extensions_ValueTask_Finally
+    {
+        public static async ValueTask Finally(this ValueTask task, Action action)
+        {
+            try
+            {
+                await task;
+            }
+            finally
+            {
+                action.NotNull(nameof(action)).Invoke();
+            }
+        }
+
+        public static async ValueTask<T> Finally<T>(this ValueTask<T> task, Action action)
+        {
+            try
+            {
+                return await task;
+            }
+            finally
+            {
+                action.NotNull(nameof(action)).Invoke();
+            }
+        }
+
+        public static async ValueTask Finally(this ValueTask task, Func<ValueTask> action)
+        {
+            try
+            {
+                await task;
+            }
+            finally
+            {
+                await action.NotNull(nameof(action)).Invoke();
+            }
+        }
+
+        public static async ValueTask Finally(this ValueTask task, Func<Task> selector)
+        {
+            try
+            {
+                await task;
+            }
+            finally
+            {
+                await selector.NotNull(nameof(selector)).Invoke();
+            }
+        }
+
+        public static async ValueTask<T> Finally<T>(this ValueTask<T> task, Func<ValueTask> selector)
+        {
+            try
+            {
+                return await task;
+            }
+            finally
+            {
+                await selector.NotNull(nameof(selector)).Invoke();
+            }
+        }
+
+        public static async ValueTask<T> Finally<T>(this ValueTask<T> task, Func<Task> selector)
+        {
+            try
+            {
+                return await task;
+            }
+            finally
+            {
+                await selector.NotNull(nameof(selector)).Invoke();
+            }
+        }
+    }
+
+    public static class Extensions_Task_Finally
+    {
+        public static async ValueTask Finally(this Task task, Action action)
+        {
+            try
+            {
+                await task.NotNull(nameof(task));
+            }
+            finally
+            {
+                action.NotNull(nameof(action)).Invoke();
+            }
+        }
+
+        public static async ValueTask<T> Finally<T>(this Task<T> task, Action action)
+        {
+            try
+            {
+                return await task.NotNull(nameof(task));
+            }
+            finally
+            {
+                action.NotNull(nameof(action)).Invoke();
+            }
+        }
+
+        public static async ValueTask Finally(this Task task, Func<ValueTask> action)
+        {
+            try
+            {
+                await task.NotNull(nameof(task));
+            }
+            finally
+            {
+                await action.NotNull(nameof(action)).Invoke();
+            }
+        }
+
+        public static async ValueTask Finally(this Task task, Func<Task> selector)
+        {
+            try
+            {
+                await task.NotNull(nameof(task));
+            }
+            finally
+            {
+                await selector.NotNull(nameof(selector)).Invoke();
+            }
+        }
+
+        public static async ValueTask<T> Finally<T>(this Task<T> task, Func<ValueTask> selector)
+        {
+            try
+            {
+                return await task.NotNull(nameof(task));
+            }
+            finally
+            {
+                await selector.NotNull(nameof(selector)).Invoke();
+            }
+        }
+
+        public static async ValueTask<T> Finally<T>(this Task<T> task, Func<Task> selector)
+        {
+            try
+            {
+                return await task.NotNull(nameof(task));
+            }
+            finally
+            {
+                await selector.NotNull(nameof(selector)).Invoke();
+            }
         }
     }
 

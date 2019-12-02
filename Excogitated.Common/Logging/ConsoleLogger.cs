@@ -46,7 +46,7 @@ namespace Excogitated.Common
             while (_running || _messages.Count > 0)
                 try
                 {
-                    var result = await _messages.ConsumeAsync(1000);
+                    var result = await _messages.TryConsumeAsync(1000);
                     if (result.HasValue)
                     {
                         await Console.Out.WriteLineAsync(result.Value.Message);
