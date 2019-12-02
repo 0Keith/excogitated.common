@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Excogitated.Common
@@ -44,6 +45,13 @@ namespace Excogitated.Common
                 await destination.DeleteAsync();
                 await Task.Run(() => source.MoveTo(destination.FullName));
             }
+        }
+
+        public static int Start(this FileInfo file)
+        {
+            file.NotNull(nameof(file));
+            using var p = Process.Start("explorer", $"\"{file.FullName}\"");
+            return p.Id;
         }
     }
 }

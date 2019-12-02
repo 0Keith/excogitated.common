@@ -30,8 +30,10 @@ namespace Excogitated.Common
 
         public async ValueTask<IDisposable> EnterAsync()
         {
-            await _locks.ConsumeAsync();
-            return _exit;
+            var result = await _locks.TryConsumeAsync();
+            if (result.HasValue)
+                return _exit;
+            throw new Exception("Lock could not be obtained.");
         }
     }
 }

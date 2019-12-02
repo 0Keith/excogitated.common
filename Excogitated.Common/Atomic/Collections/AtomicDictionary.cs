@@ -6,10 +6,21 @@ using System.Threading;
 
 namespace Excogitated.Common
 {
+    /// <summary>
+    /// A synchronized Dictionary wrapper.
+    /// AtomicDictionary should be used when a workload will be mostly single or lightly threaded but still needs to remain thread safe.
+    /// In this scenario AtomicDictionary is faster and more efficient than ConcurrentDictionary.
+    /// Enumeration will create a snapshot of the current keys and or values, use sparringly since this incurs significant overhead.
+    /// </summary>
+    /// <typeparam name="TKey">The Type of keys in the dictionary.</typeparam>
+    /// <typeparam name="TValue">The Type of values in the dictionary.</typeparam>
     public class AtomicDictionary<TKey, TValue> : IAtomicDictionary<TKey, TValue>
     {
         private readonly Dictionary<TKey, TValue> _items = new Dictionary<TKey, TValue>();
 
+        /// <summary>
+        /// An estimated count of items in the dictionary.
+        /// </summary>
         public int Count => _items.Count;
 
         public IEnumerable<TValue> Values => this.Select(p => p.Value);

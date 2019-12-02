@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -66,7 +67,7 @@ namespace Excogitated.Common
         {
             if (!_complete.TrySet(true))
                 return false;
-            Task.Run(() => _source.TrySetResult(result));
+            Task.Run(() => _source.TrySetResult(result)).Catch();
             return true;
         }
     }
@@ -75,7 +76,7 @@ namespace Excogitated.Common
     /// <para>A Queue of values that can be awaited for a new value to be queued.</para>
     /// <para>Enumeration will create a snapshot of items in the queue. This allows concurrent modification but changes will not be reflected in the snapshot.</para>
     /// <para>Locking on an instance of this class will block all methods from executing outside of the lock until it is released.
-    /// This can be used to ensure a group of transactions are completely atomic.</para>
+    /// This can be used to ensure a group of transactions are atomic.</para>
     /// </summary>
     /// <typeparam name="T">Specifies the Type of items that will be queued.</typeparam>
     public class AsyncQueue<T> : IAtomicCollection<T>
@@ -198,7 +199,7 @@ namespace Excogitated.Common
         /// Consumes an item from the queue immediately, awaits indefinitely for an item to be added to the queue, or awaits until the queue is Completed.
         /// </summary>
         /// <returns>A result indicating whether or not a value was consumed and the value that was or was not consumed.</returns>
-        public ValueTask<Result<T>> ConsumeAsync()
+        public ValueTask<Result<T>> TryConsumeAsync()
         {
             lock (this)
             {
@@ -215,7 +216,7 @@ namespace Excogitated.Common
         /// </summary>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait for an item.</param>
         /// <returns>A result indicating whether or not a value was consumed and the value that was or was not consumed.</returns>
-        public ValueTask<Result<T>> ConsumeAsync(int millisecondsTimeout)
+        public ValueTask<Result<T>> TryConsumeAsync(int millisecondsTimeout)
         {
             lock (this)
             {
@@ -224,13 +225,38 @@ namespace Excogitated.Common
                 while (_waiters.Count > 0 && _waiters.Peek().Completed)
                     _waiters.Dequeue();
                 var waiter = new AsyncResult<Result<T>>();
-                Task.Run(async () =>
-                {
-                    await Task.Delay(millisecondsTimeout);
-                    waiter.TryComplete(default);
-                });
+                Task.Delay(millisecondsTimeout).Continue(() => waiter.TryComplete(default)).Catch();
                 _waiters.Enqueue(waiter);
                 return waiter.Source;
+            }
+        }
+
+        /// <summary>
+        /// Creates an IAsyncEnumerable that will consume items from the queue until it is Complete() is invoked.
+        /// </summary>
+        public async IAsyncEnumerable<T> ConsumeAsync()
+        {
+            var result = await TryConsumeAsync();
+            while (result.HasValue)
+            {
+                yield return result.Value;
+                result = await TryConsumeAsync();
+            }
+        }
+
+        /// <summary>
+        /// Creates an IAsyncEnumerable that will consume items from the queue until it is exhausted, Complete() is invoked, or timeout is reached.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait for an item before terminating consumption. Must be greater than 0.</param>
+        public async IAsyncEnumerable<T> ConsumeAsync(int millisecondsTimeout)
+        {
+            if (millisecondsTimeout <= 0)
+                throw new ArgumentException("millisecondsTimeout <= 0");
+            var result = await TryConsumeAsync(millisecondsTimeout);
+            while (result.HasValue)
+            {
+                yield return result.Value;
+                result = await TryConsumeAsync(millisecondsTimeout);
             }
         }
 
@@ -264,11 +290,7 @@ namespace Excogitated.Common
                 while (_peekers.Count > 0 && _peekers.Peek().Completed)
                     _peekers.Dequeue();
                 var peeker = new AsyncResult<Result<T>>();
-                Task.Run(async () =>
-                {
-                    await Task.Delay(millisecondsTimeout);
-                    peeker.TryComplete(default);
-                });
+                Task.Delay(millisecondsTimeout).Continue(() => peeker.TryComplete(default)).Catch();
                 _peekers.Enqueue(peeker);
                 return peeker.Source;
             }

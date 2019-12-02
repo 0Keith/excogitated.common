@@ -390,7 +390,14 @@ namespace Excogitated.Common
                             return;
                         item = items.Current;
                     }
-                    await action(item);
+                    try
+                    {
+                        await action(item);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception($"Batch failed on item: {item}", e);
+                    }
                 }
             })));
         }
@@ -398,34 +405,19 @@ namespace Excogitated.Common
         public static IAsyncEnumerable<R> Batch<T, R>(this IAsyncEnumerable<T> source, Func<T, ValueTask<R>> action) => source.Batch(0, action);
         public static async IAsyncEnumerable<R> Batch<T, R>(this IAsyncEnumerable<T> source, int threadCount, Func<T, ValueTask<R>> action)
         {
-            if (threadCount <= 0)
-                threadCount = Environment.ProcessorCount / 2;
             action.NotNull(nameof(action));
-            var @lock = new AsyncLock();
             var results = new AsyncQueue<R>();
-            await using var items = source.NotNull(nameof(source)).GetAsyncEnumerator();
-            var tasks = Task.WhenAll(Enumerable.Range(0, threadCount).Select(i => Task.Run(async () =>
+            var batch = source.Batch(threadCount, async i => results.Add(await action(i)))
+                .Finally(() => results.Complete());
+            try
             {
-                while (true)
-                {
-                    T item;
-                    using (await @lock.EnterAsync())
-                    {
-                        if (!await items.MoveNextAsync())
-                            return;
-                        item = items.Current;
-                    }
-                    results.Add(await action(item));
-                }
-            })));
-            tasks.ContinueWith(t => results.Complete()).Catch();
-            while (!tasks.IsCompleted || results.Count > 0)
-            {
-                var result = await results.ConsumeAsync(1000);
-                if (result.HasValue)
-                    yield return result.Value;
+                await foreach (var result in results.ConsumeAsync())
+                    yield return result;
             }
-            await tasks; //propogate any errors that occurred
+            finally
+            {
+                await batch;
+            }
         }
     }
 }
