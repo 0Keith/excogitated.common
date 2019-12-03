@@ -24,13 +24,14 @@ namespace Excogitated.Common
     public struct JsonTransaction<T> where T : class, IVersionable
     {
         public T Item { get; internal set; }
-        public bool Write { get; internal set; }
+        public bool Overwrite { get; internal set; }
     }
 
     public class JsonFileStore<T> where T : class, IVersionable
     {
         private readonly AtomicDictionary<string, AsyncLock> _fileLocks = new AtomicDictionary<string, AsyncLock>();
-        private readonly CowList<Func<JsonTransaction<T>, ValueTask>> _upserters = new CowList<Func<JsonTransaction<T>, ValueTask>>();
+        private readonly CowList<Action<JsonTransaction<T>>> _initializers = new CowList<Action<JsonTransaction<T>>>();
+        private readonly CowList<Func<T, ValueTask>> _upserters = new CowList<Func<T, ValueTask>>();
         private readonly CowList<Func<T, ValueTask>> _deleters = new CowList<Func<T, ValueTask>>();
         private readonly JsonFileStoreSettings _settings;
         private readonly DirectoryInfo _dataDir;
@@ -132,7 +133,7 @@ namespace Excogitated.Common
                     {
                         using var stream = entry.Open();
                         using var data = new ZipArchive(stream, ZipArchiveMode.Read);
-                        await InitializeFromZip(data);
+                        await InitializeFromZip(data, false);
                         count.Increment();
                     }
                 })));
@@ -146,6 +147,7 @@ namespace Excogitated.Common
             if (_dataDir is null)
                 return 0;
             var files = _dataDir.EnumerateFiles()
+                .Where(f => f.Length > 0)
                 .Where(f => f.Name.StartsWith("db."))
                 .Where(f => f.Name.EndsWith(".json.zip"))
                 .ToList();
@@ -155,27 +157,50 @@ namespace Excogitated.Common
                     try
                     {
                         using var zipFile = ZipFile.OpenRead(file.FullName);
-                        await InitializeFromZip(zipFile);
+                        await InitializeFromZip(zipFile, false);
                     }
                     catch (Exception e)
                     {
                         throw new Exception($"Error loading: {file}", e);
                     }
                 });
-            return files.Count;
+
+            var tempFiles = _dataDir.EnumerateFiles()
+                .Where(f => f.Length > 0)
+                .Where(f => f.Name.StartsWith("db."))
+                .Where(f => f.Name.EndsWith(".json.zip.temp"))
+                .ToList();
+            if (tempFiles.Count > 0)
+                await tempFiles.ToAsync().Watch(tempFiles.Count).Batch(async temp =>
+                {
+                    try
+                    {
+                        var file = new FileInfo(temp.FullName[0..^5]);
+                        if (!file.Exists || file.Length == 0)
+                        {
+                            using var zipFile = ZipFile.OpenRead(temp.FullName);
+                            await InitializeFromZip(zipFile, true);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception($"Error loading: {temp}", e);
+                    }
+                });
+            return files.Count + tempFiles.Count;
         }
 
-        private async Task InitializeFromZip(ZipArchive zip)
+        private async Task InitializeFromZip(ZipArchive zip, bool overwrite)
         {
             foreach (var entry in zip.Entries)
             {
                 using var stream = entry.Open();
                 var item = await Jsonizer.DeserializeAsync<T>(stream);
-                foreach (var upsert in _upserters)
-                    await upsert(new JsonTransaction<T>
+                foreach (var initialize in _initializers)
+                    initialize(new JsonTransaction<T>
                     {
                         Item = item,
-                        Write = false,
+                        Overwrite = overwrite
                     });
             }
         }
@@ -199,12 +224,21 @@ namespace Excogitated.Common
             var keySelector = keySelectorExpression.Compile();
             var index = new AtomicDictionary<Key, T>();
             _items = index.Values;
-            _upserters.Add(async transaction =>
+            _initializers.Add(transaction =>
             {
                 var key = keySelector(transaction.Item);
                 if (key is null)
+                    throw new Exception($"Initialize failed, key is null. Key: {keySelectorExpression.ToString()}, Document: {typeof(T).FullName}");
+                else if (!transaction.Overwrite && index.ContainsKey(key))
+                    throw new Exception($"Duplicate entry found in db.json files. Key: {key}");
+                index[key] = transaction.Item;
+            });
+            _upserters.Add(async item =>
+            {
+                var key = keySelector(item);
+                if (key is null)
                     throw new Exception($"Upsert failed, key is null. Key: {keySelectorExpression.ToString()}, Document: {typeof(T).FullName}");
-                if (transaction.Write && _settings.DataDir.IsNotNullOrWhiteSpace())
+                if (_settings.DataDir.IsNotNullOrWhiteSpace())
                 {
                     var zipFile = GetFile(key.ToString());
                     var zipPath = zipFile.FullName;
@@ -216,14 +250,12 @@ namespace Excogitated.Common
                         {
                             var name = zipFile.Name.SkipLast(zipFile.Extension.Length).AsString();
                             using var stream = zip.CreateEntry(name, CompressionLevel.Optimal).Open();
-                            await Jsonizer.SerializeAsync(transaction.Item, stream);
+                            await Jsonizer.SerializeAsync(item, stream);
                         }
                         await tempFile.MoveAsync(zipFile);
                     }
                 }
-                else if (index.ContainsKey(key))
-                    throw new Exception($"Duplicate entry found in db.json files. Key: {key}");
-                index[key] = transaction.Item;
+                index[key] = item;
             });
             _deleters.Add(async item =>
             {
@@ -248,10 +280,15 @@ namespace Excogitated.Common
         {
             keySelector.NotNull(nameof(keySelector));
             var index = new AtomicDictionary<Key, T>();
-            _upserters.Add(async transaction =>
+            _initializers.Add(transaction =>
             {
                 foreach (var key in keySelector(transaction.Item))
                     index[key] = transaction.Item;
+            });
+            _upserters.Add(async item =>
+            {
+                foreach (var key in keySelector(item))
+                    index[key] = item;
             });
             _deleters.Add(async item =>
             {
@@ -270,11 +307,7 @@ namespace Excogitated.Common
             document.NotNull(nameof(document));
             await Initialize();
             foreach (var upsert in _upserters)
-                await upsert(new JsonTransaction<T>
-                {
-                    Item = document,
-                    Write = true,
-                });
+                await upsert(document);
         }
 
         public async ValueTask<long> Delete(Func<T, bool> deleteSelector)
