@@ -7,6 +7,8 @@ namespace Excogitated.Common
 {
     public static class Extensions_Object
     {
+        public static bool Is<T>(this T value1, T value2) where T : class => ReferenceEquals(value1, value2);
+
         public static bool IsNotNull<T>(this T value) => value is null == false;
         public static T NotNull<T>(this T value, string name)
         {

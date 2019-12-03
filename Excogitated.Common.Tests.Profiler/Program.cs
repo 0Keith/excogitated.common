@@ -80,7 +80,7 @@ namespace Excogitated.Common.Test.Profiler
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                await Task.Delay(15000);
+                await AsyncTimer.Delay(15000);
             }
         }
     }

@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,10 +57,10 @@ namespace Excogitated.Common.Test
         public async Task Batch()
         {
             var items = Enumerable.Range(-1000, 1000).ToList();
-            var threadCount = 1;
+            var threadCount = 4;
             var ids = await items.ToAsync().Batch(threadCount, async i =>
             {
-                await Task.Delay(1);
+                await AsyncTimer.Delay(10);
                 return Thread.CurrentThread.ManagedThreadId;
             }).ToList();
             foreach (var id in ids.Distinct())

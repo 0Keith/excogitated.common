@@ -44,9 +44,14 @@ namespace Excogitated.Common
         private readonly AtomicBool _complete = new AtomicBool();
 
         /// <summary>
+        /// Returns a Task to await completion.
+        /// </summary>
+        public Task<T> Source => _source.Task;
+
+        /// <summary>
         /// Returns a ValueTask to await completion.
         /// </summary>
-        public ValueTask<T> Source => new ValueTask<T>(_source.Task);
+        public ValueTask<T> ValueSource => new ValueTask<T>(_source.Task);
 
         /// <summary>
         /// Whether or not a result has been set.
@@ -207,7 +212,7 @@ namespace Excogitated.Common
                     return new ValueTask<Result<T>>(new Result<T>(_items.Dequeue()));
                 var waiter = new AsyncResult<Result<T>>();
                 _waiters.Enqueue(waiter);
-                return waiter.Source;
+                return waiter.ValueSource;
             }
         }
 
@@ -227,7 +232,7 @@ namespace Excogitated.Common
                 var waiter = new AsyncResult<Result<T>>();
                 Task.Delay(millisecondsTimeout).Continue(() => waiter.TryComplete(default)).Catch();
                 _waiters.Enqueue(waiter);
-                return waiter.Source;
+                return waiter.ValueSource;
             }
         }
 
@@ -272,7 +277,7 @@ namespace Excogitated.Common
                     return new ValueTask<Result<T>>(new Result<T>(_items.Peek()));
                 var peeker = new AsyncResult<Result<T>>();
                 _peekers.Enqueue(peeker);
-                return peeker.Source;
+                return peeker.ValueSource;
             }
         }
 
@@ -292,7 +297,7 @@ namespace Excogitated.Common
                 var peeker = new AsyncResult<Result<T>>();
                 Task.Delay(millisecondsTimeout).Continue(() => peeker.TryComplete(default)).Catch();
                 _peekers.Enqueue(peeker);
-                return peeker.Source;
+                return peeker.ValueSource;
             }
         }
 

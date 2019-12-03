@@ -63,7 +63,7 @@ namespace Excogitated.Common
                     try
                     {
                         var count = _count.Value;
-                        await Task.WhenAny(Task.Delay(Interval), _running.Source.AsTask());
+                        await Task.WhenAny(Task.Delay(Interval), _running.Source);
                         count = _count.Value - count;
                         var result = GetResult();
                         Report?.Invoke(result);
