@@ -57,10 +57,10 @@ namespace Excogitated.Common.Test
         public async Task Batch()
         {
             var items = Enumerable.Range(-1000, 1000).ToList();
-            var threadCount = 4;
+            var threadCount = 2;
             var ids = await items.ToAsync().Batch(threadCount, async i =>
             {
-                await AsyncTimer.Delay(10);
+                await AsyncTimer.Delay(1);
                 return Thread.CurrentThread.ManagedThreadId;
             }).ToList();
             foreach (var id in ids.Distinct())
