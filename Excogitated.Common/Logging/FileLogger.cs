@@ -78,7 +78,7 @@ namespace Excogitated.Common
                 }
                 catch (Exception e)
                 {
-                    await Task.Delay(10000);
+                    await AsyncTimer.Delay(10000);
                     Loggers.Error(e);
                 }
         }

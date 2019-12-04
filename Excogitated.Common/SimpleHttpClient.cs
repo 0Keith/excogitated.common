@@ -54,7 +54,7 @@ namespace Excogitated.Common
                     if (response.StatusCode.EqualsAny(HttpStatusCode.BadGateway, HttpStatusCode.InternalServerError))
                         if (w.Elapsed.TotalMinutes < 15)
                         {
-                            await Task.Delay(5000);
+                            await AsyncTimer.Delay(5000);
                             continue;
                         }
                     Loggers.Error(message);
@@ -77,7 +77,7 @@ namespace Excogitated.Common
                         if (response.StatusCode.EqualsAny(HttpStatusCode.BadGateway, HttpStatusCode.InternalServerError))
                             if (w.Elapsed.TotalMinutes < 15)
                             {
-                                await Task.Delay(5000);
+                                await AsyncTimer.Delay(5000);
                                 continue;
                             }
                         Loggers.Error(message);

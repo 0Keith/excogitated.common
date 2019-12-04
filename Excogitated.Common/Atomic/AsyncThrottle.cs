@@ -18,7 +18,7 @@ namespace Excogitated.Common
                 while (_consumers > 0)
                 {
                     _flow.Add(false);
-                    await Task.Delay(10);
+                    await AsyncTimer.Delay(10);
                 }
                 _flow.Clear();
             }
@@ -36,7 +36,7 @@ namespace Excogitated.Common
                 {
                     while (_running)
                     {
-                        await Task.Delay(1000);
+                        await AsyncTimer.Delay(1000);
                         var count = ratePerSecond - _flow.Count;
                         for (var i = 0; i < count; i++)
                             _flow.Add(true);

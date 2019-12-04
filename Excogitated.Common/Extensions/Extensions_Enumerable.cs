@@ -53,12 +53,12 @@ namespace Excogitated.Common
                 action(i);
         }
 
-        public static async Task<HashSet<T>> ToHashSet<T>(this Task<List<T>> source) => (await source).ToHashSet();
-        public static async Task<HashSet<T>> ToHashSet<T>(this Task<IEnumerable<T>> source) => (await source).ToHashSet();
+        public static ValueTask<HashSet<T>> ToHashSet<T>(this Task<List<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToHashSet());
+        public static ValueTask<HashSet<T>> ToHashSet<T>(this Task<IEnumerable<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToHashSet());
 
         public static AtomicHashSet<T> ToAtomicHashSet<T>(this IEnumerable<T> source) => new AtomicHashSet<T>(source);
-        public static async Task<AtomicHashSet<T>> ToAtomicHashSet<T>(this Task<List<T>> source) => (await source).ToAtomicHashSet();
-        public static async Task<AtomicHashSet<T>> ToAtomicHashSet<T>(this Task<IEnumerable<T>> source) => (await source).ToAtomicHashSet();
+        public static ValueTask<AtomicHashSet<T>> ToAtomicHashSet<T>(this Task<List<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToAtomicHashSet());
+        public static ValueTask<AtomicHashSet<T>> ToAtomicHashSet<T>(this Task<IEnumerable<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToAtomicHashSet());
 
         public static IEnumerable<T> Randomize<T>(this IEnumerable<T> items) => items.OrderBy(i => Rng.Pseudo.GetInt32());
 
@@ -174,5 +174,21 @@ namespace Excogitated.Common
                 node = node.Previous;
             }
         }
+
+        public static R FirstAndLastOrDefault<T, R>(this IEnumerable<T> source, Func<T, T, R> selector)
+        {
+            source.NotNull(nameof(source));
+            selector.NotNull(nameof(selector));
+            var first = default(T);
+            var last = default(T);
+            using var items = source.GetEnumerator();
+            if (items.MoveNext())
+                first = last = items.Current;
+            while (items.MoveNext())
+                last = items.Current;
+            return selector(first, last);
+        }
+
+        public static AsyncQueue<T> ToAsyncQueue<T>(this IEnumerable<T> source) => new AsyncQueue<T>(source);
     }
 }

@@ -88,7 +88,17 @@ namespace Excogitated.Common
     {
         private readonly Queue<AsyncResult<Result<T>>> _waiters = new Queue<AsyncResult<Result<T>>>();
         private readonly Queue<AsyncResult<Result<T>>> _peekers = new Queue<AsyncResult<Result<T>>>();
-        private readonly Queue<T> _items = new Queue<T>();
+        private readonly Queue<T> _items;
+
+        public AsyncQueue()
+        {
+            _items = new Queue<T>();
+        }
+
+        public AsyncQueue(IEnumerable<T> items)
+        {
+            _items = new Queue<T>(items.NotNull(nameof(items)));
+        }
 
         /// <summary>
         /// An estimate of items available in the queue. This is an eventually accurate estimate multiple reads may be necessary to determine true item count.
@@ -230,14 +240,14 @@ namespace Excogitated.Common
                 while (_waiters.Count > 0 && _waiters.Peek().Completed)
                     _waiters.Dequeue();
                 var waiter = new AsyncResult<Result<T>>();
-                Task.Delay(millisecondsTimeout).Continue(() => waiter.TryComplete(default)).Catch();
+                AsyncTimer.Delay(millisecondsTimeout).Continue(() => waiter.TryComplete(default)).Catch();
                 _waiters.Enqueue(waiter);
                 return waiter.ValueSource;
             }
         }
 
         /// <summary>
-        /// Creates an IAsyncEnumerable that will consume items from the queue until it is Complete() is invoked.
+        /// Creates an IAsyncEnumerable that will consume items from the queue until Complete() is invoked.
         /// </summary>
         public async IAsyncEnumerable<T> ConsumeAsync()
         {
@@ -295,7 +305,7 @@ namespace Excogitated.Common
                 while (_peekers.Count > 0 && _peekers.Peek().Completed)
                     _peekers.Dequeue();
                 var peeker = new AsyncResult<Result<T>>();
-                Task.Delay(millisecondsTimeout).Continue(() => peeker.TryComplete(default)).Catch();
+                AsyncTimer.Delay(millisecondsTimeout).Continue(() => peeker.TryComplete(default)).Catch();
                 _peekers.Enqueue(peeker);
                 return peeker.ValueSource;
             }
