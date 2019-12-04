@@ -411,7 +411,7 @@ namespace Excogitated.Common
                 .Finally(() => results.Complete());
             try
             {
-                await foreach (var result in results.ConsumeAsync())
+                await foreach (var result in results.ConsumeAsync(5000))
                     yield return result;
             }
             finally
