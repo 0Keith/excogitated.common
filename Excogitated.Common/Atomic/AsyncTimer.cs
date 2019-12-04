@@ -26,8 +26,6 @@ namespace Excogitated.Common
         private static Thread StartProducing()
         {
             var thread = new Thread(NotifyConsumers);
-            if (thread.GetApartmentState() != ApartmentState.MTA)
-                thread.SetApartmentState(ApartmentState.MTA);
             thread.Start();
             return thread;
         }
