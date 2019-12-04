@@ -16,7 +16,7 @@ namespace Excogitated.Common.Test
             foreach (var delay in delays)
             {
                 var result = await delay;
-                Assert.AreEqual(0, result, 20);
+                Assert.AreEqual(0, result, 30);
             }
         }
     }
