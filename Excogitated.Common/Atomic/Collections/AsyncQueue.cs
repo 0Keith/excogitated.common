@@ -88,7 +88,10 @@ namespace Excogitated.Common
     {
         private readonly Queue<AsyncResult<Result<T>>> _waiters = new Queue<AsyncResult<Result<T>>>();
         private readonly Queue<AsyncResult<Result<T>>> _peekers = new Queue<AsyncResult<Result<T>>>();
+        private readonly AtomicBool _completed = new AtomicBool();
         private readonly Queue<T> _items;
+
+        public bool Completed => _completed;
 
         public AsyncQueue()
         {
@@ -113,6 +116,8 @@ namespace Excogitated.Common
         {
             lock (this)
             {
+                if (_completed)
+                    throw new Exception("Queue has been completed.");
                 var result = new Result<T>(item);
                 while (_waiters.Count > 0)
                     if (_waiters.Dequeue().TryComplete(result))
@@ -129,13 +134,14 @@ namespace Excogitated.Common
         /// </summary>
         public void Complete()
         {
-            lock (this)
-            {
-                while (_waiters.Count > 0)
-                    _waiters.Dequeue().TryComplete(default);
-                while (_peekers.Count > 0)
-                    _peekers.Dequeue().TryComplete(default);
-            }
+            if (_completed.TrySet(true))
+                lock (this)
+                {
+                    while (_waiters.Count > 0)
+                        _waiters.Dequeue().TryComplete(default);
+                    while (_peekers.Count > 0)
+                        _peekers.Dequeue().TryComplete(default);
+                }
         }
 
         /// <summary>
@@ -162,12 +168,14 @@ namespace Excogitated.Common
         }
 
         /// <summary>
-        /// Adds an item to the queue. This will always return true.
+        /// Tries to add an item to the queue. Will succeed if queue has not been completed.
         /// </summary>
         /// <param name="item">The item to add to the queue.</param>
-        /// <returns>true</returns>
+        /// <returns>True if successful, False otherwise.</returns>
         public bool TryAdd(T item)
         {
+            if (_completed)
+                return false;
             Add(item);
             return true;
         }
@@ -220,6 +228,8 @@ namespace Excogitated.Common
             {
                 if (_items.Count > 0)
                     return new ValueTask<Result<T>>(new Result<T>(_items.Dequeue()));
+                if (_completed)
+                    return default;
                 var waiter = new AsyncResult<Result<T>>();
                 _waiters.Enqueue(waiter);
                 return waiter.ValueSource;
@@ -239,6 +249,8 @@ namespace Excogitated.Common
                     return new ValueTask<Result<T>>(new Result<T>(_items.Dequeue()));
                 while (_waiters.Count > 0 && _waiters.Peek().Completed)
                     _waiters.Dequeue();
+                if (_completed)
+                    return default;
                 var waiter = new AsyncResult<Result<T>>();
                 AsyncTimer.Delay(millisecondsTimeout).Continue(() => waiter.TryComplete(default)).Catch();
                 _waiters.Enqueue(waiter);
@@ -285,6 +297,8 @@ namespace Excogitated.Common
             {
                 if (_items.Count > 0)
                     return new ValueTask<Result<T>>(new Result<T>(_items.Peek()));
+                if (_completed)
+                    return default;
                 var peeker = new AsyncResult<Result<T>>();
                 _peekers.Enqueue(peeker);
                 return peeker.ValueSource;
@@ -304,6 +318,8 @@ namespace Excogitated.Common
                     return new ValueTask<Result<T>>(new Result<T>(_items.Peek()));
                 while (_peekers.Count > 0 && _peekers.Peek().Completed)
                     _peekers.Dequeue();
+                if (_completed)
+                    return default;
                 var peeker = new AsyncResult<Result<T>>();
                 AsyncTimer.Delay(millisecondsTimeout).Continue(() => peeker.TryComplete(default)).Catch();
                 _peekers.Enqueue(peeker);
