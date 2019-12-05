@@ -20,8 +20,8 @@ namespace Excogitated.Common.Test
                 })
                 .Select(r => r.Delay.Continue(delta =>
                 {
-                    Assert.AreEqual(0, delta, 5);
-                    Assert.AreEqual(0, (r.Expected - DateTime.Now).TotalMilliseconds, 5);
+                    Assert.AreEqual(0, delta, 10);
+                    Assert.AreEqual(0, (r.Expected - DateTime.Now).TotalMilliseconds, 10);
                     return delta;
                 })));
             Console.WriteLine($"Min Delta: {deltas.Min()}");
