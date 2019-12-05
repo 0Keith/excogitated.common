@@ -15,8 +15,8 @@ namespace Excogitated.Common
 
     public static class Rng
     {
-        public static IRng True { get; } = new TrueRng();
         public static IRng Pseudo { get; } = new PseudoRng();
+        public static IRng True { get; } = Environment.ProcessorCount <= 2 ? Pseudo : new TrueRng();
     }
 
     internal class TrueRng : IRng
@@ -65,7 +65,7 @@ namespace Excogitated.Common
 
     internal class PseudoRng : IRng
     {
-        private readonly ThreadLocal<Random> _rng = new ThreadLocal<Random>(() => new Random(Rng.True.GetInt32()));
+        private readonly ThreadLocal<Random> _rng = new ThreadLocal<Random>(() => new Random());
 
         public bool GetBit() => _rng.Value.Next() % 2 == 0;
         public byte GetByte() => (byte)_rng.Value.Next(0, 256);
