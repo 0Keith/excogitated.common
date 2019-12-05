@@ -8,7 +8,17 @@ namespace Excogitated.Common
 {
     public class AtomicQueue<T> : IAtomicCollection<T>
     {
-        private readonly Queue<T> _items = new Queue<T>();
+        private readonly Queue<T> _items;
+
+        public AtomicQueue()
+        {
+            _items = new Queue<T>();
+        }
+
+        public AtomicQueue(IEnumerable<T> source)
+        {
+            _items = new Queue<T>(source.NotNull(nameof(source)));
+        }
 
         public int Count => _items.Count;
 

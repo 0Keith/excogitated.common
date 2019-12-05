@@ -58,6 +58,32 @@ namespace Excogitated.Common
                 Executions = executions.Sum()
             };
         }
+
+        public static Task<BenchmarkResult> RunAsync(Func<Task> action) => RunAsync(1, action);
+        public static Task<BenchmarkResult> RunAsync(int secondsDuration, Func<Task> action) => RunAsync(TimeSpan.FromSeconds(secondsDuration), action);
+        public static async Task<BenchmarkResult> RunAsync(TimeSpan duration, Func<Task> action)
+        {
+            if (duration <= TimeSpan.Zero)
+                throw new ArgumentException("duration <= TimeSpan.Zero");
+            var w = Stopwatch.StartNew();
+            var d = duration.TotalMilliseconds;
+            var threads = Environment.ProcessorCount / 2;
+            var executions = await Task.WhenAll(Enumerable.Repeat(0, threads).Select(i => Task.Run(async () =>
+            {
+                var count = 0L;
+                while (w.ElapsedMilliseconds < d)
+                {
+                    await action();
+                    count++;
+                }
+                return count;
+            })));
+            return new BenchmarkResult
+            {
+                Elapsed = w.Elapsed,
+                Executions = executions.Sum()
+            };
+        }
     }
 
     public struct BenchmarkResult

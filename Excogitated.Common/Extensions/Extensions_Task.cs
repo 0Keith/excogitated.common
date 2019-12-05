@@ -80,73 +80,73 @@ namespace Excogitated.Common
 
     public static class Extensions_Task_Continue
     {
-        public static async ValueTask<R> Continue<T, R>(this Task<T> task, Func<T, Task<R>> selector)
+        public static async Task<R> Continue<T, R>(this Task<T> task, Func<T, Task<R>> selector)
         {
             var value = await task.NotNull(nameof(task));
             return await selector.NotNull(nameof(selector)).Invoke(value);
         }
 
-        public static async ValueTask Continue<T>(this Task<T> task, Func<T, Task> action)
+        public static async Task Continue<T>(this Task<T> task, Func<T, Task> action)
         {
             var value = await task.NotNull(nameof(task));
             await action.NotNull(nameof(action)).Invoke(value);
         }
 
-        public static async ValueTask<R> Continue<R>(this Task task, Func<Task<R>> selector)
+        public static async Task<R> Continue<R>(this Task task, Func<Task<R>> selector)
         {
             await task.NotNull(nameof(task));
             return await selector.NotNull(nameof(selector)).Invoke();
         }
 
-        public static async ValueTask Continue(this Task task, Func<Task> selector)
+        public static async Task Continue(this Task task, Func<Task> selector)
         {
             await task.NotNull(nameof(task));
             await selector.NotNull(nameof(selector)).Invoke();
         }
 
-        public static async ValueTask<R> Continue<T, R>(this Task<T> task, Func<T, ValueTask<R>> selector)
+        public static async Task<R> Continue<T, R>(this Task<T> task, Func<T, ValueTask<R>> selector)
         {
             var value = await task.NotNull(nameof(task));
             return await selector.NotNull(nameof(selector)).Invoke(value);
         }
 
-        public static async ValueTask Continue<T>(this Task<T> task, Func<T, ValueTask> action)
+        public static async Task Continue<T>(this Task<T> task, Func<T, ValueTask> action)
         {
             var value = await task.NotNull(nameof(task));
             await action.NotNull(nameof(action)).Invoke(value);
         }
 
-        public static async ValueTask<R> Continue<R>(this Task task, Func<ValueTask<R>> selector)
+        public static async Task<R> Continue<R>(this Task task, Func<ValueTask<R>> selector)
         {
             await task.NotNull(nameof(task));
             return await selector.NotNull(nameof(selector)).Invoke();
         }
 
-        public static async ValueTask Continue(this Task task, Func<ValueTask> selector)
+        public static async Task Continue(this Task task, Func<ValueTask> selector)
         {
             await task.NotNull(nameof(task));
             await selector.NotNull(nameof(selector)).Invoke();
         }
 
-        public static async ValueTask<R> Continue<T, R>(this Task<T> task, Func<T, R> selector)
+        public static async Task<R> Continue<T, R>(this Task<T> task, Func<T, R> selector)
         {
             var value = await task.NotNull(nameof(task));
             return selector.NotNull(nameof(selector)).Invoke(value);
         }
 
-        public static async ValueTask Continue<T>(this Task<T> task, Action<T> action)
+        public static async Task Continue<T>(this Task<T> task, Action<T> action)
         {
             var value = await task.NotNull(nameof(task));
             action.NotNull(nameof(action)).Invoke(value);
         }
 
-        public static async ValueTask<R> Continue<R>(this Task task, Func<R> selector)
+        public static async Task<R> Continue<R>(this Task task, Func<R> selector)
         {
             await task.NotNull(nameof(task));
             return selector.NotNull(nameof(selector)).Invoke();
         }
 
-        public static async ValueTask Continue(this Task task, Action action)
+        public static async Task Continue(this Task task, Action action)
         {
             await task.NotNull(nameof(task));
             action.NotNull(nameof(action)).Invoke();

@@ -14,5 +14,9 @@
             _sum += value;
             _count++;
         }
+
+        public override bool Equals(object obj) => obj is Average a && a.Value == Value;
+        public override int GetHashCode() => Value.GetHashCode();
+        public override string ToString() => Value.ToString();
     }
 }

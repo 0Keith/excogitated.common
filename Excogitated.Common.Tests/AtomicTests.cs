@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,14 +11,22 @@ namespace Excogitated.Common.Test
         [TestMethod]
         public async Task Delay()
         {
-            var delays = Enumerable.Range(0, 1000)
-                .Select(i => AsyncTimer.Delay(Rng.Pseudo.GetInt32(1, 1000)))
-                .ToList();
-            foreach (var delay in delays)
-            {
-                var result = await delay;
-                Assert.AreEqual(0, result, 30);
-            }
+            var deltas = await Task.WhenAll(Enumerable.Range(0, 1000)
+                .Select(i => Rng.Pseudo.GetInt32(1, 1000))
+                .Select(rng => new
+                {
+                    Delay = AsyncTimer.Delay(rng),
+                    Expected = DateTime.Now.AddMilliseconds(rng)
+                })
+                .Select(r => r.Delay.Continue(delta =>
+                {
+                    Assert.AreEqual(0, delta, 5);
+                    Assert.AreEqual(0, (r.Expected - DateTime.Now).TotalMilliseconds, 5);
+                    return delta;
+                })));
+            Console.WriteLine($"Min Delta: {deltas.Min()}");
+            Console.WriteLine($"Max Delta: {deltas.Max()}");
+            Console.WriteLine($"Average Delta: {deltas.Average()}");
         }
     }
 }

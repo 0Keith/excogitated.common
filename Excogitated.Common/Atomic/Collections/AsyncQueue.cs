@@ -91,13 +91,23 @@ namespace Excogitated.Common
         private readonly AtomicBool _completed = new AtomicBool();
         private readonly Queue<T> _items;
 
+        /// <summary>
+        /// Returns true if Complete() has been invoked, false otherwise.
+        /// </summary>
         public bool Completed => _completed;
 
+        /// <summary>
+        /// Creates a new instance with default capacity.
+        /// </summary>
         public AsyncQueue()
         {
             _items = new Queue<T>();
         }
 
+        /// <summary>
+        /// Creates a new instance populated with items available in the passed IEnumerable
+        /// </summary>
+        /// <param name="items">Items to populate the queue with.</param>
         public AsyncQueue(IEnumerable<T> items)
         {
             _items = new Queue<T>(items.NotNull(nameof(items)));

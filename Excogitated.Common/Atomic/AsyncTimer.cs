@@ -6,43 +6,56 @@ using System.Threading.Tasks;
 
 namespace Excogitated.Common
 {
+    public class DelayResult
+    {
+        public AsyncResult<int> Result { get; } = new AsyncResult<int>();
+        public long Expected { get; }
+
+        public DelayResult(long expected)
+        {
+            Expected = expected;
+        }
+    }
+
     public static class AsyncTimer
     {
-        private class DelayResult
-        {
-            public AsyncResult<int> Result { get; } = new AsyncResult<int>();
-            public long Expected { get; }
+        private static readonly AsyncTimerInstance _instance = new AsyncTimerInstance();
 
-            public DelayResult(long expected)
-            {
-                Expected = expected;
-            }
+        public static Task<int> Delay(Date date) => _instance.Delay(date);
+        public static Task<int> Delay(DateTime date) => _instance.Delay(date);
+        public static Task<int> Delay(DateTimeOffset date) => _instance.Delay(date);
+        public static Task<int> Delay(TimeSpan timespan) => _instance.Delay(timespan);
+        public static Task<int> Delay(int milliseconds) => _instance.Delay(milliseconds);
+        public static Task<int> Delay(long milliseconds) => _instance.Delay(milliseconds);
+    }
+
+    public class AsyncTimerInstance : IDisposable
+    {
+        private readonly LinkedList<DelayResult> _consumers = new LinkedList<DelayResult>();
+        private readonly ManualResetEvent _mre = new ManualResetEvent(false);
+        private readonly AtomicBool _running = new AtomicBool(true);
+        private readonly Stopwatch _watch = Stopwatch.StartNew();
+
+        public void Dispose() => _running.TrySet(false);
+
+        public AsyncTimerInstance()
+        {
+            new Thread(NotifyConsumers).Start();
         }
 
-        private static readonly LinkedList<DelayResult> _consumers = new LinkedList<DelayResult>();
-        private static readonly Stopwatch _watch = Stopwatch.StartNew();
-        private static readonly Thread _producer = StartProducing();
-
-        private static Thread StartProducing()
+        private void NotifyConsumers(object obj)
         {
-            var thread = new Thread(NotifyConsumers);
-            thread.Start();
-            return thread;
-        }
-
-        private static void NotifyConsumers(object obj)
-        {
-            while (true)
+            while (_running || _consumers.Count > 0)
                 try
                 {
                     var consumer = GetNextConsumer();
                     if (consumer is null)
-                        Thread.Sleep(1000);
+                        _mre.WaitOne(1000);
                     else
                     {
                         var delay = Convert.ToInt32(consumer.Expected - _watch.ElapsedMilliseconds);
                         if (delay > 0)
-                            Thread.Sleep(delay);
+                            _mre.WaitOne(delay);
                         var delta = Convert.ToInt32(_watch.ElapsedMilliseconds - consumer.Expected);
                         if (delta >= 0)
                         {
@@ -53,14 +66,13 @@ namespace Excogitated.Common
                         }
                     }
                 }
-                catch (ThreadInterruptedException) { }
                 catch (Exception e)
                 {
                     Loggers.Error(e);
                 }
         }
 
-        private static DelayResult GetNextConsumer()
+        private DelayResult GetNextConsumer()
         {
             lock (_consumers)
                 if (_consumers.Count > 0)
@@ -68,7 +80,12 @@ namespace Excogitated.Common
             return null;
         }
 
-        public static Task<int> Delay(int milliseconds)
+        public Task<int> Delay(Date date) => Delay(date.DateTime);
+        public Task<int> Delay(DateTime date) => Delay(date - DateTime.Now);
+        public Task<int> Delay(DateTimeOffset date) => Delay(date - DateTimeOffset.Now);
+        public Task<int> Delay(TimeSpan timespan) => Delay((long)timespan.TotalMilliseconds);
+        public Task<int> Delay(int milliseconds) => Delay((long)milliseconds);
+        public Task<int> Delay(long milliseconds)
         {
             var expected = milliseconds + _watch.ElapsedMilliseconds;
             lock (_consumers)
@@ -77,7 +94,7 @@ namespace Excogitated.Common
                 if (_consumers.Count == 0)
                 {
                     _consumers.AddFirst(result);
-                    _producer.Interrupt();
+                    _mre.Set();
                 }
                 else
                 {
@@ -89,7 +106,7 @@ namespace Excogitated.Common
                     else
                     {
                         _consumers.AddLast(result);
-                        _producer.Interrupt();
+                        _mre.Set();
                     }
                 }
                 return result.Result.Source;

@@ -53,12 +53,12 @@ namespace Excogitated.Common
                 action(i);
         }
 
-        public static ValueTask<HashSet<T>> ToHashSet<T>(this Task<List<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToHashSet());
-        public static ValueTask<HashSet<T>> ToHashSet<T>(this Task<IEnumerable<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToHashSet());
+        public static Task<HashSet<T>> ToHashSet<T>(this Task<List<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToHashSet());
+        public static Task<HashSet<T>> ToHashSet<T>(this Task<IEnumerable<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToHashSet());
 
         public static AtomicHashSet<T> ToAtomicHashSet<T>(this IEnumerable<T> source) => new AtomicHashSet<T>(source);
-        public static ValueTask<AtomicHashSet<T>> ToAtomicHashSet<T>(this Task<List<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToAtomicHashSet());
-        public static ValueTask<AtomicHashSet<T>> ToAtomicHashSet<T>(this Task<IEnumerable<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToAtomicHashSet());
+        public static Task<AtomicHashSet<T>> ToAtomicHashSet<T>(this Task<List<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToAtomicHashSet());
+        public static Task<AtomicHashSet<T>> ToAtomicHashSet<T>(this Task<IEnumerable<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToAtomicHashSet());
 
         public static IEnumerable<T> Randomize<T>(this IEnumerable<T> items) => items.OrderBy(i => Rng.Pseudo.GetInt32());
 
@@ -179,16 +179,45 @@ namespace Excogitated.Common
         {
             source.NotNull(nameof(source));
             selector.NotNull(nameof(selector));
-            var first = default(T);
-            var last = default(T);
-            using var items = source.GetEnumerator();
-            if (items.MoveNext())
-                first = last = items.Current;
+            using var items = source.GetEnumeratorCounted();
+            var first = items.MoveNext() ? items.Current : default;
+            var last = items.MoveNext() ? items.Current : default;
+            if (items.Count != 2)
+                return default;
             while (items.MoveNext())
                 last = items.Current;
             return selector(first, last);
         }
 
         public static AsyncQueue<T> ToAsyncQueue<T>(this IEnumerable<T> source) => new AsyncQueue<T>(source);
+        public static AtomicQueue<T> ToAtomicQueue<T>(this IEnumerable<T> source) => new AtomicQueue<T>(source);
+        public static CountedEnumerator<T> GetEnumeratorCounted<T>(this IEnumerable<T> source) => new CountedEnumerator<T>(source);
+    }
+
+    public class CountedEnumerator<T> : IEnumerator<T>
+    {
+        private readonly IEnumerator<T> _source;
+
+        public long Count { get; private set; }
+
+        public T Current => _source.Current;
+        object IEnumerator.Current => _source.Current;
+        public void Dispose() => _source.Dispose();
+        public void Reset() => _source.Reset();
+
+        public CountedEnumerator(IEnumerable<T> source)
+        {
+            _source = source.NotNull(nameof(source)).GetEnumerator();
+        }
+
+        public bool MoveNext()
+        {
+            if (_source.MoveNext())
+            {
+                Count++;
+                return true;
+            }
+            return false;
+        }
     }
 }
