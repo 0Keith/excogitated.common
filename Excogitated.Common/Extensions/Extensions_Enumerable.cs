@@ -109,6 +109,14 @@ namespace Excogitated.Common
                 yield return splitter(items.ToEnumerable(true));
         }
 
+        public static IEnumerable<R> SelectSplit<T, R>(this IEnumerable<T> values, Func<int, IEnumerable<T>, R> splitter)
+        {
+            splitter.NotNull(nameof(splitter));
+            using var items = values.GetEnumerator();
+            for(var i = 0; items.MoveNext(); i++)
+                yield return splitter(i, items.ToEnumerable(true));
+        }
+
         public static IEnumerable<T> Watch<T>(this IEnumerable<T> items, int estimatedTotal = 0, [CallerMemberName] string name = null)
         {
             using var _watch = new AtomicWatch(estimatedTotal, name);
