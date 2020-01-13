@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace Excogitated.Common
 {
+    public static class KeyValuePair
+    {
+        public static KeyValuePair<K, V> Create<K, V>(K key, V value) => new KeyValuePair<K, V>(key, value);
+    }
+
     public class DisposableEnumerable<T> : IDisposable, IEnumerable<T> where T : IDisposable
     {
         private readonly IEnumerable<T> _resources;
@@ -53,6 +58,7 @@ namespace Excogitated.Common
                 action(i);
         }
 
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source) => new HashSet<T>(source.NotNull(nameof(source)));
         public static Task<HashSet<T>> ToHashSet<T>(this Task<List<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToHashSet());
         public static Task<HashSet<T>> ToHashSet<T>(this Task<IEnumerable<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToHashSet());
 
@@ -113,7 +119,7 @@ namespace Excogitated.Common
         {
             splitter.NotNull(nameof(splitter));
             using var items = values.GetEnumerator();
-            for(var i = 0; items.MoveNext(); i++)
+            for (var i = 0; items.MoveNext(); i++)
                 yield return splitter(i, items.ToEnumerable(true));
         }
 
@@ -127,7 +133,14 @@ namespace Excogitated.Common
             }
         }
 
-        public static Dictionary<K, V> ToDictionary<K, V>(this IEnumerable<KeyValuePair<K, V>> source) => new Dictionary<K, V>(source);
+        public static Dictionary<K, V> ToDictionary<K, V>(this IEnumerable<KeyValuePair<K, V>> source)
+        {
+            source.NotNull(nameof(source));
+            var items = new Dictionary<K, V>();
+            foreach (var item in source)
+                items.Add(item.Key, item.Value);
+            return items;
+        }
 
         public static IEnumerable<T> Distinct<T, K>(this IEnumerable<T> items, Func<T, K> keySelector)
         {
@@ -200,6 +213,18 @@ namespace Excogitated.Common
         public static AsyncQueue<T> ToAsyncQueue<T>(this IEnumerable<T> source) => new AsyncQueue<T>(source);
         public static AtomicQueue<T> ToAtomicQueue<T>(this IEnumerable<T> source) => new AtomicQueue<T>(source);
         public static CountedEnumerator<T> GetEnumeratorCounted<T>(this IEnumerable<T> source) => new CountedEnumerator<T>(source);
+
+        public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> source, int count)
+        {
+            source.NotNull(nameof(source));
+            var q = new Queue<T>();
+            foreach (var item in source)
+            {
+                q.Enqueue(item);
+                if (q.Count > count)
+                    yield return q.Dequeue();
+            }
+        }
     }
 
     public class CountedEnumerator<T> : IEnumerator<T>

@@ -45,15 +45,6 @@ namespace Excogitated.Common.Test
         }
 
         [TestMethod]
-        public void ReverseFast()
-        {
-            var items = Enumerable.Range(-1000, 2000).ToList();
-            var reversed = items.ReverseFast().ToList();
-            Assert.AreEqual(items.Count, reversed.Count);
-            Assert.IsTrue(items.SequenceEqual(reversed.ReverseFast()));
-        }
-
-        [TestMethod]
         public async Task Batch()
         {
             var items = Enumerable.Range(-1000, 1000).ToList();

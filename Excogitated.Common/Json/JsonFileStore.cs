@@ -175,7 +175,7 @@ namespace Excogitated.Common
                 {
                     try
                     {
-                        var file = new FileInfo(temp.FullName[0..^5]);
+                        var file = new FileInfo(temp.FullName.Substring(0, temp.FullName.Length - 5));
                         if (!file.Exists || file.Length == 0)
                         {
                             using var zipFile = ZipFile.OpenRead(temp.FullName);

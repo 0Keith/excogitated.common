@@ -56,7 +56,7 @@ namespace Excogitated.Common
             chars[5] = '-';
 
             var year = Value.Year;
-            chars[^1] = (year % 10).ToChar();
+            chars[chars.Length - 1] = (year % 10).ToChar();
             for (var i = Date.DefaultYearLength + 4; i > 5; i--)
                 chars[i] = ((year /= 10) % 10).ToChar();
             return new ReadOnlySpan<char>(chars);

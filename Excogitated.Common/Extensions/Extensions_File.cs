@@ -12,7 +12,7 @@ namespace Excogitated.Common
             file.Refresh();
             if (file.Exists)
             {
-                await File.WriteAllTextAsync(file.FullName, string.Empty);
+                await Task.Run(() => File.WriteAllText(file.FullName, string.Empty));
                 await Task.Run(() => file.Delete());
             }
         }

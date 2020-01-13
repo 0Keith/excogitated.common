@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -80,14 +81,33 @@ namespace Excogitated.Common
             {
                 if (s.IsNullOrWhiteSpace())
                     return (Enum)Activator.CreateInstance(t);
-                if (Enum.TryParse(t, s, true, out var result))
-                    return (Enum)result;
+                if (TryParse(t, s, true, out var result))
+                    return result;
                 var clean = new string(s.SkipWhile(c => !c.IsLetter()).Where(c => char.IsLetterOrDigit(c) || c == '_').ToArray());
-                if (Enum.TryParse(t, clean, true, out result))
-                    return (Enum)result;
+                if (TryParse(t, clean, true, out result))
+                    return result;
                 throw new Exception($"Invalid enum - Value: {s}, Type: {t.FullName}");
             });
             return options;
+        }
+
+        private static readonly CowDictionary<(Type, bool), Dictionary<string, Enum>> _enumMap = new CowDictionary<(Type, bool), Dictionary<string, Enum>>();
+        private static bool TryParse(Type enumType, string name, bool ignoreCase, out Enum result)
+        {
+            var values = _enumMap.GetOrAdd((enumType, ignoreCase), k =>
+            {
+                var pairs = Enum.GetNames(k.Item1).Zip(Enum.GetValues(k.Item1).Cast<Enum>(), (name, value) => (name, value));
+                var map = new Dictionary<string, Enum>();
+                foreach (var p in pairs)
+                    if (k.Item2)
+                        map.Add(p.name.ToLower(), p.value);
+                    else
+                        map.Add(p.name, p.value);
+                return map;
+            });
+            if (ignoreCase)
+                return values.TryGetValue(name.ToLower(), out result);
+            return values.TryGetValue(name, out result);
         }
 
         public static void AddClassConverter<T>(this JsonSerializerOptions settings, Func<T, string> serializer, Func<string, Type, T> deserializer)
