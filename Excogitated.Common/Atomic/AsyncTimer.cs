@@ -40,7 +40,7 @@ namespace Excogitated.Common
 
         public AsyncTimerInstance()
         {
-            new Thread(NotifyConsumers) { IsBackground = true, Priority = ThreadPriority.Highest }.Start();
+            new Thread(NotifyConsumers) { IsBackground = true }.Start();
         }
 
         private void NotifyConsumers(object obj)

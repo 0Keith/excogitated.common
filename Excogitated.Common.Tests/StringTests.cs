@@ -16,7 +16,7 @@ namespace Excogitated.Common.Test
             var lowerChars = new string(Enumerable.Range('a', 26).Select(i => (char)i).ToArray());
             var upperChars = new string(Enumerable.Range('A', 26).Select(i => (char)i).ToArray());
 
-            var max = 10000000L;
+            var max = 1000000L;
             var count = new AtomicInt64();
             await Task.WhenAll(Enumerable.Range(0, Environment.ProcessorCount / 2).Select(n => Task.Run(() =>
             {
