@@ -40,7 +40,7 @@ namespace Excogitated.Common
 
         public AsyncTimerInstance()
         {
-            new Thread(NotifyConsumers).Start();
+            new Thread(NotifyConsumers) { IsBackground = true, Priority = ThreadPriority.Highest }.Start();
         }
 
         private void NotifyConsumers(object obj)
@@ -50,7 +50,7 @@ namespace Excogitated.Common
                 {
                     var consumer = GetNextConsumer();
                     if (consumer is null)
-                        _mre.WaitOne(1000);
+                        _mre.WaitOne(60000);
                     else
                     {
                         var delay = Convert.ToInt32(consumer.Expected - _watch.ElapsedMilliseconds);
