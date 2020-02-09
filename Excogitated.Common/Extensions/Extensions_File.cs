@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Threading.Tasks;
 
 namespace Excogitated.Common
@@ -52,6 +53,18 @@ namespace Excogitated.Common
             file.NotNull(nameof(file));
             using var p = Process.Start("explorer", $"\"{file.FullName}\"");
             return p.Id;
+        }
+
+        public static async Task Zip<T>(this FileInfo tempFile, T item, FileInfo zipFile)
+        {
+            await tempFile.DeleteAsync();
+            using (var zip = ZipFile.Open(tempFile.FullName, ZipArchiveMode.Update))
+            {
+                var name = zipFile.Name.SkipLast(zipFile.Extension.Length).AsString();
+                using var stream = zip.CreateEntry(name, CompressionLevel.Optimal).Open();
+                await Jsonizer.SerializeAsync(item, stream);
+            }
+            await tempFile.MoveAsync(zipFile);
         }
     }
 }

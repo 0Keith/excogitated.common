@@ -25,7 +25,7 @@ namespace Excogitated.Common
             b.Append(" - ").Append(Count);
             if (Total != 0)
                 b.Append(" of ").Append(Total);
-            b.Append($" in {Elapsed.Format()} at {PerSecond.ToString("0.00")}/sec");
+            b.Append($" in {Elapsed.Format()} at {PerSecond:0.00}/sec");
             if (Total != 0)
                 b.Append($" with {Remaining} or {TimeRemaining.Format()} remaining");
             return b.ToString();

@@ -181,6 +181,7 @@ namespace Excogitated.Common
         }
 
         public Date AddDays(int days) => DateTime.AddDays(days);
+        public Date AddWeeks(int weeks) => DateTime.AddDays(weeks * 7);
         public Date AddMonths(int months) => DateTime.AddMonths(months);
         public Date AddYears(int years) => DateTime.AddYears(years);
         public TimeSpan Subtract(Date updated, params DayOfWeek[] excluded)

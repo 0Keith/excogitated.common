@@ -51,7 +51,7 @@ namespace Excogitated.Common
             var cache = _digitsCache.GetOrAdd(digits, k => k.Select((c, i) => KeyValuePair.Create(c, i)).ToDictionary());
             var negative = value[0] == '-';
             BigInteger result = 0;
-            for (int i = negative ? 1 : 0; i < value.Length; i++)
+            for (var i = negative ? 1 : 0; i < value.Length; i++)
             {
                 if (!cache.TryGetValue(value[i], out var index))
                     throw new ArgumentException($"Invalid character: {value[i]}");

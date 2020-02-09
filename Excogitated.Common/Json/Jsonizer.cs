@@ -57,10 +57,12 @@ namespace Excogitated.Common
 
         public static JsonSerializerOptions BuildDefaultSettings(bool formatted = false)
         {
-            var options = new JsonSerializerOptions();
-            options.IgnoreNullValues = true;
-            options.WriteIndented = formatted;
-            options.PropertyNameCaseInsensitive = true;
+            var options = new JsonSerializerOptions
+            {
+                IgnoreNullValues = true,
+                WriteIndented = formatted,
+                PropertyNameCaseInsensitive = true
+            };
             options.AddStructConverter<Date>((w, v) => w.WriteStringValue(v.ToCharSpan()), (ref Utf8JsonReader r) => r.GetString());
             options.AddStructConverter<MonthDayYear>((w, v) => w.WriteStringValue(v.ToCharSpan()), (ref Utf8JsonReader r) => r.GetString());
 

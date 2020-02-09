@@ -29,7 +29,7 @@ namespace Excogitated.Common
         public LogLevel Level { get; }
         public string Message { get; }
 
-        public string FormattedMessage => $"{Time.ToString("o")} | {Level.ToString().PadLeft(5)} | {Message}";
+        public string FormattedMessage => $"{Time:o} | {Level,-5} | {Message}";
 
         public LogMessage(LogLevel level, object message)
         {

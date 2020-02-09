@@ -228,7 +228,7 @@ namespace Excogitated.Common
             {
                 var key = keySelector(transaction.Item);
                 if (key is null)
-                    throw new Exception($"Initialize failed, key is null. Key: {keySelectorExpression.ToString()}, Document: {typeof(T).FullName}");
+                    throw new Exception($"Initialize failed, key is null. Key: {keySelectorExpression}, Document: {typeof(T).FullName}");
                 else if (!transaction.Overwrite && index.ContainsKey(key))
                     throw new Exception($"Duplicate entry found in db.json files. Key: {key}");
                 index[key] = transaction.Item;
@@ -237,23 +237,14 @@ namespace Excogitated.Common
             {
                 var key = keySelector(item);
                 if (key is null)
-                    throw new Exception($"Upsert failed, key is null. Key: {keySelectorExpression.ToString()}, Document: {typeof(T).FullName}");
+                    throw new Exception($"Upsert failed, key is null. Key: {keySelectorExpression}, Document: {typeof(T).FullName}");
+
                 if (_settings.DataDir.IsNotNullOrWhiteSpace())
                 {
                     var zipFile = GetFile(key.ToString());
                     var zipPath = zipFile.FullName;
                     using (await _fileLocks.GetOrAdd(zipPath).EnterAsync())
-                    {
-                        var tempFile = new FileInfo($"{zipPath}.temp");
-                        await tempFile.DeleteAsync();
-                        using (var zip = ZipFile.Open(tempFile.FullName, ZipArchiveMode.Update))
-                        {
-                            var name = zipFile.Name.SkipLast(zipFile.Extension.Length).AsString();
-                            using var stream = zip.CreateEntry(name, CompressionLevel.Optimal).Open();
-                            await Jsonizer.SerializeAsync(item, stream);
-                        }
-                        await tempFile.MoveAsync(zipFile);
-                    }
+                        await new FileInfo($"{zipPath}.temp").Zip(item, zipFile);
                 }
                 index[key] = item;
             });
@@ -261,7 +252,7 @@ namespace Excogitated.Common
             {
                 var key = keySelector(item);
                 if (key is null)
-                    throw new Exception($"Delete failed, key is null. Key: {keySelectorExpression.ToString()}, Document: {typeof(T).FullName}");
+                    throw new Exception($"Delete failed, key is null. Key: {keySelectorExpression}, Document: {typeof(T).FullName}");
                 if (index.TryRemove(key) && _settings.DataDir.IsNotNullOrWhiteSpace())
                 {
                     var zip = GetFile(key.ToString());
