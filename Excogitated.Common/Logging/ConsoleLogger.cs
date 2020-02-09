@@ -18,7 +18,7 @@ namespace Excogitated.Common
         {
             _all = levels == null || levels.Length == 0 || levels.Contains(LogLevel.All);
             _levels = levels;
-            _task = StartLogging();
+            _task = Task.Run(() => StartLogging());
         }
 
         public void Dispose()

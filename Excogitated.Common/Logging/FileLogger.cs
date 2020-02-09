@@ -32,7 +32,7 @@ namespace Excogitated.Common
             LogFile = new FileInfo(fileName);
             if (!LogFile.Directory.Exists)
                 LogFile.Directory.Create();
-            _task = StartLogging();
+            _task = Task.Run(() => StartLogging());
         }
 
         public void Dispose()
