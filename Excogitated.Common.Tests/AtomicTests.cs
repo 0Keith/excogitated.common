@@ -30,5 +30,11 @@ namespace Excogitated.Common.Test
             Console.WriteLine($"Max Delta: {deltas.Max()}");
             Console.WriteLine($"Average Delta: {deltas.Average()}");
         }
+
+        [TestMethod]
+        public async Task IdleNoCPU()
+        {
+            await AsyncTimer.Delay(5000);
+        }
     }
 }

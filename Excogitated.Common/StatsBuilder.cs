@@ -26,6 +26,8 @@ namespace Excogitated.Common
         public static decimal ToDecimal(this long value) => value;
         public static decimal ToDecimal(this double value) => new decimal(value);
 
+        public static int ToInt(this long value) => value > int.MaxValue ? int.MaxValue : value < int.MinValue ? int.MinValue : (int)value;
+
         public static decimal CalculateChangePercentage(this decimal first, decimal second)
         {
             if (second == 0)
