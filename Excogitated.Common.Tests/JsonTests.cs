@@ -72,12 +72,10 @@ namespace Excogitated.Common.Test
         public void CompareJsonSerializePerformance()
         {
             var r1 = Benchmark.Run(() => Newtonsoft.Json.JsonConvert.SerializeObject(Item));
-            var r2 = Benchmark.Run(() => Utf8Json.JsonSerializer.ToJsonString(Item));
             var r3 = Benchmark.Run(() => System.Text.Json.JsonSerializer.Serialize(Item));
             var r4 = Benchmark.Run(() => Jsonizer.Serialize(Item));
             var stats = new StatsBuilder()
                 .Add(typeof(Newtonsoft.Json.JsonConvert).FullName, r1)
-                .Add(typeof(Utf8Json.JsonSerializer).FullName, r2)
                 .Add(typeof(System.Text.Json.JsonSerializer).FullName, r3)
                 .Add(typeof(Jsonizer).FullName, r4)
                 .ToString();
@@ -91,9 +89,6 @@ namespace Excogitated.Common.Test
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(Item);
             var r1 = Benchmark.Run(() => Newtonsoft.Json.JsonConvert.DeserializeObject<TestItem0>(json));
 
-            json = Utf8Json.JsonSerializer.ToJsonString(Item);
-            var r2 = Benchmark.Run(() => Utf8Json.JsonSerializer.Deserialize<TestItem0>(json));
-
             json = System.Text.Json.JsonSerializer.Serialize(Item);
             var r3 = Benchmark.Run(() => System.Text.Json.JsonSerializer.Deserialize<TestItem0>(json));
 
@@ -101,7 +96,6 @@ namespace Excogitated.Common.Test
             var r4 = Benchmark.Run(() => Jsonizer.Deserialize<TestItem0>(json));
             var stats = new StatsBuilder()
                 .Add(typeof(Newtonsoft.Json.JsonConvert).FullName, r1)
-                .Add(typeof(Utf8Json.JsonSerializer).FullName, r2)
                 .Add(typeof(System.Text.Json.JsonSerializer).FullName, r3)
                 .Add(typeof(Jsonizer).FullName, r4)
                 .ToString();
@@ -134,9 +128,9 @@ namespace Excogitated.Common.Test
         }
     }
 
-    public enum TestEnum2 { test1, test2, test3, test4, test5 }
-    public enum TestEnum1 { test1, test2, test3, test4, test5 }
-    public enum TestEnum0 { test1, test2, test3, test4, test5 }
+    public enum TestEnum2 { test1, test2, test3, test4, test5, Test5 = test5 }
+    public enum TestEnum1 { test1, test2, test3, test4, test5, Test5 = test5 }
+    public enum TestEnum0 { test1, test2, test3, test4, test5, Test5 = test5 }
 
     public class TestItem2
     {

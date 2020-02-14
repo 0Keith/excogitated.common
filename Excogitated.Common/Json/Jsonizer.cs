@@ -102,9 +102,9 @@ namespace Excogitated.Common
                 var map = new Dictionary<string, Enum>();
                 foreach (var p in pairs)
                     if (k.Item2)
-                        map.Add(p.name.ToLower(), p.value);
+                        map[p.name.ToLower()] = p.value;
                     else
-                        map.Add(p.name, p.value);
+                        map[p.name] = p.value;
                 return map;
             });
             if (ignoreCase)
