@@ -244,9 +244,18 @@ namespace Excogitated.Common
                     var zipFile = GetFile(key.ToString());
                     var zipPath = zipFile.FullName;
                     using (await _fileLocks.GetOrAdd(zipPath).EnterAsync())
+                    {
+                        IncrementVersion(item, index, key);
                         await new FileInfo($"{zipPath}.temp").Zip(item, zipFile);
+                        index[key] = item;
+                    }
                 }
-                index[key] = item;
+                else
+                    lock (key.ToString())
+                    {
+                        IncrementVersion(item, index, key);
+                        index[key] = item;
+                    }
             });
             _deleters.Add(async item =>
             {
@@ -265,6 +274,13 @@ namespace Excogitated.Common
                 await Initialize();
                 return index.TryGetValue(key, out var item) ? item : default;
             };
+        }
+
+        private static void IncrementVersion<Key>(T item, AtomicDictionary<Key, T> index, Key key)
+        {
+            if (index.TryGetValue(key, out var current) && current.Version != item.Version)
+                throw new Exception($"Upsert failed, version has changed. Expected: {item.Version}, Actual: {current.Version}");
+            item.Version++;
         }
 
         public Func<Key, ValueTask<T>> CreateIndexMany<Key>(Func<T, IEnumerable<Key>> keySelector)
