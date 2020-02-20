@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Excogitated.Common.Test
 {
@@ -125,6 +126,17 @@ namespace Excogitated.Common.Test
                 .Add(nameof(Extensions_String.ToDecimal), r2)
                 .ToString();
             Console.WriteLine(stats);
+        }
+
+        [TestMethod]
+        public async Task GenerateClassFromJson()
+        {
+            var result = await new JsonClassGenerator()
+            {
+                RootName = "OptionChain"
+            }.FromUrl("https://api.nasdaq.com/api/quote/AMD/option-chain?assetclass=stocks");
+            Console.WriteLine(result);
+            //Assert.AreEqual(@"", result);
         }
     }
 
