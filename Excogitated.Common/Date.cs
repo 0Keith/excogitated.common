@@ -144,8 +144,6 @@ namespace Excogitated.Common
         public int YearMonthDay { get; }
         public DateTime DateTime => YearMonthDay == 0 ? DateTime.MinValue : new DateTime(Year, Month, Day);
         public DayOfWeek DayOfWeek => DateTime.DayOfWeek;
-        public Date StartOfMonth => new Date(Year, Month, 1);
-        public Date StartOfYear => new Date(Year, 1, 1);
 
         public Date(int year, int month, int day)
         {
@@ -172,6 +170,9 @@ namespace Excogitated.Common
             if (TryValidate(Year, Month, Day) is string ex)
                 throw new ArgumentException(ex);
         }
+
+        public Date GetStartOfMonth() => new Date(Year, Month, 1);
+        public Date GetStartOfYear() => new Date(Year, 1, 1);
 
         public Date AddDays(int days) => DateTime.AddDays(days);
         public Date AddWeeks(int weeks) => DateTime.AddDays(weeks * 7);
