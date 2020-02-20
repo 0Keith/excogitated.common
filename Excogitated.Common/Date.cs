@@ -75,17 +75,8 @@ namespace Excogitated.Common
         public static implicit operator Date(string date) => Parse(date);
         public static implicit operator Date(int ymd) => new Date(ymd);
 
-        //public static bool operator >(SimpleDate left, SimpleDate right) => left.EpochSeconds > right.EpochSeconds;
-        //public static bool operator <(SimpleDate left, SimpleDate right) => left.EpochSeconds < right.EpochSeconds;
-        //public static bool operator >=(SimpleDate left, SimpleDate right) => left.EpochSeconds >= right.EpochSeconds;
-        //public static bool operator <=(SimpleDate left, SimpleDate right) => left.EpochSeconds <= right.EpochSeconds;
         public static bool operator ==(Date left, Date right) => left.YearMonthDay == right.YearMonthDay;
         public static bool operator !=(Date left, Date right) => left.YearMonthDay != right.YearMonthDay;
-
-        //public static bool operator ==(SimpleDate left, DateTimeOffset right) => left == right.ToSimple();
-        //public static bool operator !=(SimpleDate left, DateTimeOffset right) => left != right.ToSimple();
-        //public static bool operator ==(DateTimeOffset left, SimpleDate right) => left.ToSimple() == right;
-        //public static bool operator !=(DateTimeOffset left, SimpleDate right) => left.ToSimple() != right;
 
         public static TimeSpan operator -(Date left, Date right) => left.DateTime - right.DateTime;
 
@@ -153,6 +144,8 @@ namespace Excogitated.Common
         public int YearMonthDay { get; }
         public DateTime DateTime => YearMonthDay == 0 ? DateTime.MinValue : new DateTime(Year, Month, Day);
         public DayOfWeek DayOfWeek => DateTime.DayOfWeek;
+        public Date StartOfMonth => new Date(Year, Month, 1);
+        public Date StartOfYear => new Date(Year, 1, 1);
 
         public Date(int year, int month, int day)
         {
