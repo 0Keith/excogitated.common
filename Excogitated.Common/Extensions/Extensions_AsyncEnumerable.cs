@@ -419,5 +419,21 @@ namespace Excogitated.Common
                 await batch;
             }
         }
+
+        public static async ValueTask<TSeed> Aggregate<T, TSeed>(this IAsyncEnumerable<T> source, TSeed seed, Func<T, T, TSeed, TSeed> aggregator)
+        {
+            aggregator.NotNull(nameof(aggregator));
+            await using var items = source.NotNull(nameof(source)).GetAsyncEnumerator();
+            if (await items.MoveNextAsync())
+            {
+                var previous = items.Current;
+                while (await items.MoveNextAsync())
+                {
+                    seed = aggregator(previous, items.Current, seed);
+                    previous = items.Current;
+                }
+            }
+            return seed;
+        }
     }
 }

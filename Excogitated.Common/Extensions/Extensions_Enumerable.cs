@@ -225,6 +225,22 @@ namespace Excogitated.Common
                     yield return q.Dequeue();
             }
         }
+
+        public static TSeed Aggregate<T, TSeed>(this IEnumerable<T> source, TSeed seed, Func<T, T, TSeed, TSeed> aggregator)
+        {
+            aggregator.NotNull(nameof(aggregator));
+            using var items = source.NotNull(nameof(source)).GetEnumerator();
+            if (items.MoveNext())
+            {
+                var previous = items.Current;
+                while (items.MoveNext())
+                {
+                    seed = aggregator(previous, items.Current, seed);
+                    previous = items.Current;
+                }
+            }
+            return seed;
+        }
     }
 
     public class CountedEnumerator<T> : IEnumerator<T>

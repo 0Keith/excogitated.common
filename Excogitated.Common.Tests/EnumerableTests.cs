@@ -23,5 +23,12 @@ namespace Excogitated.Common.Test
             var count = items.SkipLast(10).Count();
             Assert.AreEqual(items.Count - 10, count);
         }
+
+        [TestMethod]
+        public void Aggregate()
+        {
+            var value = Enumerable.Range(1, 4).Aggregate(10, (i1, i2, s) => i1 * i2 + s);
+            Assert.AreEqual(30, value);
+        }
     }
 }

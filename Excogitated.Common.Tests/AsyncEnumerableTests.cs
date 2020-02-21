@@ -59,5 +59,12 @@ namespace Excogitated.Common.Test
             Assert.AreEqual(items.Count, ids.Count);
             Assert.IsTrue(threadCount <= ids.Distinct().Count());
         }
+
+        [TestMethod]
+        public async Task Aggregate()
+        {
+            var value = await Enumerable.Range(1, 4).ToAsync().Aggregate(10, (i1, i2, s) => i1 * i2 + s);
+            Assert.AreEqual(30, value);
+        }
     }
 }
