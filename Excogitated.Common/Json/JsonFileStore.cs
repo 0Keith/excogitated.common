@@ -62,15 +62,18 @@ namespace Excogitated.Common
                             .Where(f => f.Name.StartsWith("db."))
                             .Where(f => f.Name.EndsWith(".json.zip"))
                             .ToList();
-                        using (var zip = ZipFile.Open(tempFile.FullName, ZipArchiveMode.Update))
+                        using (var backup = ZipFile.Open(tempFile.FullName, ZipArchiveMode.Update))
                             foreach (var file in files.Watch(files.Count))
                                 using (await _fileLocks.GetOrAdd(file.FullName).EnterAsync())
                                 {
-                                    var entry = zip.CreateEntry(file.Name, CompressionLevel.Optimal);
-                                    using var stream = entry.Open();
-                                    using var reader = file.OpenRead();
-                                    await reader.CopyToAsync(stream);
-                                    await stream.FlushAsync();
+                                    using var zip = ZipFile.Open(file.FullName, ZipArchiveMode.Update);
+                                    foreach (var entry in zip.Entries)
+                                    {
+                                        using var source = entry.Open();
+                                        using var target = backup.CreateEntry(entry.FullName, CompressionLevel.Optimal).Open();
+                                        await source.CopyToAsync(target);
+                                        await target.FlushAsync();
+                                    }
                                 }
                         await tempFile.MoveAsync(_settings.BackupFile);
                     }
@@ -118,8 +121,19 @@ namespace Excogitated.Common
             {
                 if (_settings.DataDir.IsNotNullOrWhiteSpace())
                 {
-                    using var zip = ZipFile.OpenRead(file.FullName);
-                    await zip.ExtractToDirectoryAsync(_dataDir);
+                    using var backup = ZipFile.OpenRead(file.FullName);
+                    foreach (var e in backup.Entries)
+                        if (e.FullName.EndsWith(".zip"))
+                            await e.ExtractToFileAsync(_dataDir);
+                        else
+                        {
+                            var path = Path.Combine(_dataDir.FullName, e.Name, ".zip");
+                            using var zip = ZipFile.Open(path, ZipArchiveMode.Update);
+                            using var target = zip.CreateEntry(e.FullName, CompressionLevel.Optimal).Open();
+                            using var source = e.Open();
+                            await source.CopyToAsync(target);
+                            await target.FlushAsync();
+                        }
                     return await InitializeFromData();
                 }
 
@@ -128,12 +142,17 @@ namespace Excogitated.Common
                 var threads = Environment.ProcessorCount / 2;
                 await Task.WhenAll(Enumerable.Range(0, threads).Select(i => Task.Run(async () =>
                 {
-                    using var zip = ZipFile.OpenRead(file.FullName);
-                    foreach (var entry in zip.Entries.OrderBy(e => e.Length).Where(e => loaded.TryAdd(e.FullName)).Watch(zip.Entries.Count / threads))
+                    using var backup = ZipFile.OpenRead(file.FullName);
+                    foreach (var entry in backup.Entries.OrderBy(e => e.Length).Where(e => loaded.TryAdd(e.FullName)).Watch(backup.Entries.Count / threads))
                     {
                         using var stream = entry.Open();
-                        using var data = new ZipArchive(stream, ZipArchiveMode.Read);
-                        await InitializeFromZip(data, false);
+                        if (entry.FullName.EndsWith(".zip"))
+                        {
+                            using var data = new ZipArchive(stream, ZipArchiveMode.Read);
+                            await InitializeFromZip(data, false);
+                        }
+                        else
+                            await InitializeFromStream(stream, false);
                         count.Increment();
                     }
                 })));
@@ -195,14 +214,19 @@ namespace Excogitated.Common
             foreach (var entry in zip.Entries)
             {
                 using var stream = entry.Open();
-                var item = await Jsonizer.DeserializeAsync<T>(stream);
-                foreach (var initialize in _initializers)
-                    initialize(new JsonTransaction<T>
-                    {
-                        Item = item,
-                        Overwrite = overwrite
-                    });
+                await InitializeFromStream(stream, overwrite);
             }
+        }
+
+        private async Task InitializeFromStream(Stream stream, bool overwrite)
+        {
+            var item = await Jsonizer.DeserializeAsync<T>(stream);
+            foreach (var initialize in _initializers)
+                initialize(new JsonTransaction<T>
+                {
+                    Item = item,
+                    Overwrite = overwrite
+                });
         }
 
         private FileInfo GetFile(string key)

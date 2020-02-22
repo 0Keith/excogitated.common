@@ -133,8 +133,8 @@ namespace Excogitated.Common.Test
         {
             var result = await new JsonClassGenerator()
             {
-                RootName = "OptionChain"
-            }.FromUrl("https://api.nasdaq.com/api/quote/AMD/option-chain?assetclass=stocks");
+                RootName = "Quote"
+            }.FromUrl("https://api.nasdaq.com/api/quote/AMD/info?assetclass=stocks");
             Console.WriteLine(result);
             //Assert.AreEqual(@"", result);
         }
