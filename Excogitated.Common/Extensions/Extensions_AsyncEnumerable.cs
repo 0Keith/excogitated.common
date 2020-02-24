@@ -130,6 +130,18 @@ namespace Excogitated.Common
             return min;
         }
 
+        public static async ValueTask<T> MinSelect<T, R>(this IAsyncEnumerable<T> values, Func<T, R> minFunc) where R : IComparable<R>
+        {
+            values.NotNull(nameof(values));
+            minFunc.NotNull(nameof(minFunc));
+            await using var v = values.GetAsyncEnumerator();
+            var min = await v.MoveNextAsync() ? v.Current : default;
+            while (await v.MoveNextAsync())
+                if (minFunc(min).CompareTo(minFunc(v.Current)) > 0)
+                    min = v.Current;
+            return min;
+        }
+
         public static ValueTask<R> MaxOrDefault<T, R>(this IAsyncEnumerable<T> values, Func<T, R> selector)
             where R : IComparable<R> => values.Select(selector).MaxOrDefault();
         public static async ValueTask<T> MaxOrDefault<T>(this IAsyncEnumerable<T> source) where T : IComparable<T>
@@ -142,6 +154,18 @@ namespace Excogitated.Common
             while (await values.MoveNextAsync())
                 if (max.CompareTo(values.Current) < 0)
                     max = values.Current;
+            return max;
+        }
+
+        public static async ValueTask<T> MaxSelect<T, R>(this IAsyncEnumerable<T> values, Func<T, R> maxFunc) where R : IComparable<R>
+        {
+            values.NotNull(nameof(values));
+            maxFunc.NotNull(nameof(maxFunc));
+            await using var v = values.GetAsyncEnumerator();
+            var max = await v.MoveNextAsync() ? v.Current : default;
+            while (await v.MoveNextAsync())
+                if (maxFunc(max).CompareTo(maxFunc(v.Current)) < 0)
+                    max = v.Current;
             return max;
         }
 

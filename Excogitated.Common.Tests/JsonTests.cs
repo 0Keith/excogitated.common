@@ -2,7 +2,10 @@ using Excogitated.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Excogitated.Common.Test
@@ -131,11 +134,23 @@ namespace Excogitated.Common.Test
         [TestMethod]
         public async Task GenerateClassFromJson()
         {
-            var result = await new JsonClassGenerator()
+            using var client = new HttpClient();
+            var json = await client.GetStringAsync("https://api.nasdaq.com/api/quote/AMD/info?assetclass=stocks");
+            var result = new JsonClassGenerator()
             {
                 RootName = "Quote"
-            }.FromUrl("https://api.nasdaq.com/api/quote/AMD/info?assetclass=stocks");
+            }.FromString(json);
             Console.WriteLine(result);
+            using var doc = JsonDocument.Parse(json);
+
+            using var stream = new MemoryStream();
+            await using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
+            doc.WriteTo(writer);
+            await writer.FlushAsync();
+            stream.Position = 0;
+            using var reader = new StreamReader(stream);
+            var prettyJson = await reader.ReadToEndAsync();
+            Console.WriteLine(prettyJson);
             //Assert.AreEqual(@"", result);
         }
     }

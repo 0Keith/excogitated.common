@@ -66,5 +66,15 @@ namespace Excogitated.Common.Test
             var value = await Enumerable.Range(1, 4).ToAsync().Aggregate(10, (i1, i2, s) => i1 * i2 + s);
             Assert.AreEqual(30, value);
         }
+
+        [TestMethod]
+        public async Task MinMaxSelect()
+        {
+            var values = Enumerable.Range(1, 10000).Randomize().ToAsync();
+            var min = await values.MinSelect(i => i.ToDecimal());
+            var max = await values.MaxSelect(i => i.ToDecimal());
+            Assert.AreEqual(1, min);
+            Assert.AreEqual(10000, max);
+        }
     }
 }
