@@ -296,7 +296,7 @@ namespace Excogitated.Common
             return async key =>
             {
                 await Initialize();
-                return index.TryGetValue(key, out var item) ? item : default;
+                return Jsonizer.DeepCopy(index.TryGetValue(key, out var item) ? item : default);
             };
         }
 
@@ -329,7 +329,7 @@ namespace Excogitated.Common
             return async key =>
             {
                 await Initialize();
-                return index.TryGetValue(key, out var item) ? item : default;
+                return Jsonizer.DeepCopy(index.TryGetValue(key, out var item) ? item : default);
             };
         }
 

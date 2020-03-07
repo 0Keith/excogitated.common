@@ -179,14 +179,15 @@ namespace Excogitated.Common.Test
         public long Volume { get; set; }
     }
 
-    public class TestItem0
+    public class TestItem0 : IVersionable
     {
+        public long Version { get; set; }
+
         public MonthDayYear mdy { get; set; }
         public MonthDayYear MonthDayYear => mdy;
 
         public DateTime Now { get; set; }
         public DateTimeOffset NowOffset { get; set; }
-        public int Version { get; set; }
         public double AverageVolume { get; set; }
         public List<string> Codes { get; set; }
         public Date ListDate { get; set; }
