@@ -135,7 +135,7 @@ namespace Excogitated.Common.Test
         public async Task GenerateClassFromJson()
         {
             using var client = new HttpClient();
-            var json = await client.GetStringAsync("https://api.nasdaq.com/api/quote/AMD/info?assetclass=stocks");
+            var json = await client.GetStringAsync("https://api.nasdaq.com/api/quote/A/info?assetclass=stocks");
             var result = new JsonClassGenerator()
             {
                 RootName = "Quote"

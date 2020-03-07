@@ -43,8 +43,9 @@ namespace Excogitated.Common
             source.Refresh();
             if (source.Exists)
             {
-                await destination.DeleteAsync();
-                await Task.Run(() => source.MoveTo(destination.FullName));
+                var backup = new FileInfo($"{destination.FullName}.backup");
+                await Task.Run(() => source.Replace(destination.FullName, backup.FullName));
+                await backup.DeleteAsync();
             }
         }
 

@@ -80,6 +80,9 @@ namespace Excogitated.Common
 
     public static class Extensions_Task_Continue
     {
+        public static ValueTask<T> ToValueTask<T>(this Task<T> task) => new ValueTask<T>(task);
+        public static ValueTask ToValueTask(this Task task) => new ValueTask(task);
+
         public static async Task<R> Continue<T, R>(this Task<T> task, Func<T, Task<R>> selector)
         {
             var value = await task.NotNull(nameof(task));
