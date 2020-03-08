@@ -138,7 +138,18 @@ namespace Excogitated.Common
             }));
         }
 
-        public static string Format(string json) => Serialize(Deserialize<object>(json), true);
+        public static string Format(string json)
+        {
+            using var doc = JsonDocument.Parse(json);
+            using var stream = new MemoryStream();
+            using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
+            doc.WriteTo(writer);
+            writer.Flush();
+            stream.Position = 0;
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
+        }
+
         public static T CopyTo<T>(object source) => Deserialize<T>(Serialize(source));
         public static T DeepCopy<T>(T item) => CopyTo<T>(item);
 

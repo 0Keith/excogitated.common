@@ -2,10 +2,8 @@ using Excogitated.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Excogitated.Common.Test
@@ -132,26 +130,28 @@ namespace Excogitated.Common.Test
         }
 
         [TestMethod]
-        public async Task GenerateClassFromJson()
+        public void GenerateClassFromJson()
         {
-            using var client = new HttpClient();
-            var json = await client.GetStringAsync("https://api.nasdaq.com/api/quote/A/info?assetclass=stocks");
-            var result = new JsonClassGenerator()
+            var json = "{\"next\":\"https://api.robinhood.com/options/orders/?cursor=cD0yMDE5LTA0LTIyKzE3JTNBMzElM0E1Ni44MjQzNzYlMkIwMCUzQTAw\",\"previous\":null,\"results\":[{\"cancel_url\":null,\"canceled_quantity\":\"0.00000\",\"created_at\":\"2020-02-28T17:55:05.955191Z\",\"direction\":\"credit\",\"id\":\"e2d8dc8d-6637-469c-9b27-61499069d300\",\"legs\":[{\"executions\":[{\"id\":\"5bba6932-93c7-4e77-91ee-c3da36106f73\",\"price\":\"6.85000000\",\"quantity\":\"2.00000\",\"settlement_date\":\"2020-03-02\",\"timestamp\":\"2020-02-28T21:00:00.059000Z\"},{\"id\":\"c730e53c-eaf8-4b30-b258-344ff7d3bf21\",\"price\":\"6.85000000\",\"quantity\":\"2.00000\",\"settlement_date\":\"2020-03-02\",\"timestamp\":\"2020-02-28T21:02:17.765000Z\"},{\"id\":\"2da9a6b4-61a8-4726-a42d-e43c68333b0b\",\"price\":\"6.85000000\",\"quantity\":\"6.00000\",\"settlement_date\":\"2020-03-02\",\"timestamp\":\"2020-02-28T21:02:17.773000Z\"},{\"id\":\"e202d522-0eb9-4932-8323-c030368a20eb\",\"price\":\"6.85000000\",\"quantity\":\"2.00000\",\"settlement_date\":\"2020-03-02\",\"timestamp\":\"2020-02-28T21:02:17.609000Z\"}],\"id\":\"c91e3aed-ace2-488b-9cb6-19acc8e64b44\",\"option\":\"https://api.robinhood.com/options/instruments/2de556d4-fde0-43a3-83bf-9ff8aaa41d46/\",\"position_effect\":\"close\",\"ratio_quantity\":1,\"side\":\"sell\"}],\"pending_quantity\":\"0.00000\",\"premium\":\"685.00000000\",\"processed_premium\":\"8220.00000000000000000\",\"price\":\"6.85000000\",\"processed_quantity\":\"12.00000\",\"quantity\":\"12.00000\",\"ref_id\":\"560047e3-a3ee-47a6-858e-17c5cab67bc7\",\"state\":\"filled\",\"time_in_force\":\"gfd\",\"trigger\":\"immediate\",\"type\":\"limit\",\"updated_at\":\"2020-02-28T21:02:18.447276Z\",\"chain_id\":\"c277b118-58d9-4060-8dc5-a3b5898955cb\",\"chain_symbol\":\"SPY\",\"response_category\":\"success\",\"opening_strategy\":null,\"closing_strategy\":\"long_call\",\"stop_price\":null}]}";
+            var result = new JsonClassGenerator
             {
-                RootName = "Quote"
+                RootName = "MarketdataOptions"
             }.FromString(json);
             Console.WriteLine(result);
-            using var doc = JsonDocument.Parse(json);
+            Console.WriteLine(Jsonizer.Format(json));
+        }
 
-            using var stream = new MemoryStream();
-            await using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
-            doc.WriteTo(writer);
-            await writer.FlushAsync();
-            stream.Position = 0;
-            using var reader = new StreamReader(stream);
-            var prettyJson = await reader.ReadToEndAsync();
-            Console.WriteLine(prettyJson);
-            //Assert.AreEqual(@"", result);
+        [TestMethod]
+        public async Task GenerateClassFromJsonUrl()
+        {
+            using var client = new HttpClient();
+            var json = await client.GetStringAsync("https://api.robinhood.com/options/instruments/?chain_symbol=AMD&expiration_dates=2020-04-09&strike_price=70&type=call");
+            var result = new JsonClassGenerator()
+            {
+                RootName = "OptionInstruments"
+            }.FromString(json);
+            Console.WriteLine(result);
+            Console.WriteLine(Jsonizer.Format(json));
         }
     }
 

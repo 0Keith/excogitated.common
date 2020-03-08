@@ -46,7 +46,7 @@ namespace Excogitated.Common
             _messages.Clear();
             using (await _fileLock.EnterAsync())
             {
-                LogFile.Directory.CreateStrong();
+                await LogFile.Directory.CreateStrongAsync();
                 File.WriteAllText(LogFile.FullName, string.Empty);
             }
         }

@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Excogitated.Common
@@ -11,19 +13,37 @@ namespace Excogitated.Common
         {
             file.NotNull(nameof(file));
             file.Refresh();
-            if (file.Exists)
+            var w = Stopwatch.StartNew();
+            while (file.Exists)
             {
-                await Task.Run(() => File.WriteAllText(file.FullName, string.Empty));
-                await Task.Run(() => file.Delete());
+                file.Delete();
+                await AsyncTimer.Delay(w.Elapsed);
+                file.Refresh();
             }
         }
 
         public static void CreateStrong(this DirectoryInfo dir)
         {
             dir.NotNull(nameof(dir));
+            dir.Refresh();
+            var w = Stopwatch.StartNew();
             while (!dir.Exists)
             {
                 dir.Create();
+                Thread.Sleep(w.Elapsed);
+                dir.Refresh();
+            }
+        }
+
+        public static async Task CreateStrongAsync(this DirectoryInfo dir)
+        {
+            dir.NotNull(nameof(dir));
+            dir.Refresh();
+            var w = Stopwatch.StartNew();
+            while (!dir.Exists)
+            {
+                dir.Create();
+                await AsyncTimer.Delay(w.Elapsed);
                 dir.Refresh();
             }
         }
@@ -44,7 +64,19 @@ namespace Excogitated.Common
             if (source.Exists)
             {
                 var backup = new FileInfo($"{destination.FullName}.backup");
-                await Task.Run(() => source.Replace(destination.FullName, backup.FullName));
+                await backup.DeleteAsync();
+                var now = DateTime.UtcNow;
+                source.Replace(destination.FullName, backup.FullName);
+
+                var w = Stopwatch.StartNew();
+                var sourceLength = source.Length;
+                while (!backup.Exists || destination.LastWriteTimeUtc < now || destination.Length != sourceLength)
+                {
+                    await AsyncTimer.Delay(w.Elapsed);
+                    destination.Refresh();
+                    backup.Refresh();
+                }
+                await source.DeleteAsync();
                 await backup.DeleteAsync();
             }
         }

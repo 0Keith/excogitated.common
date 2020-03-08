@@ -15,7 +15,7 @@ namespace Excogitated.Common
 
         public static async ValueTask ExtractToFileAsync(this ZipArchiveEntry entry, DirectoryInfo dir)
         {
-            dir.CreateStrong();
+            await dir.CreateStrongAsync();
             entry.NotNull(nameof(entry));
             using var stream = entry.Open();
             var fileName = Path.Combine(dir.FullName, entry.Name);
