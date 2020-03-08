@@ -9,6 +9,8 @@ namespace Excogitated.Common
 {
     public static class Extensions_File
     {
+        private const int _maxExecutionTime = 30000;
+
         public static async ValueTask DeleteAsync(this FileInfo file)
         {
             file.NotNull(nameof(file));
@@ -19,6 +21,8 @@ namespace Excogitated.Common
                 file.Delete();
                 await AsyncTimer.Delay(w.Elapsed);
                 file.Refresh();
+                if (w.ElapsedMilliseconds > _maxExecutionTime)
+                    throw new Exception($"Exceeded max execution time. File: {file}");
             }
         }
 
@@ -32,6 +36,8 @@ namespace Excogitated.Common
                 dir.Create();
                 Thread.Sleep(w.Elapsed);
                 dir.Refresh();
+                if (w.ElapsedMilliseconds > _maxExecutionTime)
+                    throw new Exception($"Exceeded max execution time. Directory: {dir}");
             }
         }
 
@@ -45,6 +51,8 @@ namespace Excogitated.Common
                 dir.Create();
                 await AsyncTimer.Delay(w.Elapsed);
                 dir.Refresh();
+                if (w.ElapsedMilliseconds > _maxExecutionTime)
+                    throw new Exception($"Exceeded max execution time. Directory: {dir}");
             }
         }
 
@@ -65,16 +73,16 @@ namespace Excogitated.Common
             {
                 var backup = new FileInfo($"{destination.FullName}.backup");
                 await backup.DeleteAsync();
-                var now = DateTime.UtcNow;
-                source.Replace(destination.FullName, backup.FullName);
-
-                var w = Stopwatch.StartNew();
                 var sourceLength = source.Length;
-                while (!backup.Exists || destination.LastWriteTimeUtc < now || destination.Length != sourceLength)
+                source.Replace(destination.FullName, backup.FullName);
+                var w = Stopwatch.StartNew();
+                while (!backup.Exists || destination.Length != sourceLength)
                 {
                     await AsyncTimer.Delay(w.Elapsed);
                     destination.Refresh();
                     backup.Refresh();
+                    if (w.ElapsedMilliseconds > _maxExecutionTime)
+                        throw new Exception($"Exceeded max execution time. Source: {source}, Destination: {destination}");
                 }
                 await source.DeleteAsync();
                 await backup.DeleteAsync();
