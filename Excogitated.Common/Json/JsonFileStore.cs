@@ -17,6 +17,7 @@ namespace Excogitated.Common
     {
         public string DataDir { get; set; }
         public string BackupFile { get; set; }
+        public TimeSpan BackupInterval { get; set; }
 
         public override string ToString() => Jsonizer.Serialize(this);
     }
@@ -44,7 +45,11 @@ namespace Excogitated.Common
                 _dataDir = new DirectoryInfo(settings.DataDir);
                 _dataDir.CreateStrong();
                 if (_settings.BackupFile.IsNotNullOrWhiteSpace())
+                {
+                    if (_settings.BackupInterval <= TimeSpan.Zero)
+                        _settings.BackupInterval = TimeSpan.FromMinutes(1);
                     StartBackups();
+                }
             }
         }
 
@@ -53,7 +58,7 @@ namespace Excogitated.Common
             while (true)
                 try
                 {
-                    await Task.Delay(TimeSpan.FromMinutes(1));
+                    await Task.Delay(_settings.BackupInterval);
                     if (_initialized)
                     {
                         var tempFile = new FileInfo(_settings.BackupFile + ".temp");
