@@ -127,7 +127,7 @@ namespace Excogitated.Common
                             await e.ExtractToFileAsync(_dataDir);
                         else
                         {
-                            var path = Path.Combine(_dataDir.FullName, e.Name, ".zip");
+                            var path = Path.Combine(_dataDir.FullName, $"{e.Name}.zip");
                             using var zip = ZipFile.Open(path, ZipArchiveMode.Update);
                             using var target = zip.CreateEntry(e.FullName, CompressionLevel.Optimal).Open();
                             using var source = e.Open();
