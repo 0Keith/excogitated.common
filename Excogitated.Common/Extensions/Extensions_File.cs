@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -68,25 +70,35 @@ namespace Excogitated.Common
         public static async ValueTask MoveAsync(this FileInfo source, FileInfo destination)
         {
             source.NotNull(nameof(source));
-            source.Refresh();
-            if (source.Exists)
-            {
-                var backup = new FileInfo($"{destination.FullName}.backup");
-                await backup.DeleteAsync();
-                var sourceLength = source.Length;
-                source.Replace(destination.FullName, backup.FullName);
-                var w = Stopwatch.StartNew();
-                while (!backup.Exists || destination.Length != sourceLength)
+            destination.NotNull(nameof(destination));
+            var exceptions = new List<Exception>();
+            foreach (var i in Enumerable.Range(0, 10))
+                try
                 {
-                    await AsyncTimer.Delay(w.Elapsed);
+                    source.Refresh();
                     destination.Refresh();
-                    backup.Refresh();
-                    if (w.ElapsedMilliseconds > _maxExecutionTime)
-                        throw new Exception($"Exceeded max execution time. Source: {source}, Destination: {destination}");
+                    var backup = new FileInfo($"{destination.FullName}.backup");
+                    await backup.DeleteAsync();
+                    var sourceLength = source.Length;
+                    source.Replace(destination.FullName, backup.FullName);
+                    var w = Stopwatch.StartNew();
+                    while (!backup.Exists || destination.Length != sourceLength)
+                    {
+                        await AsyncTimer.Delay(w.Elapsed);
+                        destination.Refresh();
+                        backup.Refresh();
+                        if (w.ElapsedMilliseconds > _maxExecutionTime)
+                            throw new Exception($"Exceeded max execution time. Source: {source}, Destination: {destination}");
+                    }
+                    await backup.DeleteAsync();
+                    await source.DeleteAsync();
+                    return;
                 }
-                await source.DeleteAsync();
-                await backup.DeleteAsync();
-            }
+                catch (Exception e)
+                {
+                    exceptions.Add(e);
+                }
+            throw new AggregateException($"Source: {source}, Destination: {destination}", exceptions);
         }
 
         public static int Start(this FileInfo file)
