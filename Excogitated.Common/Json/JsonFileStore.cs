@@ -336,9 +336,10 @@ namespace Excogitated.Common
         public async ValueTask Upsert(T document)
         {
             document.NotNull(nameof(document));
+            var copy = Jsonizer.DeepCopy(document);
             await Initialize();
             foreach (var upsert in _upserters)
-                await upsert(document);
+                await upsert(copy);
         }
 
         public async ValueTask<long> Delete(Func<T, bool> deleteSelector)
