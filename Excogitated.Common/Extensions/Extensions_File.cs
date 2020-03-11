@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -66,58 +63,11 @@ namespace Excogitated.Common
             await file.FlushAsync();
         }
 
-        public static ValueTask MoveAsync(this FileInfo source, string destination) => source.MoveAsync(new FileInfo(destination));
-        public static async ValueTask MoveAsync(this FileInfo source, FileInfo destination)
-        {
-            source.NotNull(nameof(source));
-            destination.NotNull(nameof(destination));
-            var exceptions = new List<Exception>();
-            foreach (var i in Enumerable.Range(0, 10))
-                try
-                {
-                    source.Refresh();
-                    destination.Refresh();
-                    var backup = new FileInfo($"{destination.FullName}.backup");
-                    await backup.DeleteAsync();
-                    var sourceLength = source.Length;
-                    source.Replace(destination.FullName, backup.FullName);
-                    var w = Stopwatch.StartNew();
-                    while (!backup.Exists || destination.Length != sourceLength)
-                    {
-                        await AsyncTimer.Delay(w.Elapsed);
-                        destination.Refresh();
-                        backup.Refresh();
-                        if (w.ElapsedMilliseconds > _maxExecutionTime)
-                            throw new Exception($"Exceeded max execution time. Source: {source}, Destination: {destination}");
-                    }
-                    await backup.DeleteAsync();
-                    await source.DeleteAsync();
-                    return;
-                }
-                catch (Exception e)
-                {
-                    exceptions.Add(e);
-                }
-            throw new AggregateException($"Source: {source}, Destination: {destination}", exceptions);
-        }
-
         public static int Start(this FileInfo file)
         {
             file.NotNull(nameof(file));
             using var p = Process.Start("explorer", $"\"{file.FullName}\"");
             return p.Id;
-        }
-
-        public static async Task Zip<T>(this FileInfo tempFile, T item, FileInfo zipFile)
-        {
-            await tempFile.DeleteAsync();
-            using (var zip = ZipFile.Open(tempFile.FullName, ZipArchiveMode.Update))
-            {
-                var name = zipFile.Name.SkipLast(zipFile.Extension.Length).AsString();
-                using var stream = zip.CreateEntry(name, CompressionLevel.Optimal).Open();
-                await Jsonizer.SerializeAsync(item, stream);
-            }
-            await tempFile.MoveAsync(zipFile);
         }
     }
 }

@@ -45,6 +45,13 @@ namespace Excogitated.Common.Test
         }
 
         [TestMethod]
+        public async Task AverageOrZero()
+        {
+            var avg = await Enumerable.Range(-100, 201).ToAsync().AverageOrZero(i => i);
+            Assert.AreEqual(0, avg);
+        }
+
+        [TestMethod]
         public async Task Batch()
         {
             var items = Enumerable.Range(-1000, 1000).ToList();

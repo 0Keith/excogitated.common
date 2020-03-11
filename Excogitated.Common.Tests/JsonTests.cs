@@ -17,7 +17,6 @@ namespace Excogitated.Common.Test
             mdy = Date.Today,
             Now = DateTime.Now,
             NowOffset = DateTimeOffset.Now,
-            Version = 0,
             AverageVolume = Rng.Pseudo.GetDouble(),
             Codes = Enumerable.Range(0, 10).Select(i => Guid.NewGuid().ToString()).ToList(),
             ListDate = Date.Today,
@@ -179,10 +178,8 @@ namespace Excogitated.Common.Test
         public long Volume { get; set; }
     }
 
-    public class TestItem0 : IVersionable
+    public class TestItem0
     {
-        public long Version { get; set; }
-
         public MonthDayYear mdy { get; set; }
         public MonthDayYear MonthDayYear => mdy;
 
