@@ -61,8 +61,10 @@ namespace Excogitated.Common
 #if NETSTANDARD2_0
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source) => new HashSet<T>(source.NotNull(nameof(source)));
 #endif
-        public static Task<HashSet<T>> ToHashSet<T>(this Task<List<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToHashSet());
-        public static Task<HashSet<T>> ToHashSet<T>(this Task<IEnumerable<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToHashSet());
+        public static Task<HashSet<T>> ToHashSet<T>(this Task<List<T>> source) => source.Continue(s => s?.ToHashSet() ?? new HashSet<T>());
+        public static Task<HashSet<T>> ToHashSet<T>(this Task<IEnumerable<T>> source) => source.Continue(s => s?.ToHashSet() ?? new HashSet<T>());
+        public static ValueTask<HashSet<T>> ToHashSet<T>(this ValueTask<List<T>> source) => source.Continue(s => s?.ToHashSet() ?? new HashSet<T>());
+        public static ValueTask<HashSet<T>> ToHashSet<T>(this ValueTask<IEnumerable<T>> source) => source.Continue(s => s?.ToHashSet() ?? new HashSet<T>());
 
         public static AtomicHashSet<T> ToAtomicHashSet<T>(this IEnumerable<T> source) => new AtomicHashSet<T>(source);
         public static Task<AtomicHashSet<T>> ToAtomicHashSet<T>(this Task<List<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToAtomicHashSet());
