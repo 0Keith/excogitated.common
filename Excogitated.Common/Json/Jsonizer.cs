@@ -153,11 +153,11 @@ namespace Excogitated.Common
         public static T CopyTo<T>(object source) => Deserialize<T>(Serialize(source));
         public static T DeepCopy<T>(T item) => CopyTo<T>(item);
 
-        public static string Serialize<T>(T value, bool formatted = false) =>
-            JsonSerializer.Serialize(value, formatted ? FormattedSettings : DefaultSettings);
+        public static string Serialize(object value, bool formatted = false) =>
+            JsonSerializer.Serialize(value, value.GetType(), formatted ? FormattedSettings : DefaultSettings);
 
-        public static Task SerializeAsync<T>(T item, Stream stream, bool formatted = true) =>
-            JsonSerializer.SerializeAsync(stream, item, formatted ? FormattedSettings : DefaultSettings);
+        public static Task SerializeAsync(object value, Stream stream, bool formatted = true) =>
+            JsonSerializer.SerializeAsync(stream, value, value.GetType(), formatted ? FormattedSettings : DefaultSettings);
 
         public static T Deserialize<T>(string json)
         {

@@ -152,13 +152,22 @@ namespace Excogitated.Common.Test
             Console.WriteLine(result);
             Console.WriteLine(Jsonizer.Format(json));
         }
+
+        [TestMethod]
+        public async Task JsonObjectOutput()
+        {
+            var item = new TestItem2 { Amount = Rng.True.GetDecimal() };
+            var expected = Jsonizer.Serialize(item, true);
+            var actual = item.ToString();
+            Assert.AreEqual(expected, actual);
+        }
     }
 
     public enum TestEnum2 { test1, test2, test3, test4, test5, Test5 = test5 }
     public enum TestEnum1 { test1, test2, test3, test4, test5, Test5 = test5 }
     public enum TestEnum0 { test1, test2, test3, test4, test5, Test5 = test5 }
 
-    public class TestItem2
+    public class TestItem2 : JsonObject
     {
         public decimal Amount { get; set; }
         public Date DeclaredDate { get; set; }
