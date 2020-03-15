@@ -55,7 +55,7 @@ namespace Excogitated.Common
             if (!_running)
                 throw new Exception("Throttle is closed.");
             _consumers.Increment();
-            var success = await _flow.TryConsumeAsync().LogExecutionTime();
+            var success = await _flow.TryConsumeAsync().LogExecutionTime(false);
             _consumers.Decrement();
             if (!success.HasValue || !success.Value)
                 throw new Exception("Throttle was closed.");
@@ -66,7 +66,7 @@ namespace Excogitated.Common
             if (!_running)
                 return false;
             _consumers.Increment();
-            var success = await _flow.TryConsumeAsync().LogExecutionTime();
+            var success = await _flow.TryConsumeAsync().LogExecutionTime(false);
             _consumers.Decrement();
             return success.HasValue && success.Value;
         }

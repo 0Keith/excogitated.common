@@ -19,31 +19,33 @@ namespace Excogitated.Common
         private const int maxExecutionTime = 1000;
         private static readonly CowDictionary<string, ExecutionTiming> _timings = new CowDictionary<string, ExecutionTiming>();
 
-        private static void CacheTiming(string name, string file, long elapsedMilliseconds)
+        private static void CacheTiming(string name, string file, long elapsedMilliseconds, bool logDelays)
         {
             var key = $"{Path.GetFileNameWithoutExtension(file)}.{name}";
             var timing = _timings.GetOrAdd(key);
             timing.ElapsedMilliseconds.Add(elapsedMilliseconds);
             timing.Count.Increment();
-            if (elapsedMilliseconds > maxExecutionTime)
+            if (logDelays && elapsedMilliseconds > maxExecutionTime)
                 Loggers.Warn($"Execution exceeded {maxExecutionTime}ms. Key: {key}, Elapsed: {elapsedMilliseconds}ms");
         }
 
-        public static Task LogExecutionTime(this Task task, [CallerMemberName] string name = null, [CallerFilePath] string file = null) => new ValueTask(task).LogExecutionTime(name, file).AsTask();
-        public static async ValueTask LogExecutionTime(this ValueTask task, [CallerMemberName] string name = null, [CallerFilePath] string file = null)
+        public static Task LogExecutionTime(this Task task, bool logDelays = true, [CallerMemberName] string name = null, [CallerFilePath] string file = null) =>
+            new ValueTask(task).LogExecutionTime(logDelays, name, file).AsTask();
+        public static async ValueTask LogExecutionTime(this ValueTask task, bool logDelays = true, [CallerMemberName] string name = null, [CallerFilePath] string file = null)
         {
             var w = Stopwatch.StartNew();
             if (task != null)
                 await task;
-            CacheTiming(name, file, w.ElapsedMilliseconds);
+            CacheTiming(name, file, w.ElapsedMilliseconds, logDelays);
         }
 
-        public static Task<T> LogExecutionTime<T>(this Task<T> task, [CallerMemberName] string name = null, [CallerFilePath] string file = null) => new ValueTask<T>(task).LogExecutionTime(name, file).AsTask();
-        public static async ValueTask<T> LogExecutionTime<T>(this ValueTask<T> task, [CallerMemberName] string name = null, [CallerFilePath] string file = null)
+        public static Task<T> LogExecutionTime<T>(this Task<T> task, bool logDelays = true, [CallerMemberName] string name = null, [CallerFilePath] string file = null) =>
+            new ValueTask<T>(task).LogExecutionTime(logDelays, name, file).AsTask();
+        public static async ValueTask<T> LogExecutionTime<T>(this ValueTask<T> task, bool logDelays = true, [CallerMemberName] string name = null, [CallerFilePath] string file = null)
         {
             var w = Stopwatch.StartNew();
             var result = task != null ? await task : default;
-            CacheTiming(name, file, w.ElapsedMilliseconds);
+            CacheTiming(name, file, w.ElapsedMilliseconds, logDelays);
             return result;
         }
 
