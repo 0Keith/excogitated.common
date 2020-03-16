@@ -70,17 +70,17 @@ namespace Excogitated.Common
             options.AddStructConverter<Currency>((w, v) => w.WriteStringValue(v.ToString()), (ref Utf8JsonReader r) => r.GetString() ?? ZERO);
 
             //string to number handlers... because it doesn't handle numbers encased in quotes by default
-            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetByte(out var d) ? d : byte.Parse(r.GetString() ?? ZERO));
-            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetSByte(out var d) ? d : sbyte.Parse(r.GetString() ?? ZERO));
-            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetInt16(out var d) ? d : short.Parse(r.GetString() ?? ZERO));
-            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetUInt16(out var d) ? d : ushort.Parse(r.GetString() ?? ZERO));
-            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetInt32(out var d) ? d : int.Parse(r.GetString() ?? ZERO));
-            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetUInt32(out var d) ? d : uint.Parse(r.GetString() ?? ZERO));
-            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetInt64(out var d) ? d : long.Parse(r.GetString() ?? ZERO));
-            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetUInt64(out var d) ? d : ulong.Parse(r.GetString() ?? ZERO));
-            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetSingle(out var d) ? d : float.Parse(r.GetString() ?? ZERO));
-            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetDouble(out var d) ? d : double.Parse(r.GetString() ?? ZERO));
-            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetDecimal(out var d) ? d : decimal.Parse(r.GetString() ?? ZERO));
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetByte(out var d) || byte.TryParse(r.GetString() ?? ZERO, out d) ? d : 0);
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetSByte(out var d) || sbyte.TryParse(r.GetString() ?? ZERO, out d) ? d : 0);
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetInt16(out var d) || short.TryParse(r.GetString() ?? ZERO, out d) ? d : 0);
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetUInt16(out var d) || ushort.TryParse(r.GetString() ?? ZERO, out d) ? d : 0);
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetInt32(out var d) || int.TryParse(r.GetString() ?? ZERO, out d) ? d : 0);
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetUInt32(out var d) || uint.TryParse(r.GetString() ?? ZERO, out d) ? d : 0);
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetInt64(out var d) || long.TryParse(r.GetString() ?? ZERO, out d) ? d : 0);
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetUInt64(out var d) || ulong.TryParse(r.GetString() ?? ZERO, out d) ? d : 0);
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetSingle(out var d) || float.TryParse(r.GetString() ?? ZERO, out d) ? d : 0);
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetDouble(out var d) || double.TryParse(r.GetString() ?? ZERO, out d) ? d : 0);
+            options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetDecimal(out var d) || decimal.TryParse(r.GetString() ?? ZERO, out d) ? d : 0);
 
             options.AddClassConverter(e => e.ToString(), (s, t) =>
             {
