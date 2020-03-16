@@ -162,6 +162,20 @@ namespace Excogitated.Common.Test
             var actual = item.ToString();
             Assert.AreEqual(expected, actual);
         }
+
+        [TestMethod]
+        public void StringToNumberTest()
+        {
+            var item = Jsonizer.Deserialize<TestItem2>("{\"Amount\":\"1234.5678\"}");
+            Assert.AreEqual(1234.5678m, item.Amount);
+        }
+
+        [TestMethod]
+        public void NullToNumberTest()
+        {
+            var item = Jsonizer.Deserialize<TestItem2>("{\"Amount\":null}");
+            Assert.AreEqual(0m, item.Amount);
+        }
     }
 
     public enum TestEnum2 { test1, test2, test3, test4, test5, Test5 = test5 }
