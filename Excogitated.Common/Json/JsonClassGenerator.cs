@@ -78,6 +78,8 @@ namespace Excogitated.Common
                 if (className.Length > 1)
                     className = first + className.Substring(1);
             }
+            className += className.EndsWith("Data") ? "Info" : "Data";
+
             _builder.Append(Separator, _depth)
                 .Append(PropertyVisibility.ToString()).Append(" class ")
                 .Append(className).AppendLine(" {");
