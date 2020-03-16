@@ -42,7 +42,8 @@ namespace Excogitated.Common.Test
                 DeclaredDate = Date.Today.AddMonths(-i),
                 ExDate = Date.Today.AddDays(7).AddMonths(-i),
                 PayDate = Date.Today.AddDays(14).AddMonths(-i),
-                Type = Rng.Pseudo.SelectOne<TestEnum2>()
+                Type = Rng.Pseudo.SelectOne<TestEnum2>(),
+                Price = Rng.Pseudo.GetDecimal(),
             }).ToList(),
             DividendsFullUpdate = Date.Today.AddDays(-5),
         };
@@ -156,7 +157,7 @@ namespace Excogitated.Common.Test
         [TestMethod]
         public async Task JsonObjectOutput()
         {
-            var item = new TestItem2 { Amount = Rng.True.GetDecimal() };
+            var item = new TestItem2 { Amount = Rng.Pseudo.GetDecimal() };
             var expected = Jsonizer.Serialize(item, true);
             var actual = item.ToString();
             Assert.AreEqual(expected, actual);
@@ -174,6 +175,7 @@ namespace Excogitated.Common.Test
         public Date ExDate { get; set; }
         public Date PayDate { get; set; }
         public TestEnum2 Type { get; set; }
+        public Currency Price { get; set; }
     }
 
     public class TestItem1
@@ -199,10 +201,10 @@ namespace Excogitated.Common.Test
         public Date ListDate { get; set; }
         public int MarginRatio { get; set; }
         public string Name { get; set; }
+        public List<TestItem2> Dividends { get; set; }
         public List<TestItem1> Prices { get; set; }
         public string Symbol { get; set; }
         public TestEnum1 Type { get; set; }
-        public List<TestItem2> Dividends { get; set; }
         public Date DividendsFullUpdate { get; set; }
     }
 }

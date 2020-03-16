@@ -63,5 +63,13 @@ namespace Excogitated.Common.Test
             Assert.IsTrue(diff.Actual.IsNotNullOrWhiteSpace());
             Assert.AreNotEqual(diff.Expected, diff.Actual);
         }
+
+        [TestMethod]
+        public void SpanTest()
+        {
+            var expected = $"test{Rng.Pseudo.GetInt64()}";
+            var actual = new ReadOnlySpan<char>(expected.ToCharArray()).ToString();
+            Assert.AreEqual(expected, actual);
+        }
     }
 }

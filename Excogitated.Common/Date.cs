@@ -40,6 +40,9 @@ namespace Excogitated.Common
 
         public override bool Equals(object obj) => obj is MonthDayYear d && d.Value == Value;
         public override int GetHashCode() => Value.GetHashCode();
+
+        /// <summary> Returns value formatted as "mm-dd-yyyy".</summary>
+        /// <returns>Returns value formatted as "mm-dd-yyyy".</returns>
         public override string ToString() => ToCharSpan().ToString();
 
         public ReadOnlySpan<char> ToCharSpan()
@@ -198,6 +201,8 @@ namespace Excogitated.Common
         public override bool Equals(object obj) => obj is Date d && Equals(d);
         public override int GetHashCode() => YearMonthDay.GetHashCode();
 
+        /// <summary> Returns value formatted as "yyyy-mm-dd".</summary>
+        /// <returns>Returns value formatted as "yyyy-mm-dd".</returns>
         public override string ToString() => ToCharSpan().ToString();
 
         public static int DefaultYearLength = DateTime.Now.Year.ToString().Length;
