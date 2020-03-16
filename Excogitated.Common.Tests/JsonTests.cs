@@ -23,7 +23,7 @@ namespace Excogitated.Common.Test
             MarginRatio = Rng.Pseudo.GetInt32(),
             Name = "Test Instrument Document",
             //Prices = Enumerable.Range(0, 2).Select(i => new TestItem1
-            Prices = Enumerable.Range(0, 5 * 365).Select(i => new TestItem1
+            Prices = Enumerable.Range(0, 5).Select(i => new TestItem1
             {
                 Close = Rng.Pseudo.GetDecimal(),
                 Date = Date.Today.AddDays(-i),
@@ -36,7 +36,7 @@ namespace Excogitated.Common.Test
             Symbol = "TEST",
             Type = Rng.Pseudo.SelectOne<TestEnum1>(),
             //Dividends = Enumerable.Range(0, 2).Select(i => new TestItem2
-            Dividends = Enumerable.Range(0, 5 * 12).Select(i => new TestItem2
+            Dividends = Enumerable.Range(0, 5).Select(i => new TestItem2
             {
                 Amount = Rng.Pseudo.GetDecimal(),
                 DeclaredDate = Date.Today.AddMonths(-i),
