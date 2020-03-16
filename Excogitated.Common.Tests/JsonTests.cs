@@ -145,7 +145,7 @@ namespace Excogitated.Common.Test
         public async Task GenerateClassFromJsonUrl()
         {
             using var client = new HttpClient();
-            var json = await client.GetStringAsync("https://api.robinhood.com/options/instruments/?chain_symbol=AMD&expiration_dates=2020-04-09&strike_price=70&type=call");
+            var json = await client.GetStringAsync("https://api.nasdaq.com/api/quote/A/info?assetclass=stocks");
             var result = new JsonClassGenerator()
             {
                 RootName = "OptionInstruments"

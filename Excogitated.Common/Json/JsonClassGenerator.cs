@@ -88,10 +88,16 @@ namespace Excogitated.Common
                 var name = objs.Current.Name;
                 var typeName = FromElement(objs.Current.Value, name);
                 if (typeName is string)
+                {
                     _builder.Append(Separator, _depth)
                         .Append(PropertyVisibility.ToString()).Append(' ')
                         .Append(typeName).Append(' ')
-                        .Append(name).AppendLine(" { get; set; }");
+                        .Append(name).Append(" { get; set; } ");
+                    var kind = objs.Current.Value.ValueKind;
+                    if (!kind.EqualsAny(JsonValueKind.Object, JsonValueKind.Array))
+                        _builder.Append("// ").Append(objs.Current.Value.GetRawText());
+                    _builder.AppendLine();
+                }
             }
             _depth--;
             _builder.Append(Separator, _depth).Append('}').AppendLine();
