@@ -65,6 +65,7 @@ namespace Excogitated.Common
             if (DateTime.TryParse(raw, out var _)) return nameof(DateTime);
             if (DateTimeOffset.TryParse(raw, out var _)) return nameof(DateTimeOffset);
             if (Guid.TryParse(raw, out var _)) return nameof(Guid);
+            if (Currency.TryParse(raw, out var _)) return nameof(Currency);
             return "string";
         }
 

@@ -10,11 +10,13 @@ namespace Excogitated.Common
         public static implicit operator Currency(decimal value) => new Currency(value);
         public static implicit operator decimal(Currency money) => money.Value;
 
-        public static Currency Parse(string value)
+        public static Currency Parse(string value) => value is null ? 0 : decimal.Parse(value, NumberStyles.Currency);
+
+        public static bool TryParse(string value, out Currency money)
         {
-            if (value is null)
-                return 0;
-            return decimal.Parse(value, NumberStyles.Currency);
+            var success = decimal.TryParse(value, NumberStyles.Currency, null, out var parsed);
+            money = parsed;
+            return success;
         }
 
         public decimal Value { get; }
