@@ -69,6 +69,7 @@ namespace Excogitated.Common
             options.AddStructConverter<MonthDayYear>((w, v) => w.WriteStringValue(v.ToCharSpan()), (ref Utf8JsonReader r) => r.GetString());
             options.AddStructConverter<Currency>((w, v) => w.WriteStringValue(v.ToString()), (ref Utf8JsonReader r) => r.GetString() ?? ZERO);
 
+            //string to number handlers... because it doesn't handle numbers encased in quotes by default
             options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetByte(out var d) ? d : byte.Parse(r.GetString() ?? ZERO));
             options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetSByte(out var d) ? d : sbyte.Parse(r.GetString() ?? ZERO));
             options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == JsonTokenType.Number && r.TryGetInt16(out var d) ? d : short.Parse(r.GetString() ?? ZERO));
