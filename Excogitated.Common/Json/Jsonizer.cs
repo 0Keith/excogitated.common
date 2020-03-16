@@ -170,7 +170,7 @@ namespace Excogitated.Common
             }
             catch (Exception e)
             {
-                throw new Exception($"Could not Deserialize. Type: {typeof(T)}, Json: {json}", e);
+                throw new Exception($"Could not Deserialize. Type: {typeof(T)}, Message:{e.Message}, Json: {Format(json)}", e);
             }
         }
 
