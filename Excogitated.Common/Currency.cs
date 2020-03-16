@@ -4,13 +4,11 @@ namespace Excogitated.Common
 {
     public struct Currency
     {
-        public static implicit operator Currency(string value) => Parse(value);
+        public static implicit operator Currency(string value) => TryParse(value, out var m) ? m : default;
         public static implicit operator string(Currency money) => money.ToString();
 
         public static implicit operator Currency(decimal value) => new Currency(value);
         public static implicit operator decimal(Currency money) => money.Value;
-
-        public static Currency Parse(string value) => value is null ? 0 : decimal.Parse(value, NumberStyles.Currency);
 
         public static bool TryParse(string value, out Currency money)
         {
