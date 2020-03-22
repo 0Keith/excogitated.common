@@ -65,7 +65,7 @@ namespace Excogitated.Common
 
     internal class PseudoRng : IRng
     {
-        private readonly ThreadLocal<Random> _rng = new ThreadLocal<Random>(() => new Random());
+        private readonly ThreadLocal<Random> _rng = ThreadLocal.Create<Random>();
 
         public bool GetBit() => _rng.Value.Next() % 2 == 0;
         public byte GetByte() => (byte)_rng.Value.Next(0, 256);
