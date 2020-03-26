@@ -13,6 +13,37 @@ namespace Excogitated.Common
         public override string ToString() => Jsonizer.Serialize(this, true);
     }
 
+    public class CustomJsonStringEnumConverter : JsonConverterFactory
+    {
+        private static readonly CowDictionary<(Type, bool), Dictionary<string, Enum>> _enumMap = new CowDictionary<(Type, bool), Dictionary<string, Enum>>();
+        private static bool TryParse(Type enumType, string name, bool ignoreCase, out Enum result)
+        {
+            var values = _enumMap.GetOrAdd((enumType, ignoreCase), k =>
+            {
+                var pairs = Enum.GetNames(k.Item1).Zip(Enum.GetValues(k.Item1).Cast<Enum>(), (name, value) => (name, value));
+                var map = new Dictionary<string, Enum>();
+                foreach (var p in pairs)
+                    if (k.Item2)
+                        map[p.name.ToLower()] = p.value;
+                    else
+                        map[p.name] = p.value;
+                return map;
+            });
+            if (ignoreCase)
+                return values.TryGetValue(name.ToLower(), out result);
+            return values.TryGetValue(name, out result);
+        }
+
+        private readonly JsonStringEnumConverter _converter = new JsonStringEnumConverter();
+
+        public override bool CanConvert(Type typeToConvert) => _converter.CanConvert(typeToConvert);
+
+        public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+        {
+            return _converter.CreateConverter(typeToConvert, options);
+        }
+    }
+
     public class ClassConverter<T> : JsonConverter<T>
     {
         private readonly Func<T, string> _serializer;
@@ -66,6 +97,7 @@ namespace Excogitated.Common
                 WriteIndented = formatted,
                 PropertyNameCaseInsensitive = true,
             };
+            options.Converters.Add(new JsonStringEnumConverter());
             options.AddStructConverter<Date>((w, v) => w.WriteStringValue(v.ToCharSpan()), (ref Utf8JsonReader r) => r.GetString());
             options.AddStructConverter<MonthDayYear>((w, v) => w.WriteStringValue(v.ToCharSpan()), (ref Utf8JsonReader r) => r.GetString());
             options.AddStructConverter<Currency>((w, v) => w.WriteStringValue(v.ToString()), (ref Utf8JsonReader r) => r.GetString() ?? ZERO);
@@ -82,38 +114,7 @@ namespace Excogitated.Common
             options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == NUMBER && r.TryGetSingle(out var d) || float.TryParse(r.GetString() ?? ZERO, out d) ? d : default);
             options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == NUMBER && r.TryGetDouble(out var d) || double.TryParse(r.GetString() ?? ZERO, out d) ? d : default);
             options.AddStructConverter((w, v) => w.WriteNumberValue(v), (ref Utf8JsonReader r) => r.TokenType == NUMBER && r.TryGetDecimal(out var d) || decimal.TryParse(r.GetString() ?? ZERO, out d) ? d : default);
-
-            options.AddClassConverter(e => e.ToString(), (s, t) =>
-            {
-                if (s.IsNullOrWhiteSpace())
-                    return (Enum)Activator.CreateInstance(t);
-                if (TryParse(t, s, true, out var result))
-                    return result;
-                var clean = new string(s.SkipWhile(c => !c.IsLetter()).Where(c => char.IsLetterOrDigit(c) || c == '_').ToArray());
-                if (TryParse(t, clean, true, out result))
-                    return result;
-                throw new Exception($"Invalid enum - Value: {s}, Type: {t.FullName}");
-            });
             return options;
-        }
-
-        private static readonly CowDictionary<(Type, bool), Dictionary<string, Enum>> _enumMap = new CowDictionary<(Type, bool), Dictionary<string, Enum>>();
-        private static bool TryParse(Type enumType, string name, bool ignoreCase, out Enum result)
-        {
-            var values = _enumMap.GetOrAdd((enumType, ignoreCase), k =>
-            {
-                var pairs = Enum.GetNames(k.Item1).Zip(Enum.GetValues(k.Item1).Cast<Enum>(), (name, value) => (name, value));
-                var map = new Dictionary<string, Enum>();
-                foreach (var p in pairs)
-                    if (k.Item2)
-                        map[p.name.ToLower()] = p.value;
-                    else
-                        map[p.name] = p.value;
-                return map;
-            });
-            if (ignoreCase)
-                return values.TryGetValue(name.ToLower(), out result);
-            return values.TryGetValue(name, out result);
         }
 
         public static void AddClassConverter<T>(this JsonSerializerOptions settings, Func<T, string> serializer, Func<string, Type, T> deserializer)

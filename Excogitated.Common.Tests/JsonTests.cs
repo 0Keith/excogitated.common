@@ -180,7 +180,7 @@ namespace Excogitated.Common.Test
 
     public enum TestEnum2 { test1, test2, test3, test4, test5, Test5 = test5 }
     public enum TestEnum1 { test1, test2, test3, test4, test5, Test5 = test5 }
-    public enum TestEnum0 { test1, test2, test3, test4, test5, Test5 = test5 }
+    public enum TestEnum0 { test_1, test2, test3, test4, test5, Test5 = test5 }
 
     public class TestItem2 : JsonObject
     {
@@ -188,7 +188,7 @@ namespace Excogitated.Common.Test
         public Date DeclaredDate { get; set; }
         public Date ExDate { get; set; }
         public Date PayDate { get; set; }
-        public TestEnum2 Type { get; set; }
+        public TestEnum2? Type { get; set; }
         public Currency Price { get; set; }
     }
 
