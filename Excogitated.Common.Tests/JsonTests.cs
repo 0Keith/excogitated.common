@@ -74,13 +74,14 @@ namespace Excogitated.Common.Test
         public async Task CompareJsonSerializePerformance()
         {
             await AsyncTimer.Delay(1000);
+            var r4 = Benchmark.Run(() => Jsonizer.Serialize(Item));
+
+            await AsyncTimer.Delay(1000);
             var r1 = Benchmark.Run(() => Newtonsoft.Json.JsonConvert.SerializeObject(Item));
 
             await AsyncTimer.Delay(1000);
             var r3 = Benchmark.Run(() => System.Text.Json.JsonSerializer.Serialize(Item));
 
-            await AsyncTimer.Delay(1000);
-            var r4 = Benchmark.Run(() => Jsonizer.Serialize(Item));
             var stats = new StatsBuilder()
                 .Add(typeof(Newtonsoft.Json.JsonConvert).FullName, r1)
                 .Add(typeof(System.Text.Json.JsonSerializer).FullName, r3)
@@ -94,16 +95,17 @@ namespace Excogitated.Common.Test
         public async Task CompareJsonDeserializePerformance()
         {
             await AsyncTimer.Delay(1000);
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(Item);
+            var json = Jsonizer.Serialize(Item);
+            var r4 = Benchmark.Run(() => Jsonizer.Deserialize<TestItem0>(json));
+
+            await AsyncTimer.Delay(1000);
+            json = Newtonsoft.Json.JsonConvert.SerializeObject(Item);
             var r1 = Benchmark.Run(() => Newtonsoft.Json.JsonConvert.DeserializeObject<TestItem0>(json));
 
             await AsyncTimer.Delay(1000);
             json = System.Text.Json.JsonSerializer.Serialize(Item);
             var r3 = Benchmark.Run(() => System.Text.Json.JsonSerializer.Deserialize<TestItem0>(json));
 
-            await AsyncTimer.Delay(1000);
-            json = Jsonizer.Serialize(Item);
-            var r4 = Benchmark.Run(() => Jsonizer.Deserialize<TestItem0>(json));
             var stats = new StatsBuilder()
                 .Add(typeof(Newtonsoft.Json.JsonConvert).FullName, r1)
                 .Add(typeof(System.Text.Json.JsonSerializer).FullName, r3)
