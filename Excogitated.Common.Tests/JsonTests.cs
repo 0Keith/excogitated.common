@@ -44,6 +44,7 @@ namespace Excogitated.Common.Test
                 PayDate = Date.Today.AddDays(14).AddMonths(-i),
                 Type = Rng.Pseudo.SelectOne<TestEnum2>(),
                 Price = Rng.Pseudo.GetDecimal(),
+                Interval = TimeSpan.FromTicks(Rng.Pseudo.GetInt64())
             }).ToList(),
             DividendsFullUpdate = Date.Today.AddDays(-5),
         };
@@ -186,6 +187,8 @@ namespace Excogitated.Common.Test
         public Date PayDate { get; set; }
         public TestEnum2? Type { get; set; }
         public Currency Price { get; set; }
+
+        public TimeSpan Interval { get; set; }
     }
 
     public class TestItem1
