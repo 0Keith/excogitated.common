@@ -71,10 +71,15 @@ namespace Excogitated.Common.Test
         }
 
         [TestMethod]
-        public void CompareJsonSerializePerformance()
+        public async Task CompareJsonSerializePerformance()
         {
+            await AsyncTimer.Delay(1000);
             var r1 = Benchmark.Run(() => Newtonsoft.Json.JsonConvert.SerializeObject(Item));
+
+            await AsyncTimer.Delay(1000);
             var r3 = Benchmark.Run(() => System.Text.Json.JsonSerializer.Serialize(Item));
+
+            await AsyncTimer.Delay(1000);
             var r4 = Benchmark.Run(() => Jsonizer.Serialize(Item));
             var stats = new StatsBuilder()
                 .Add(typeof(Newtonsoft.Json.JsonConvert).FullName, r1)
@@ -86,14 +91,17 @@ namespace Excogitated.Common.Test
         }
 
         [TestMethod]
-        public void CompareJsonDeserializePerformance()
+        public async Task CompareJsonDeserializePerformance()
         {
+            await AsyncTimer.Delay(1000);
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(Item);
             var r1 = Benchmark.Run(() => Newtonsoft.Json.JsonConvert.DeserializeObject<TestItem0>(json));
 
+            await AsyncTimer.Delay(1000);
             json = System.Text.Json.JsonSerializer.Serialize(Item);
             var r3 = Benchmark.Run(() => System.Text.Json.JsonSerializer.Deserialize<TestItem0>(json));
 
+            await AsyncTimer.Delay(1000);
             json = Jsonizer.Serialize(Item);
             var r4 = Benchmark.Run(() => Jsonizer.Deserialize<TestItem0>(json));
             var stats = new StatsBuilder()
@@ -113,20 +121,6 @@ namespace Excogitated.Common.Test
             var unescaped = escaped.UnescapeFileName();
             Assert.AreEqual(fileName.Length, unescaped.Length);
             Assert.IsTrue(fileName == unescaped);
-        }
-
-        [TestMethod]
-        public void CompareDecimalDeserializePerformance()
-        {
-            var json = Rng.Pseudo.GetDecimal().ToString();
-            var r1 = Benchmark.Run(() => decimal.Parse(json));
-            json = $"${json}";
-            var r2 = Benchmark.Run(() => json.ToDecimal());
-            var stats = new StatsBuilder()
-                .Add(nameof(decimal.Parse), r1)
-                .Add(nameof(Extensions_String.ToDecimal), r2)
-                .ToString();
-            Console.WriteLine(stats);
         }
 
         [TestMethod]

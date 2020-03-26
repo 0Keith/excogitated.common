@@ -124,16 +124,6 @@ namespace Excogitated.Common
             return digits;
         }
 
-        public static decimal ToDecimal(this string source)
-        {
-            if (decimal.TryParse(source, out var value))
-                return value;
-            var cleaned = source?.Where(c => c.IsDigit() || c.EqualsAny('.', '-')).AsString();
-            if (decimal.TryParse(cleaned, out value))
-                return value;
-            return 0;
-        }
-
         public static string AsString(this IEnumerable<char> source)
         {
             if (source is null)
