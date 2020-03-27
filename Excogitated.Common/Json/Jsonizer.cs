@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -15,32 +14,49 @@ namespace Excogitated.Common
 
     public class CustomJsonStringEnumConverter : JsonConverterFactory
     {
-        private static readonly CowDictionary<(Type, bool), Dictionary<string, Enum>> _enumMap = new CowDictionary<(Type, bool), Dictionary<string, Enum>>();
-        private static bool TryParse(Type enumType, string name, bool ignoreCase, out Enum result)
-        {
-            var values = _enumMap.GetOrAdd((enumType, ignoreCase), k =>
-            {
-                var pairs = Enum.GetNames(k.Item1).Zip(Enum.GetValues(k.Item1).Cast<Enum>(), (name, value) => (name, value));
-                var map = new Dictionary<string, Enum>();
-                foreach (var p in pairs)
-                    if (k.Item2)
-                        map[p.name.ToLower()] = p.value;
-                    else
-                        map[p.name] = p.value;
-                return map;
-            });
-            if (ignoreCase)
-                return values.TryGetValue(name.ToLower(), out result);
-            return values.TryGetValue(name, out result);
-        }
-
-        private readonly JsonStringEnumConverter _converter = new JsonStringEnumConverter();
-
-        public override bool CanConvert(Type typeToConvert) => _converter.CanConvert(typeToConvert);
-
+        private static readonly CowDictionary<Type, JsonConverter> _converters = new CowDictionary<Type, JsonConverter>();
+        public override bool CanConvert(Type typeToConvert) => typeToConvert.IsEnum;
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
-            return _converter.CreateConverter(typeToConvert, options);
+            if (!_converters.TryGetValue(typeToConvert, out var converter))
+            {
+                var type = typeof(CustomJsonStringEnumConverter<>).MakeGenericType(typeToConvert);
+                _converters[typeToConvert] = converter = (JsonConverter)Activator.CreateInstance(type);
+            }
+            return converter;
+        }
+    }
+
+    public class CustomJsonStringEnumConverter<T> : JsonConverter<T> where T : struct
+    {
+        private static readonly CowDictionary<string, T> _valuesByText = new CowDictionary<string, T>();
+        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var text = reader.GetString();
+            if (_valuesByText.TryGetValue(text, out var value))
+                return value;
+
+            if (!Enum.TryParse(text, out value) && !Enum.TryParse(text, true, out value))
+            {
+                var cleaned = new string(text.Where(c => c.IsLetter() || c.IsDigit() || c == '_').ToArray());
+                if (!Enum.TryParse(cleaned, out value) && !Enum.TryParse(cleaned, true, out value))
+                    throw new Exception(new
+                    {
+                        Message = "Invalid enum value",
+                        Type = typeof(T),
+                        Text = text,
+                    }.ToString());
+            }
+            _valuesByText[text] = value;
+            return value;
+        }
+
+        private static readonly CowDictionary<T, string> _textByValue = new CowDictionary<T, string>();
+        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+        {
+            if (!_textByValue.TryGetValue(value, out var text))
+                _textByValue[value] = text = value.ToString();
+            writer.WriteStringValue(text);
         }
     }
 
@@ -62,7 +78,6 @@ namespace Excogitated.Common
             _deserializer = deserializer.NotNull(nameof(deserializer));
         }
     }
-
 
     public delegate T JsonConverterRead<T>(ref Utf8JsonReader reader);
     public delegate void JsonConverterWrite<T>(Utf8JsonWriter writer, T value);
@@ -97,7 +112,7 @@ namespace Excogitated.Common
                 WriteIndented = formatted,
                 PropertyNameCaseInsensitive = true,
             };
-            options.Converters.Add(new JsonStringEnumConverter());
+            options.Converters.Add(new CustomJsonStringEnumConverter());
             options.AddStructConverter<Date>((w, v) => w.WriteStringValue(v.ToCharSpan()), (ref Utf8JsonReader r) => r.GetString());
             options.AddStructConverter<MonthDayYear>((w, v) => w.WriteStringValue(v.ToCharSpan()), (ref Utf8JsonReader r) => r.GetString());
             options.AddStructConverter<Currency>((w, v) => w.WriteStringValue(v.ToString()), (ref Utf8JsonReader r) => r.GetString() ?? ZERO);

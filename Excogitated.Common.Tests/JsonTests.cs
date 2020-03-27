@@ -152,7 +152,7 @@ namespace Excogitated.Common.Test
         }
 
         [TestMethod]
-        public async Task JsonObjectOutput()
+        public void JsonObjectOutput()
         {
             var item = new TestItem2 { Amount = Rng.Pseudo.GetDecimal() };
             var expected = Jsonizer.Serialize(item, true);
@@ -172,6 +172,13 @@ namespace Excogitated.Common.Test
         {
             var item = Jsonizer.Deserialize<TestItem2>("{\"Amount\":null}");
             Assert.AreEqual(0m, item.Amount);
+        }
+
+        [TestMethod]
+        public void NonStandardEnumValueTest()
+        {
+            var item = Jsonizer.Deserialize<TestItem1>("{\"Type\":\"test/2\"}");
+            Assert.AreEqual(TestEnum0.test2, item.Type);
         }
     }
 
