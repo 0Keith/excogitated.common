@@ -40,5 +40,28 @@ namespace Excogitated.Common.Test
             Assert.AreEqual(1, min);
             Assert.AreEqual(10000, max);
         }
+
+        [TestMethod]
+        public void SelectSplit()
+        {
+            using var batches = Enumerable.Range(1, 123).SelectSplit(e => e.Take(50)).GetEnumerator();
+            Assert.IsTrue(batches.MoveNext());
+            var values = batches.Current.ToList();
+            Assert.AreEqual(values.Count, 50);
+            Assert.AreEqual(values[0], 1);
+            Assert.AreEqual(values[49], 50);
+
+            Assert.IsTrue(batches.MoveNext());
+            values = batches.Current.ToList();
+            Assert.AreEqual(values.Count, 50);
+            Assert.AreEqual(values[0], 51);
+            Assert.AreEqual(values[49], 100);
+
+            Assert.IsTrue(batches.MoveNext());
+            values = batches.Current.ToList();
+            Assert.AreEqual(values.Count, 23);
+            Assert.AreEqual(values[0], 101);
+            Assert.AreEqual(values[22], 123);
+        }
     }
 }
