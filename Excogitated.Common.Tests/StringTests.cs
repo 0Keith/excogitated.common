@@ -18,7 +18,7 @@ namespace Excogitated.Common.Test
 
             var max = 1000000L;
             var count = new AtomicInt64();
-            await Task.WhenAll(Enumerable.Range(0, Environment.ProcessorCount / 2).Select(n => Task.Run(() =>
+            await Enumerable.Range(0, Environment.ProcessorCount / 2).Select(n => Task.Run(() =>
             {
                 var i = count.Increment();
                 while (i <= max)
@@ -29,7 +29,7 @@ namespace Excogitated.Common.Test
                     Assert.AreNotEqual(lower.GetHashCode(), upper.GetHashCode(), e);
                     i = count.Increment();
                 }
-            })));
+            })).WhenAll();
             Console.WriteLine(msg);
         }
 

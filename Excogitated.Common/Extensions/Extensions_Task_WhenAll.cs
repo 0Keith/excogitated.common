@@ -6,7 +6,7 @@ namespace Excogitated.Common
 {
     public static class Extensions_Task_WhenAll
     {
-        public static async ValueTask WhenAll<T>(this IEnumerable<Task> tasks)
+        public static async ValueTask WhenAll(this IEnumerable<Task> tasks)
         {
             var taskList = tasks.NotNull(nameof(tasks)).ToList();
             foreach (var task in taskList)
@@ -14,7 +14,7 @@ namespace Excogitated.Common
                     await task;
         }
 
-        public async static ValueTask WhenAll<T>(this IEnumerable<ValueTask> tasks)
+        public async static ValueTask WhenAll(this IEnumerable<ValueTask> tasks)
         {
             var taskList = tasks.NotNull(nameof(tasks)).ToList();
             foreach (var task in taskList)

@@ -40,7 +40,7 @@ namespace Excogitated.Common
 
     public class ModuleLogger : ILogger
     {
-        public Task ClearLog() => Task.WhenAll(Module<ILogger>.ResolveAll().Select(l => l.ClearLog()));
+        public Task ClearLog() => Module<ILogger>.ResolveAll().Select(l => l.ClearLog()).WhenAll().AsTask();
         public void Log(LogMessage message) => Module<ILogger>.ResolveAll().ForEach(l => l.Log(message));
     }
 

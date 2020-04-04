@@ -420,7 +420,7 @@ namespace Excogitated.Common
             action.NotNull(nameof(action));
             var @lock = new AsyncLock();
             await using var items = source.NotNull(nameof(source)).GetAsyncEnumerator();
-            await Task.WhenAll(Enumerable.Range(0, threadCount).Select(i => Task.Run(async () =>
+            await Enumerable.Range(0, threadCount).Select(i => Task.Run(async () =>
             {
                 while (true)
                 {
@@ -440,7 +440,7 @@ namespace Excogitated.Common
                         throw new Exception($"Batch failed on item: {item}", e);
                     }
                 }
-            })));
+            })).WhenAll();
         }
 
         public static IAsyncEnumerable<R> Batch<T, R>(this IAsyncEnumerable<T> source, Func<T, ValueTask<R>> action) => source.Batch(0, action);
