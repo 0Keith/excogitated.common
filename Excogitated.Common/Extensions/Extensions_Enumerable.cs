@@ -272,10 +272,11 @@ namespace Excogitated.Common
 
         public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> source)
         {
-            foreach (var items in source.NotNull(nameof(source)))
-                if (items.IsNotNull())
-                    foreach (var item in items)
-                        yield return item;
+            if (source.IsNotNull())
+                foreach (var items in source)
+                    if (items.IsNotNull())
+                        foreach (var item in items)
+                            yield return item;
         }
     }
 

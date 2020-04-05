@@ -83,5 +83,26 @@ namespace Excogitated.Common.Test
             Assert.AreEqual(1, min);
             Assert.AreEqual(10000, max);
         }
+
+        [TestMethod]
+        public async Task Flatten_Async_Async()
+        {
+            var count = await Enumerable.Range(0, 1000).Select(i => Enumerable.Range(i, 1000).ToAsync()).ToAsync().Flatten().Count();
+            Assert.AreEqual(1000 * 1000, count);
+        }
+
+        [TestMethod]
+        public async Task Flatten_Async_Sync()
+        {
+            var count = await Enumerable.Range(0, 1000).Select(i => Enumerable.Range(i, 1000)).ToAsync().Flatten().Count();
+            Assert.AreEqual(1000 * 1000, count);
+        }
+
+        [TestMethod]
+        public async Task Flatten_Sync_Async()
+        {
+            var count = await Enumerable.Range(0, 1000).Select(i => Enumerable.Range(i, 1000).ToAsync()).Flatten().Count();
+            Assert.AreEqual(1000 * 1000, count);
+        }
     }
 }
