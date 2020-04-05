@@ -63,5 +63,12 @@ namespace Excogitated.Common.Test
             Assert.AreEqual(values[0], 101);
             Assert.AreEqual(values[22], 123);
         }
+
+        [TestMethod]
+        public void Flatten()
+        {
+            var items = Enumerable.Range(0, 1000).Select(i => Enumerable.Range(i, 1000)).Flatten();
+            Assert.AreEqual(1000 * 1000, items.Count());
+        }
     }
 }
