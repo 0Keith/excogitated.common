@@ -90,12 +90,22 @@ namespace Excogitated.Common
     {
         public TimeSpan Elapsed { get; set; }
         public long Executions { get; set; }
-        public TimeSpan Average => TimeSpan.FromSeconds(Elapsed.TotalSeconds / Executions);
+        public TimeSpan Average => GetAverage();
         public double PerMillisecond => Executions / Elapsed.TotalMilliseconds;
         public double PerSecond => PerMillisecond * 1000;
         public double PerMinute => PerSecond * 60;
         public double PerHour => PerMinute * 60;
         public double PerDay => PerHour * 24;
+
+        public TimeSpan GetAverage()
+        {
+            var avg = Elapsed.TotalSeconds / Executions;
+            if (avg > TimeSpan.MaxValue.TotalSeconds)
+                return TimeSpan.MaxValue;
+            if (avg < TimeSpan.MinValue.TotalSeconds)
+                return TimeSpan.MinValue;
+            return TimeSpan.FromSeconds(avg);
+        }
 
         public override string ToString()
         {
