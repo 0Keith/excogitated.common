@@ -26,7 +26,7 @@ namespace Excogitated.Common
         }
     }
 
-    public static class Extensions_Enumerable
+    public static partial class Extensions_Enumerable
     {
         public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> items, TKey key) => items.NotNull(nameof(items)).TryGetValue(key, out var item) ? item : default;
 
@@ -58,22 +58,7 @@ namespace Excogitated.Common
                 action(i);
         }
 
-#if NETSTANDARD2_0
-        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source) => new HashSet<T>(source.NotNull(nameof(source)));
-#endif
-        public static Task<HashSet<T>> ToHashSet<T>(this Task<List<T>> source) => source.Continue(s => s?.ToHashSet() ?? new HashSet<T>());
-        public static Task<HashSet<T>> ToHashSet<T>(this Task<IEnumerable<T>> source) => source.Continue(s => s?.ToHashSet() ?? new HashSet<T>());
-        public static ValueTask<HashSet<T>> ToHashSet<T>(this ValueTask<List<T>> source) => source.Continue(s => s?.ToHashSet() ?? new HashSet<T>());
-        public static ValueTask<HashSet<T>> ToHashSet<T>(this ValueTask<IEnumerable<T>> source) => source.Continue(s => s?.ToHashSet() ?? new HashSet<T>());
-
-        public static AtomicHashSet<T> ToAtomicHashSet<T>(this IEnumerable<T> source) => new AtomicHashSet<T>(source);
-        public static Task<AtomicHashSet<T>> ToAtomicHashSet<T>(this Task<List<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToAtomicHashSet());
-        public static Task<AtomicHashSet<T>> ToAtomicHashSet<T>(this Task<IEnumerable<T>> source) => source.Continue(s => s.NotNull(nameof(source)).ToAtomicHashSet());
-
         public static IEnumerable<T> Randomize<T>(this IEnumerable<T> items) => items.OrderBy(i => Rng.Pseudo.GetInt32());
-
-        public static Stack<T> ToStack<T>(this IEnumerable<T> items) => new Stack<T>(items);
-
         public static IDictionary<K, V> ToInterface<K, V>(this IDictionary<K, V> source) => source;
 
         public static IEnumerable<T> ToEnumerable<T>(this IEnumerator<T> items, bool hasCurrent)
@@ -137,15 +122,6 @@ namespace Excogitated.Common
             }
         }
 
-        public static Dictionary<K, V> ToDictionary<K, V>(this IEnumerable<KeyValuePair<K, V>> source)
-        {
-            source.NotNull(nameof(source));
-            var items = new Dictionary<K, V>();
-            foreach (var item in source)
-                items.Add(item.Key, item.Value);
-            return items;
-        }
-
         public static IEnumerable<T> Distinct<T, K>(this IEnumerable<T> items, Func<T, K> keySelector)
         {
             items.NotNull(nameof(items));
@@ -154,56 +130,6 @@ namespace Excogitated.Common
             foreach (var i in items)
                 if (keys.Add(keySelector(i)))
                     yield return i;
-        }
-
-        public static R MinOrDefault<T, R>(this IEnumerable<T> values, Func<T, R> selector)
-            where R : IComparable<R> => values.Select(selector).MinOrDefault();
-        public static T MinOrDefault<T>(this IEnumerable<T> values) where T : IComparable<T>
-        {
-            values.NotNull(nameof(values));
-            using var v = values.GetEnumerator();
-            var min = v.MoveNext() ? v.Current : default;
-            while (v.MoveNext())
-                if (min.CompareTo(v.Current) > 0)
-                    min = v.Current;
-            return min;
-        }
-
-        public static T MinSelect<T, R>(this IEnumerable<T> values, Func<T, R> minFunc) where R : IComparable<R>
-        {
-            values.NotNull(nameof(values));
-            minFunc.NotNull(nameof(minFunc));
-            using var v = values.GetEnumerator();
-            var min = v.MoveNext() ? v.Current : default;
-            while (v.MoveNext())
-                if (minFunc(min).CompareTo(minFunc(v.Current)) > 0)
-                    min = v.Current;
-            return min;
-        }
-
-        public static R MaxOrDefault<T, R>(this IEnumerable<T> values, Func<T, R> selector)
-            where R : IComparable<R> => values.Select(selector).MaxOrDefault();
-        public static T MaxOrDefault<T>(this IEnumerable<T> values) where T : IComparable<T>
-        {
-            values.NotNull(nameof(values));
-            using var v = values.GetEnumerator();
-            var max = v.MoveNext() ? v.Current : default;
-            while (v.MoveNext())
-                if (max.CompareTo(v.Current) < 0)
-                    max = v.Current;
-            return max;
-        }
-
-        public static T MaxSelect<T, R>(this IEnumerable<T> values, Func<T, R> maxFunc) where R : IComparable<R>
-        {
-            values.NotNull(nameof(values));
-            maxFunc.NotNull(nameof(maxFunc));
-            using var v = values.GetEnumerator();
-            var max = v.MoveNext() ? v.Current : default;
-            while (v.MoveNext())
-                if (maxFunc(max).CompareTo(maxFunc(v.Current)) < 0)
-                    max = v.Current;
-            return max;
         }
 
         public static IEnumerable<T> ReverseFast<T>(this IList<T> items)
@@ -238,8 +164,6 @@ namespace Excogitated.Common
             return selector(first, last);
         }
 
-        public static AsyncQueue<T> ToAsyncQueue<T>(this IEnumerable<T> source) => new AsyncQueue<T>(source);
-        public static AtomicQueue<T> ToAtomicQueue<T>(this IEnumerable<T> source) => new AtomicQueue<T>(source);
         public static CountedEnumerator<T> GetEnumeratorCounted<T>(this IEnumerable<T> source) => new CountedEnumerator<T>(source);
 
         public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> source, int count)
