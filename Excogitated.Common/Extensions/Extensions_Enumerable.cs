@@ -3,14 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace Excogitated.Common
 {
+#if NETSTANDARD2_0
     public static class KeyValuePair
     {
         public static KeyValuePair<K, V> Create<K, V>(K key, V value) => new KeyValuePair<K, V>(key, value);
     }
+#endif
 
     public class DisposableEnumerable<T> : IDisposable, IEnumerable<T> where T : IDisposable
     {
