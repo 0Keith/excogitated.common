@@ -74,46 +74,37 @@ namespace Excogitated.Common.Test
         [TestMethod]
         public async Task CompareJsonSerializePerformance()
         {
-            await AsyncTimer.Delay(1000);
-            var r4 = Benchmark.Run(() => Jsonizer.Serialize(Item));
-
-            await AsyncTimer.Delay(1000);
-            var r1 = Benchmark.Run(() => Newtonsoft.Json.JsonConvert.SerializeObject(Item));
-
-            await AsyncTimer.Delay(1000);
-            var r3 = Benchmark.Run(() => System.Text.Json.JsonSerializer.Serialize(Item));
-
+            var r0 = await Benchmark.Run(() => Jsonizer.Serialize(Item));
+            var r1 = await Benchmark.Run(() => Newtonsoft.Json.JsonConvert.SerializeObject(Item));
+            var r2 = await Benchmark.Run(() => System.Text.Json.JsonSerializer.Serialize(Item));
             var stats = new StatsBuilder()
+                .Add(typeof(Jsonizer).FullName, r0)
                 .Add(typeof(Newtonsoft.Json.JsonConvert).FullName, r1)
-                .Add(typeof(System.Text.Json.JsonSerializer).FullName, r3)
-                .Add(typeof(Jsonizer).FullName, r4)
+                .Add(typeof(System.Text.Json.JsonSerializer).FullName, r2)
                 .ToString();
             Console.WriteLine(stats);
-            Assert.IsTrue(r4.PerSecond > r1.PerSecond);
+            Assert.IsTrue(r0.PerSecond > r1.PerSecond);
         }
 
         [TestMethod]
         public async Task CompareJsonDeserializePerformance()
         {
-            await AsyncTimer.Delay(1000);
             var json = Jsonizer.Serialize(Item);
-            var r4 = Benchmark.Run(() => Jsonizer.Deserialize<TestItem0>(json));
+            var r0 = await Benchmark.Run(() => Jsonizer.Deserialize<TestItem0>(json));
 
-            await AsyncTimer.Delay(1000);
             json = Newtonsoft.Json.JsonConvert.SerializeObject(Item);
-            var r1 = Benchmark.Run(() => Newtonsoft.Json.JsonConvert.DeserializeObject<TestItem0>(json));
+            var r1 = await Benchmark.Run(() => Newtonsoft.Json.JsonConvert.DeserializeObject<TestItem0>(json));
 
-            await AsyncTimer.Delay(1000);
             json = System.Text.Json.JsonSerializer.Serialize(Item);
-            var r3 = Benchmark.Run(() => System.Text.Json.JsonSerializer.Deserialize<TestItem0>(json));
+            var r2 = await Benchmark.Run(() => System.Text.Json.JsonSerializer.Deserialize<TestItem0>(json));
 
             var stats = new StatsBuilder()
+                .Add(typeof(Jsonizer).FullName, r0)
                 .Add(typeof(Newtonsoft.Json.JsonConvert).FullName, r1)
-                .Add(typeof(System.Text.Json.JsonSerializer).FullName, r3)
-                .Add(typeof(Jsonizer).FullName, r4)
+                .Add(typeof(System.Text.Json.JsonSerializer).FullName, r2)
                 .ToString();
             Console.WriteLine(stats);
-            Assert.IsTrue(r4.PerSecond > r1.PerSecond);
+            Assert.IsTrue(r0.PerSecond > r1.PerSecond);
         }
 
         [TestMethod]

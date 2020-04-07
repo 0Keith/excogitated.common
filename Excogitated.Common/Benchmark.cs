@@ -7,29 +7,35 @@ namespace Excogitated.Common
 {
     public static class Benchmark
     {
-        public static BenchmarkResult Run(Action action) => Run(1, action);
-        public static BenchmarkResult Run(int secondsDuration, Action action) => Run(TimeSpan.FromSeconds(secondsDuration), action);
-        public static BenchmarkResult Run(TimeSpan duration, Action action)
+        public static ValueTask<BenchmarkResult> Run(Action action) => Run(1, action);
+        public static ValueTask<BenchmarkResult> Run(int secondsDuration, Action action) => Run(TimeSpan.FromSeconds(secondsDuration), action);
+        public static async ValueTask<BenchmarkResult> Run(TimeSpan duration, Action action)
         {
             if (duration <= TimeSpan.Zero)
                 throw new ArgumentException("duration <= TimeSpan.Zero");
-            var w = Stopwatch.StartNew();
+            await AsyncTimer.Delay(1000); //cooldown cpu
             var d = duration.TotalMilliseconds;
             var threads = Environment.ProcessorCount / 2;
-            var executions = Task.WhenAll(Enumerable.Repeat(0, threads).Select(i => Task.Run(() =>
+            var results = await Enumerable.Repeat(0, threads).Select(i => Task.Run(() =>
             {
+                action(); //warmup code
                 var count = 0L;
+                var w = Stopwatch.StartNew();
                 while (w.ElapsedMilliseconds < d)
                 {
                     action();
                     count++;
                 }
-                return count;
-            }))).Result.Sum();
+                return new BenchmarkResult
+                {
+                    Elapsed = w.Elapsed,
+                    Executions = count,
+                };
+            })).WhenAll();
             return new BenchmarkResult
             {
-                Elapsed = w.Elapsed,
-                Executions = executions
+                Elapsed = TimeSpan.FromMilliseconds(results.Sum(r => r.Elapsed.TotalMilliseconds)),
+                Executions = results.Sum(r => r.Executions),
             };
         }
 
@@ -39,49 +45,61 @@ namespace Excogitated.Common
         {
             if (duration <= TimeSpan.Zero)
                 throw new ArgumentException("duration <= TimeSpan.Zero");
-            var w = Stopwatch.StartNew();
+            await AsyncTimer.Delay(1000); //cooldown cpu
             var d = duration.TotalMilliseconds;
             var threads = Environment.ProcessorCount / 2;
-            var executions = await Task.WhenAll(Enumerable.Repeat(0, threads).Select(i => Task.Run(async () =>
+            var results = await Enumerable.Repeat(0, threads).Select(i => Task.Run(async () =>
             {
+                await action(); //warmup code
                 var count = 0L;
+                var w = Stopwatch.StartNew();
                 while (w.ElapsedMilliseconds < d)
                 {
                     await action();
                     count++;
                 }
-                return count;
-            })));
+                return new BenchmarkResult
+                {
+                    Elapsed = w.Elapsed,
+                    Executions = count,
+                };
+            })).WhenAll();
             return new BenchmarkResult
             {
-                Elapsed = w.Elapsed,
-                Executions = executions.Sum()
+                Elapsed = TimeSpan.FromMilliseconds(results.Sum(r => r.Elapsed.TotalMilliseconds)),
+                Executions = results.Sum(r => r.Executions),
             };
         }
 
-        public static Task<BenchmarkResult> RunAsync(Func<Task> action) => RunAsync(1, action);
-        public static Task<BenchmarkResult> RunAsync(int secondsDuration, Func<Task> action) => RunAsync(TimeSpan.FromSeconds(secondsDuration), action);
-        public static async Task<BenchmarkResult> RunAsync(TimeSpan duration, Func<Task> action)
+        public static ValueTask<BenchmarkResult> RunAsync(Func<Task> action) => RunAsync(1, action);
+        public static ValueTask<BenchmarkResult> RunAsync(int secondsDuration, Func<Task> action) => RunAsync(TimeSpan.FromSeconds(secondsDuration), action);
+        public static async ValueTask<BenchmarkResult> RunAsync(TimeSpan duration, Func<Task> action)
         {
             if (duration <= TimeSpan.Zero)
                 throw new ArgumentException("duration <= TimeSpan.Zero");
-            var w = Stopwatch.StartNew();
+            await AsyncTimer.Delay(1000); //cooldown cpu
             var d = duration.TotalMilliseconds;
             var threads = Environment.ProcessorCount / 2;
-            var executions = await Task.WhenAll(Enumerable.Repeat(0, threads).Select(i => Task.Run(async () =>
+            var results = await Enumerable.Repeat(0, threads).Select(i => Task.Run(async () =>
             {
+                await action(); //warmup code
                 var count = 0L;
+                var w = Stopwatch.StartNew();
                 while (w.ElapsedMilliseconds < d)
                 {
                     await action();
                     count++;
                 }
-                return count;
-            })));
+                return new BenchmarkResult
+                {
+                    Elapsed = w.Elapsed,
+                    Executions = count,
+                };
+            })).WhenAll();
             return new BenchmarkResult
             {
-                Elapsed = w.Elapsed,
-                Executions = executions.Sum()
+                Elapsed = TimeSpan.FromMilliseconds(results.Sum(r => r.Elapsed.TotalMilliseconds)),
+                Executions = results.Sum(r => r.Executions),
             };
         }
     }
