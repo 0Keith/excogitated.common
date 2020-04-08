@@ -51,6 +51,7 @@ namespace Excogitated.Common
 
         public static async void StartLogging()
         {
+            var lastHash = 0;
             using var logger = FileLogger.AppendDefault(typeof(ExecutionTimings));
             while (true)
                 try
@@ -59,8 +60,13 @@ namespace Excogitated.Common
                     if (_timings.Count == 0)
                         continue;
                     var timings = GetTimingsFormatted();
-                    await logger.ClearLog();
-                    logger.Info(timings);
+                    var hashCode = timings.GetHashCode();
+                    if (hashCode != lastHash)
+                    {
+                        await logger.ClearLog();
+                        logger.Info(timings);
+                        lastHash = hashCode;
+                    }
                 }
                 catch (Exception e)
                 {
