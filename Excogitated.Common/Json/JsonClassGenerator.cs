@@ -9,13 +9,13 @@ namespace Excogitated.Common
 {
     public class JsonClassGenerator
     {
-        public enum Visibility { @public, @private, @internal, @protected }
+        public enum Visibility { Public, Private, Internal, Protected }
 
         private readonly StringBuilder _builder = new StringBuilder();
         private int _depth = 0;
 
-        public Visibility ClassVisibility { get; set; } = Visibility.@public;
-        public Visibility PropertyVisibility { get; set; } = Visibility.@public;
+        public Visibility ClassVisibility { get; set; } = Visibility.Public;
+        public Visibility PropertyVisibility { get; set; } = Visibility.Public;
         public string RootName { get; set; } = "Root";
         public char Separator { get; set; } = ' ';
 
@@ -25,14 +25,20 @@ namespace Excogitated.Common
             return FromDocument(doc);
         }
 
-        public async Task<string> FromUrl(string url)
+        public async ValueTask<string> FromUrl(string url)
         {
             using var client = new HttpClient();
             using var stream = await client.GetStreamAsync(url);
             return await FromStream(stream);
         }
 
-        public async Task<string> FromStream(Stream stream)
+        public async ValueTask<string> FromFile(string jsonFile)
+        {
+            using var file = File.OpenRead(jsonFile);
+            return await FromStream(file);
+        }
+
+        public async ValueTask<string> FromStream(Stream stream)
         {
             using var doc = await JsonDocument.ParseAsync(stream);
             return FromDocument(doc);
@@ -81,7 +87,7 @@ namespace Excogitated.Common
             className += className.EndsWith("Data") ? "Info" : "Data";
 
             _builder.Append(Separator, _depth)
-                .Append(PropertyVisibility.ToString()).Append(" class ")
+                .Append(ClassVisibility.ToString().ToLower()).Append(" class ")
                 .Append(className).AppendLine(" {");
             _depth++;
             using var objs = element.EnumerateObject();
@@ -92,7 +98,7 @@ namespace Excogitated.Common
                 if (typeName is string)
                 {
                     _builder.Append(Separator, _depth)
-                        .Append(PropertyVisibility.ToString()).Append(' ')
+                        .Append(PropertyVisibility.ToString().ToLower()).Append(' ')
                         .Append(typeName).Append(' ')
                         .Append(name).Append(" { get; set; } ");
                     var kind = objs.Current.Value.ValueKind;
