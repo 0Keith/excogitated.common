@@ -153,11 +153,41 @@ namespace Excogitated.Common
                 };
             return default;
         }
+
+        public static string ToCamelCase(this string value, string separator = " ")
+        {
+            if (value is null)
+                value = string.Empty;
+            if (separator is null)
+                separator = string.Empty;
+            var separated = false;
+            var b = new StringBuilder(value.Length);
+            for (int i = 0; i < value.Length; i++)
+            {
+                var c = value[i];
+                if (i == 0 && char.IsLower(c))
+                    c = char.ToUpper(c);
+                if (!char.IsLetterOrDigit(c))
+                {
+                    separated = true;
+                    continue;
+                }
+                if (separated)
+                {
+                    b.Append(separator);
+                    if (char.IsLower(c))
+                        c = char.ToUpper(c);
+                    separated = false;
+                }
+                b.Append(c);
+            }
+            return b.ToString();
+        }
     }
 
     public struct DiffResult
     {
-        public bool DifferenceFound { get; internal set; }
+        public bool DifferenceFound { get; set; }
         public string Expected { get; set; }
         public string Actual { get; set; }
 

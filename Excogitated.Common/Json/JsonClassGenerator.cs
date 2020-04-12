@@ -68,10 +68,12 @@ namespace Excogitated.Common
             if (decimal.TryParse(raw, out _)) return "decimal";
             if (double.TryParse(raw, out _)) return "double";
             if (bool.TryParse(raw, out _)) return "bool";
+            //if (Date.TryParse(raw, out _)) return nameof(Date); // TryParse needs to be improved to recognize invalid dates better
             if (DateTime.TryParse(raw, out var _)) return nameof(DateTime);
             if (DateTimeOffset.TryParse(raw, out var _)) return nameof(DateTimeOffset);
             if (Guid.TryParse(raw, out var _)) return nameof(Guid);
             if (Currency.TryParse(raw, out var _)) return nameof(Currency);
+            if (Uri.TryCreate(raw, UriKind.Absolute, out _)) return nameof(Uri);
             return "string";
         }
 

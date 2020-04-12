@@ -71,5 +71,14 @@ namespace Excogitated.Common.Test
             var actual = new ReadOnlySpan<char>(expected.ToCharArray()).ToString();
             Assert.AreEqual(expected, actual);
         }
+
+        [TestMethod]
+        public void ToCamelCaseTest()
+        {
+            var source = "to_camel case";
+            var expected = "To Camel Case";
+            var actual = source.ToCamelCase();
+            Assert.AreEqual(expected, actual);
+        }
     }
 }
