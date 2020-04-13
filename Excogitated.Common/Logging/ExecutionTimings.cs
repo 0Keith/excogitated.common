@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -47,6 +48,18 @@ namespace Excogitated.Common
             var result = task != null ? await task : default;
             CacheTiming(name, file, w.ElapsedMilliseconds, logDelays);
             return result;
+        }
+
+        public static async IAsyncEnumerable<T> LogExecutionTimes<T>(this IAsyncEnumerable<T> source, bool logDelays = true, [CallerMemberName] string name = null, [CallerFilePath] string file = null)
+        {
+            await using var items = source.GetAsyncEnumerator();
+            var w = Stopwatch.StartNew();
+            while (await items.MoveNextAsync())
+            {
+                CacheTiming(name, file, w.ElapsedMilliseconds, logDelays);
+                yield return items.Current;
+                w.Restart();
+            }
         }
 
         public static async void StartLogging()
