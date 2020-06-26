@@ -45,5 +45,28 @@ namespace Excogitated.Common.Test
                 Assert.AreEqual(expectedIterations, buckets[i], maxDelta, $"Bucket: {i}");
             }
         }
+
+        [TestMethod]
+        public void GetText()
+        {
+            var length = 100000;
+            var characters = "abcdefghijklmnopqrstuvwxyz0123456789";
+            var counts = new Dictionary<char, AtomicInt32>();
+            foreach (var c in characters)
+                counts[c] = new AtomicInt32();
+
+            var text = Rng.Pseudo.GetText(length, characters);
+            foreach (var c in text)
+                counts[c].Increment();
+
+            var expectedCount = length / characters.Length;
+            var maxDelta = expectedCount * 0.05;
+            foreach (var c in characters)
+            {
+                var count = counts[c].Value;
+                Console.WriteLine($"{c}:{count}");
+                Assert.AreEqual(expectedCount, count, maxDelta, $"Character: {c}");
+            }
+        }
     }
 }
