@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,7 +17,14 @@ namespace Excogitated.Common
 
     public static class Rng
     {
+        /// <summary>
+        /// Uses System.Random to generate random data.
+        /// </summary>
         public static IRng Pseudo { get; } = new PseudoRng();
+
+        /// <summary>
+        /// Uses processor spin to generate truly random bits that are then converted to random data.
+        /// </summary>
         public static IRng True { get; } = Environment.ProcessorCount <= 2 ? Pseudo : new TrueRng();
     }
 
@@ -128,7 +137,25 @@ namespace Excogitated.Common
 
         public static decimal GetDecimal(this IRng rng) => new decimal(rng.GetInt32(), rng.GetInt32(), rng.GetInt32(), rng.GetBit(), 2);
 
+        public static T SelectOne<T>(this IRng rng, ReadOnlySpan<T> possibilities)
+        {
+            var selection = rng.GetInt32(0, possibilities.Length - 1);
+            return possibilities[selection];
+        }
+
         public static T SelectOne<T>(this IRng rng, T[] possibilities)
+        {
+            var selection = rng.GetInt32(0, possibilities.Length - 1);
+            return possibilities[selection];
+        }
+
+        public static T SelectOne<T>(this IRng rng, IList<T> possibilities)
+        {
+            var selection = rng.GetInt32(0, possibilities.Count - 1);
+            return possibilities[selection];
+        }
+
+        public static char SelectOne(this IRng rng, string possibilities)
         {
             var selection = rng.GetInt32(0, possibilities.Length - 1);
             return possibilities[selection];
@@ -140,6 +167,14 @@ namespace Excogitated.Common
             var values = _enumValues.GetOrAdd(typeof(T), k => Enum.GetValues(k));
             var selection = rng.GetInt32(0, values.Length - 1);
             return (T)values.GetValue(selection);
+        }
+
+        public static string GetText(this IRng rng, int length, string includedCharacters)
+        {
+            var b = new StringBuilder(length);
+            for (var i = 0; i < length; i++)
+                b.Append(rng.SelectOne(includedCharacters));
+            return b.ToString();
         }
     }
 }
