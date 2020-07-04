@@ -1,5 +1,5 @@
 # excogitated.common
-This is a library that I've built over the last decade of software development. Most classes were created to simplify development and reduce code. I use this library in most of the projects I work on and if anyone else finds it useful, great.
+This is a C# library that I've built gradually over the last decade of software development. Most classes were created to simplify development and reduce code. I use this library in most of the projects I work on and if anyone else finds it useful, great.
 
 Currently working on documentation and test cases for the contained classes. Feels like that might take longer than it took to actually write them. Until that is completed it'll remain in an alpha state.
 
