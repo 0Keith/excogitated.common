@@ -171,6 +171,15 @@ namespace Excogitated.Common.Test
             var item = Jsonizer.Deserialize<TestItem1>("{\"Type\":\"test/2\"}");
             Assert.AreEqual(TestEnum0.test2, item.Type);
         }
+
+        [TestMethod]
+        public void CharacterSerializationTest()
+        {
+            var item = new { V1 = Rng.Pseudo.GetDouble().ToPercent(), V2 = Rng.Pseudo.GetDouble().ToPercent() };
+            var json = Jsonizer.Serialize(item);
+            Console.WriteLine(json);
+            Assert.AreEqual(json, json);
+        }
     }
 
     public enum TestEnum2 { test1, test2, test3, test4, test5, Test5 = test5 }

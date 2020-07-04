@@ -7,6 +7,75 @@ namespace Excogitated.Common
 {
     public static class Benchmark
     {
+        public static BenchmarkResult Single(Action action)
+        {
+            var w = Stopwatch.StartNew();
+            action();
+            return new BenchmarkResult
+            {
+                Elapsed = w.Elapsed,
+                Executions = 1,
+            };
+        }
+
+        public static BenchmarkResult<T> Single<T>(Func<T> action)
+        {
+            var w = Stopwatch.StartNew();
+            var value = action();
+            return new BenchmarkResult<T>
+            {
+                Value = value,
+                Elapsed = w.Elapsed,
+                Executions = 1,
+            };
+        }
+
+        public static async Task<BenchmarkResult> SingleAsync(Task action)
+        {
+            var w = Stopwatch.StartNew();
+            await action;
+            return new BenchmarkResult
+            {
+                Elapsed = w.Elapsed,
+                Executions = 1,
+            };
+        }
+
+        public static async Task<BenchmarkResult<T>> SingleAsync<T>(Task<T> action)
+        {
+            var w = Stopwatch.StartNew();
+            var value = await action;
+            return new BenchmarkResult<T>
+            {
+                Value = value,
+                Elapsed = w.Elapsed,
+                Executions = 1,
+            };
+        }
+
+        public static async ValueTask<BenchmarkResult> SingleAsync(ValueTask action)
+        {
+            var w = Stopwatch.StartNew();
+            await action;
+            return new BenchmarkResult
+            {
+                Elapsed = w.Elapsed,
+                Executions = 1,
+            };
+        }
+
+        public static async ValueTask<BenchmarkResult<T>> SingleAsync<T>(ValueTask<T> action)
+        {
+            var w = Stopwatch.StartNew();
+            var value = await action;
+            return new BenchmarkResult<T>
+            {
+                Value = value,
+                Elapsed = w.Elapsed,
+                Executions = 1,
+            };
+        }
+
         public static ValueTask<BenchmarkResult> Run(Action action) => Run(1, action);
         public static ValueTask<BenchmarkResult> Run(int secondsDuration, Action action) => Run(TimeSpan.FromSeconds(secondsDuration), action);
         public static async ValueTask<BenchmarkResult> Run(TimeSpan duration, Action action)
@@ -104,7 +173,12 @@ namespace Excogitated.Common
         }
     }
 
-    public struct BenchmarkResult
+    public class BenchmarkResult<T> : BenchmarkResult
+    {
+        public T Value { get; set; }
+    }
+
+    public class BenchmarkResult
     {
         public TimeSpan Elapsed { get; set; }
         public long Executions { get; set; }
