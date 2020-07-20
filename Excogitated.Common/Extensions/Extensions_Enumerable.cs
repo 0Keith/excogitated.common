@@ -59,7 +59,7 @@ namespace Excogitated.Common
                 action(i);
         }
 
-        public static IEnumerable<T> Randomize<T>(this IEnumerable<T> items) => items.OrderBy(i => Rng.Pseudo.GetInt32());
+        public static IEnumerable<T> Randomize<T>(this IEnumerable<T> items) => items.OrderBy(i => Rng.GetInt32());
         public static IDictionary<K, V> ToInterface<K, V>(this IDictionary<K, V> source) => source;
 
         public static IEnumerable<T> ToEnumerable<T>(this IEnumerator<T> items, bool hasCurrent)

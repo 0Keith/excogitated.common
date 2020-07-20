@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Test.Profiler
+namespace Excogitated.Common.Tests.Profiler
 {
     internal class Program
     {

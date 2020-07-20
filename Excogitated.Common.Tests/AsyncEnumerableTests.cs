@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Test
+namespace Excogitated.Common.Tests
 {
     [TestClass]
-    public class AsyncEnumerableTests
+    public class AsyncEnumerableTests : TestsBase
     {
         [TestMethod]
         public async Task Take_Count()

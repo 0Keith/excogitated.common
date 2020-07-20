@@ -2,10 +2,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
 
-namespace Excogitated.Common.Test
+namespace Excogitated.Common.Tests
 {
     [TestClass]
-    public class DateTests
+    public class DateTests : TestsBase
     {
         [TestMethod]
         public void ToIntTest()

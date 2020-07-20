@@ -6,45 +6,45 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Test
+namespace Excogitated.Common.Tests
 {
 
     [TestClass]
-    public class JsonTests
+    public class JsonTests : TestsBase
     {
         public static TestItem0 Item { get; } = new TestItem0
         {
             mdy = Date.Today,
             Now = DateTime.Now,
             NowOffset = DateTimeOffset.Now,
-            AverageVolume = Rng.Pseudo.GetDouble(),
+            AverageVolume = Rng.GetDouble(),
             Codes = Enumerable.Range(0, 10).Select(i => Guid.NewGuid().ToString()).ToList(),
             ListDate = Date.Today,
-            MarginRatio = Rng.Pseudo.GetInt32(),
+            MarginRatio = Rng.GetInt32(),
             Name = "Test Instrument Document",
             //Prices = Enumerable.Range(0, 2).Select(i => new TestItem1
             Prices = Enumerable.Range(0, 5).Select(i => new TestItem1
             {
-                Close = Rng.Pseudo.GetDecimal(),
+                Close = Rng.GetDecimal(),
                 Date = Date.Today.AddDays(-i),
-                High = Rng.Pseudo.GetDecimal(),
-                Low = Rng.Pseudo.GetDecimal(),
-                Open = Rng.Pseudo.GetDecimal(),
-                Type = Rng.Pseudo.SelectOne<TestEnum0>(),
-                Volume = Rng.Pseudo.GetInt64(),
+                High = Rng.GetDecimal(),
+                Low = Rng.GetDecimal(),
+                Open = Rng.GetDecimal(),
+                Type = Rng.SelectOne<TestEnum0>(),
+                Volume = Rng.GetInt64(),
             }).ToList(),
             Symbol = "TEST",
-            Type = Rng.Pseudo.SelectOne<TestEnum1>(),
+            Type = Rng.SelectOne<TestEnum1>(),
             //Dividends = Enumerable.Range(0, 2).Select(i => new TestItem2
             Dividends = Enumerable.Range(0, 5).Select(i => new TestItem2
             {
-                Amount = Rng.Pseudo.GetDecimal(),
+                Amount = Rng.GetDecimal(),
                 DeclaredDate = Date.Today.AddMonths(-i),
                 ExDate = Date.Today.AddDays(7).AddMonths(-i),
                 PayDate = Date.Today.AddDays(14).AddMonths(-i),
-                Type = Rng.Pseudo.SelectOne<TestEnum2>(),
-                Price = Rng.Pseudo.GetDecimal(),
-                Interval = TimeSpan.FromTicks(Rng.Pseudo.GetInt64())
+                Type = Rng.SelectOne<TestEnum2>(),
+                Price = Rng.GetDecimal(),
+                Interval = TimeSpan.FromTicks(Rng.GetInt64())
             }).ToList(),
             DividendsFullUpdate = Date.Today.AddDays(-5),
         };
@@ -145,7 +145,7 @@ namespace Excogitated.Common.Test
         [TestMethod]
         public void JsonObjectOutput()
         {
-            var item = new TestItem2 { Amount = Rng.Pseudo.GetDecimal() };
+            var item = new TestItem2 { Amount = Rng.GetDecimal() };
             var expected = Jsonizer.Serialize(item, true);
             var actual = item.ToString();
             Assert.AreEqual(expected, actual);
@@ -175,7 +175,7 @@ namespace Excogitated.Common.Test
         [TestMethod]
         public void CharacterSerializationTest()
         {
-            var item = new { V1 = Rng.Pseudo.GetDouble().ToPercent(), V2 = Rng.Pseudo.GetDouble().ToPercent() };
+            var item = new { V1 = Rng.GetDouble().ToPercent(), V2 = Rng.GetDouble().ToPercent() };
             var json = Jsonizer.Serialize(item);
             Console.WriteLine(json);
             Assert.AreEqual(json, json);

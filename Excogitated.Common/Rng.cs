@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Excogitated.Common
 {
@@ -13,167 +12,86 @@ namespace Excogitated.Common
         byte GetByte();
         bool[] GetBits(int count);
         byte[] GetBytes(int count);
+        int GetInt32();
+        int GetInt32(int maxInclusive);
+        int GetInt32(int minInclusive, int maxInclusive);
     }
 
     public static class Rng
     {
-        /// <summary>
-        /// Uses System.Random to generate random data.
-        /// </summary>
-        public static IRng Pseudo { get; } = new PseudoRng();
+        private static readonly ThreadLocal<Random> _rng = ThreadLocal.Create<Random>();
 
-        /// <summary>
-        /// Uses processor spin to generate truly random bits that are then converted to random data.
-        /// </summary>
-        public static IRng True { get; } = Environment.ProcessorCount <= 2 ? Pseudo : new TrueRng();
-    }
-
-    internal class TrueRng : IRng
-    {
-        public bool GetBit() => GetBits(1)[0];
-        public bool[] GetBits(int count)
-        {
-            var c = new AtomicInt32();
-            var bits = new bool[count];
-            for (var i = 0; i < count; i++)
-            {
-                var task = Task.Run(() => c.Increment());
-                while (!task.IsCompleted)
-                    c.Increment();
-                bits[i] = c % 2 == 0;
-            }
-            return bits;
-        }
-
-        public byte GetByte() => GetBytes(1)[0];
-        public byte[] GetBytes(int count)
-        {
-            var bits = GetBits(count * 8);
-            var bytes = new byte[count];
-            for (var iByte = 0; iByte < count; iByte++)
-            {
-                var sum = 0;
-                for (var iBit = 0; iBit < 8; iBit++)
-                    if (bits[iByte * 8 + iBit])
-                        switch (iBit)
-                        {
-                            case 0: sum += 1; break;
-                            case 1: sum += 2; break;
-                            case 2: sum += 4; break;
-                            case 3: sum += 8; break;
-                            case 4: sum += 16; break;
-                            case 5: sum += 32; break;
-                            case 6: sum += 64; break;
-                            case 7: sum += 128; break;
-                        }
-                bytes[iByte] = (byte)sum;
-            }
-            return bytes;
-        }
-    }
-
-    internal class PseudoRng : IRng
-    {
-        private readonly ThreadLocal<Random> _rng = ThreadLocal.Create<Random>();
-
-        public bool GetBit() => _rng.Value.Next() % 2 == 0;
-        public byte GetByte() => (byte)_rng.Value.Next(0, 256);
-        public bool[] GetBits(int count) => GetBytes(count).Select(b => b % 2 == 0).ToArray();
-        public byte[] GetBytes(int count)
+        public static bool GetBit() => _rng.Value.Next() % 2 == 0;
+        public static byte GetByte() => (byte)_rng.Value.Next(0, 256);
+        public static bool[] GetBits(int count) => GetBytes(count).Select(b => b % 2 == 0).ToArray();
+        public static byte[] GetBytes(int count)
         {
             var bytes = new byte[count];
             _rng.Value.NextBytes(bytes);
             return bytes;
         }
-    }
 
-    public static class Extensions_Rng
-    {
-        public static int GetInt32(this IRng rng)
+        public static int GetInt32() => _rng.Value.Next();
+        public static int GetInt32(int maxInclusive) => _rng.Value.Next(maxInclusive + 1);
+        public static int GetInt32(int minInclusive, int maxInclusive) => _rng.Value.Next(minInclusive, maxInclusive + 1);
+
+        public static long GetInt64() => (long)(long.MaxValue * GetDouble());
+        public static long GetInt64(long maxInclusive) => GetInt64(0, maxInclusive);
+        public static long GetInt64(long minInclusive, long maxInclusive)
         {
-            var bytes = rng.GetBytes(4);
-            return BitConverter.ToInt32(bytes, 0);
+            var range = Math.Abs(maxInclusive - minInclusive) + 1;
+            var d = range * _rng.Value.NextDouble();
+            return (long)(minInclusive + d);
         }
 
-        public static int GetInt32(this IRng rng, int maxInclusive)
+        public static double GetDouble() => _rng.Value.NextDouble();
+        public static double GetDouble(double maxInclusive) => GetDouble(0, maxInclusive);
+        public static double GetDouble(double minInclusive, double maxInclusive)
         {
-            var i = rng.GetInt32();
-            var r = i % (maxInclusive + 1);
-            if (r < 0)
-                r *= -1;
-            return r;
+            var range = Math.Abs(maxInclusive - minInclusive) + 1;
+            var d = range * _rng.Value.NextDouble();
+            return minInclusive + d;
         }
 
-        public static int GetInt32(this IRng rng, int minInclusive, int maxInclusive)
+        public static decimal GetDecimal() => new decimal(GetInt32(), GetInt32(), GetInt32(), GetBit(), 2);
+
+        public static T SelectOne<T>(ReadOnlySpan<T> possibilities)
         {
-            var range = Math.Abs(maxInclusive - minInclusive);
-            var i = rng.GetInt32(range);
-            return i + minInclusive;
-        }
-
-        public static long GetInt64(this IRng rng)
-        {
-            var bytes = rng.GetBytes(8);
-            return BitConverter.ToInt64(bytes, 0);
-        }
-
-        public static long GetInt64(this IRng rng, long maxInclusive)
-        {
-            var i = rng.GetInt64();
-            var r = i % (maxInclusive + 1);
-            if (r < 0)
-                r *= -1;
-            return r;
-        }
-
-        public static long GetInt64(this IRng rng, long minInclusive, long maxInclusive)
-        {
-            var range = Math.Abs(maxInclusive - minInclusive);
-            var i = rng.GetInt64(range);
-            return i + minInclusive;
-        }
-
-        public static double GetDouble(this IRng rng) => BitConverter.ToDouble(rng.GetBytes(8), 0);
-
-        public static decimal GetDecimal(this IRng rng) => new decimal(rng.GetInt32(), rng.GetInt32(), rng.GetInt32(), rng.GetBit(), 2);
-
-        public static T SelectOne<T>(this IRng rng, ReadOnlySpan<T> possibilities)
-        {
-            var selection = rng.GetInt32(0, possibilities.Length - 1);
+            var selection = GetInt32(0, possibilities.Length - 1);
             return possibilities[selection];
         }
 
-        public static T SelectOne<T>(this IRng rng, T[] possibilities)
+        public static T SelectOne<T>(T[] possibilities)
         {
-            var selection = rng.GetInt32(0, possibilities.Length - 1);
+            var selection = GetInt32(0, possibilities.Length - 1);
             return possibilities[selection];
         }
 
-        public static T SelectOne<T>(this IRng rng, IList<T> possibilities)
+        public static T SelectOne<T>(IList<T> possibilities)
         {
-            var selection = rng.GetInt32(0, possibilities.Count - 1);
+            var selection = GetInt32(0, possibilities.Count - 1);
             return possibilities[selection];
         }
 
-        public static char SelectOne(this IRng rng, string possibilities)
+        public static char SelectOne(string possibilities)
         {
-            var selection = rng.GetInt32(0, possibilities.Length - 1);
+            var selection = GetInt32(0, possibilities.Length - 1);
             return possibilities[selection];
         }
 
         private static readonly CowDictionary<Type, Array> _enumValues = new CowDictionary<Type, Array>();
-        public static T SelectOne<T>(this IRng rng) where T : Enum
+        public static T SelectOne<T>() where T : Enum
         {
             var values = _enumValues.GetOrAdd(typeof(T), k => Enum.GetValues(k));
-            var selection = rng.GetInt32(0, values.Length - 1);
+            var selection = GetInt32(0, values.Length - 1);
             return (T)values.GetValue(selection);
         }
 
-        public static string GetText(this IRng rng, int length, string includedCharacters)
+        public static string GetText(int length, string includedCharacters)
         {
             var b = new StringBuilder(length);
             for (var i = 0; i < length; i++)
-                b.Append(rng.SelectOne(includedCharacters));
+                b.Append(SelectOne(includedCharacters));
             return b.ToString();
         }
     }

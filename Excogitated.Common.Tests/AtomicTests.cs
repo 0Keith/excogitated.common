@@ -4,17 +4,17 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Test
+namespace Excogitated.Common.Tests
 {
     [TestClass]
-    public class AtomicTests
+    public class AtomicTests : TestsBase
     {
         [TestMethod]
         public async Task Delay()
         {
             var watch = Stopwatch.StartNew();
             var deltas = await Task.WhenAll(Enumerable.Range(0, 1000)
-                .Select(i => Rng.Pseudo.GetInt32(1, 1000))
+                .Select(i => Rng.GetDouble(1, 1000))
                 .Select(rng => new
                 {
                     Delay = AsyncTimer.Delay(rng),

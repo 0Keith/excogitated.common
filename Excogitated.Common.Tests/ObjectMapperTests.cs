@@ -1,10 +1,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace Excogitated.Common.Test
+namespace Excogitated.Common.Tests
 {
     [TestClass]
-    public class ObjectMapperTests
+    public class ObjectMapperTests : TestsBase
     {
         [TestMethod]
         public void CopyToTest()
@@ -14,10 +14,10 @@ namespace Excogitated.Common.Test
             var source = new CopyItemSource
             {
                 Id = Guid.NewGuid(),
-                Version = Rng.Pseudo.GetInt32(),
-                Name = Rng.Pseudo.GetDecimal().ToString(),
+                Version = Rng.GetInt32(),
+                Name = Rng.GetDecimal().ToString(),
                 Created = DateTimeOffset.Now,
-                Count = Rng.Pseudo.GetInt32(),
+                Count = Rng.GetInt32(),
             };
             var target = new CopyItemTarget();
             source.CopyTo(target);

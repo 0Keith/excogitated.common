@@ -30,6 +30,7 @@ namespace Excogitated.Common
         public string Message { get; }
 
         public string FormattedMessage => $"{Time:o} | {Level,-5} | {Message}";
+        public override string ToString() => FormattedMessage;
 
         public LogMessage(LogLevel level, object message)
         {

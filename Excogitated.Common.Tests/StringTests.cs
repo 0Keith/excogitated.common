@@ -3,10 +3,10 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Test
+namespace Excogitated.Common.Tests
 {
     [TestClass]
-    public class StringTests
+    public class StringTests : TestsBase
     {
 
         [TestMethod]
@@ -36,7 +36,7 @@ namespace Excogitated.Common.Test
         [TestMethod]
         public void BaseCoversionTest()
         {
-            var value = Rng.Pseudo.GetInt32();
+            var value = Rng.GetInt32();
             if (value < 0)
                 value *= -1;
 
@@ -67,7 +67,7 @@ namespace Excogitated.Common.Test
         [TestMethod]
         public void SpanTest()
         {
-            var expected = $"test{Rng.Pseudo.GetInt64()}";
+            var expected = $"test{Rng.GetInt64()}";
             var actual = new ReadOnlySpan<char>(expected.ToCharArray()).ToString();
             Assert.AreEqual(expected, actual);
         }

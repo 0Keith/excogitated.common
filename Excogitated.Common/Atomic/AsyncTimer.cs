@@ -10,9 +10,9 @@ namespace Excogitated.Common
     public class DelayResult
     {
         public AsyncResult<int> Result { get; } = new AsyncResult<int>();
-        public long ExpectedElapsed { get; }
+        public double ExpectedElapsed { get; }
 
-        public DelayResult(long expected)
+        public DelayResult(double expected)
         {
             ExpectedElapsed = expected;
         }
@@ -27,16 +27,16 @@ namespace Excogitated.Common
         public static Task<int> Delay(DateTimeOffset date) => _instance.Delay(date);
         public static Task<int> Delay(TimeSpan timespan) => _instance.Delay(timespan);
         public static Task<int> Delay(int milliseconds) => _instance.Delay(milliseconds);
-        public static Task<int> Delay(long milliseconds) => _instance.Delay(milliseconds);
+        public static Task<int> Delay(double milliseconds) => _instance.Delay(milliseconds);
     }
 
     public class AsyncTimerInstance : IDisposable
     {
         private readonly LinkedList<DelayResult> _consumers = new LinkedList<DelayResult>();
-        private readonly ManualResetEvent _mre = new ManualResetEvent(false);
+        private readonly ManualResetEventSlim _mre = new ManualResetEventSlim(false);
         private readonly AtomicBool _running = new AtomicBool(true);
         private readonly Stopwatch _watch = Stopwatch.StartNew();
-        private long _minExpectedElapsed = long.MaxValue;
+        private double _minExpectedElapsed = double.MaxValue;
 
         public void Dispose() => _running.TrySet(false);
 
@@ -47,12 +47,28 @@ namespace Excogitated.Common
 
         private void NotifyConsumers(object obj)
         {
+            var spin = new SpinWait();
             using (_mre)
                 while (_running || _consumers.Count > 0)
                     try
                     {
                         var delay = GetDelay();
-                        if (delay <= 0 || _mre.WaitOne(delay))
+                        var ready = delay <= 0;
+                        if (!ready)
+                        {
+                            var integerDelay = delay > int.MaxValue ? int.MaxValue : (int)delay;
+                            ready = _mre.Wait(integerDelay);
+                            if (!ready && delay > integerDelay)
+                            {
+                                var ticks = (delay - integerDelay) * Stopwatch.Frequency / 1000;
+                                var time = Stopwatch.StartNew();
+                                while (time.ElapsedTicks < ticks)
+                                    spin.SpinOnce();
+                            }
+                        }
+
+                        if (ready)
+                        {
                             lock (_consumers)
                             {
                                 _mre.Reset();
@@ -62,13 +78,15 @@ namespace Excogitated.Common
                                 {
                                     if (next.Value.ExpectedElapsed <= elapsed)
                                     {
-                                        next.Value.Result.TryComplete((elapsed - next.Value.ExpectedElapsed).ToInt());
+                                        var result = elapsed - next.Value.ExpectedElapsed;
+                                        next.Value.Result.TryComplete((int)result);
                                         _consumers.Remove(next);
                                     }
                                     next = next.Next;
                                 }
                                 _minExpectedElapsed = _consumers.Count == 0 ? long.MaxValue : _consumers.Min(c => c.ExpectedElapsed);
                             }
+                        }
                     }
                     catch (Exception e)
                     {
@@ -76,20 +94,20 @@ namespace Excogitated.Common
                     }
         }
 
-        private int GetDelay()
+        private double GetDelay()
         {
             lock (_consumers)
             {
-                return (_minExpectedElapsed - _watch.ElapsedMilliseconds).ToInt();
+                return _minExpectedElapsed - _watch.ElapsedMilliseconds;
             }
         }
 
         public Task<int> Delay(Date date) => Delay(date.DateTime);
         public Task<int> Delay(DateTime date) => Delay(date - DateTime.Now);
         public Task<int> Delay(DateTimeOffset date) => Delay(date - DateTimeOffset.Now);
-        public Task<int> Delay(TimeSpan timespan) => Delay((long)timespan.TotalMilliseconds);
-        public Task<int> Delay(int milliseconds) => Delay((long)milliseconds);
-        public Task<int> Delay(long milliseconds)
+        public Task<int> Delay(TimeSpan timespan) => Delay(timespan.TotalMilliseconds);
+        public Task<int> Delay(int milliseconds) => Delay((double)milliseconds);
+        public Task<int> Delay(double milliseconds)
         {
             var expectedElapsed = milliseconds + _watch.ElapsedMilliseconds;
             var result = new DelayResult(expectedElapsed);
