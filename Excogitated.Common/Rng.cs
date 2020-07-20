@@ -6,17 +6,6 @@ using System.Threading;
 
 namespace Excogitated.Common
 {
-    public interface IRng
-    {
-        bool GetBit();
-        byte GetByte();
-        bool[] GetBits(int count);
-        byte[] GetBytes(int count);
-        int GetInt32();
-        int GetInt32(int maxInclusive);
-        int GetInt32(int minInclusive, int maxInclusive);
-    }
-
     public static class Rng
     {
         private static readonly ThreadLocal<Random> _rng = ThreadLocal.Create<Random>();
