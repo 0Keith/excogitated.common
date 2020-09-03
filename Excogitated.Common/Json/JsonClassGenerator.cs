@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Excogitated.Common.Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -98,7 +99,10 @@ namespace Excogitated.Common
                 {
                     var key = nested.ToString(Settings, 0, true);
                     if (_generatedClasses.TryGetValue(key, out var n))
+                    {
+                        n.ExampleValues.AddRange(nested.ExampleValues);
                         nested = n;
+                    }
                     else
                     {
                         while (_generatedClasses.ContainsKey(nested.ClassName + nested.ClassId))
@@ -129,6 +133,7 @@ namespace Excogitated.Common
                 var nested = FromElement(objs.Current, propertyName);
                 if (nested.IsPrimitive)
                 {
+                    generated.ExampleValues.AddRange(nested.ExampleValues);
                     if (generated.IsPrimitive && generated.ClassName != nested.ClassName)
                         generated.ClassName = "string";
                     else if (!generated.IsPrimitive)
@@ -163,18 +168,11 @@ namespace Excogitated.Common
     internal class GeneratedClass
     {
         public Dictionary<string, GeneratedClass> Properties { get; } = new Dictionary<string, GeneratedClass>();
-        public List<string> ExampleValues { get; } = new List<string>();
+        public HashSet<string> ExampleValues { get; } = new HashSet<string>();
         public string ClassName { get; set; }
         public int ClassId { get; set; }
         public bool IsArray { get; set; }
         public bool IsPrimitive { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode() => ClassName?.GetHashCode() ?? 0;
 
         public override string ToString()
         {
@@ -197,7 +195,11 @@ namespace Excogitated.Common
                     .Append($"{settings.PropertyVisibility.ToString().ToLower()} {p.Value.ClassName}");
                 if (p.Value.IsArray)
                     builder.Append("[]");
-                builder.Append($" {p.Key} {{ get; set; }}").AppendLine();
+                builder.Append($" {p.Key} {{ get; set; }}");
+                if (!asKey)
+                    foreach (var v in p.Value.ExampleValues)
+                        builder.Append($" // {v}");
+                builder.AppendLine();
             }
             if (depth == 1)
             {

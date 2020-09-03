@@ -142,7 +142,7 @@ namespace Excogitated.Common.Tests
             Console.WriteLine(Jsonizer.Format(json));
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public async Task GenerateClassFromFile()
         {
             var result = await new JsonClassGenerator
