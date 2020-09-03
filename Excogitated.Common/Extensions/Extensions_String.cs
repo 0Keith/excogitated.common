@@ -131,6 +131,29 @@ namespace Excogitated.Common
             return new string(source.ToArray());
         }
 
+        public static IEnumerable<string> GetCharacterNames(this IEnumerable<char> source)
+        {
+            if (source is null)
+                return new string[0];
+            return source.Select(c => c switch
+            {
+                '0' => "Zero",
+                '1' => "One",
+                '2' => "Two",
+                '3' => "Three",
+                '4' => "Four",
+                '5' => "Five",
+                '6' => "Six",
+                '7' => "Seven",
+                '8' => "Eight",
+                '9' => "Nine",
+                '_' => "Underscore",
+                '-' => "Dash",
+                '|' => "Pipe",
+                _ => "Unknown",
+            });
+        }
+
         public static DiffResult Diff(this IEnumerable<char> expected, IEnumerable<char> actual, bool ignoreWhitespace = false, int diffLength = 100)
         {
             if (expected is null)

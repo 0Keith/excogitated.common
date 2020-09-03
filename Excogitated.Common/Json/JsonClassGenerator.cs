@@ -64,6 +64,7 @@ namespace Excogitated.Common
             var typeName = GetTypeName(element);
             var generated = new GeneratedClass { ClassName = typeName };
             generated.ExampleValues.Add(element.ToString());
+            generated.IsPrimitive = true;
             return generated;
         }
 
@@ -93,7 +94,7 @@ namespace Excogitated.Common
             {
                 var name = objs.Current.Name;
                 var nested = FromElement(objs.Current.Value, name);
-                if (nested.ExampleValues.Count == 0)
+                if (!nested.IsPrimitive)
                 {
                     var key = nested.ToString(Settings, 0, true);
                     if (_generatedClasses.TryGetValue(key, out var n))
@@ -125,10 +126,21 @@ namespace Excogitated.Common
             var generated = new GeneratedClass { ClassName = className, IsArray = true };
             while (objs.MoveNext())
             {
-                var nested = FromElement(objs.Current, propertyName); // + "[]";
-                foreach (var p in nested.Properties)
-                    if (!generated.Properties.ContainsKey(p.Key))
-                        generated.Properties.Add(p.Key, p.Value);
+                var nested = FromElement(objs.Current, propertyName);
+                if (nested.IsPrimitive)
+                {
+                    if (generated.IsPrimitive && generated.ClassName != nested.ClassName)
+                        generated.ClassName = "string";
+                    else if (!generated.IsPrimitive)
+                    {
+                        generated.ClassName = nested.ClassName;
+                        generated.IsPrimitive = true;
+                    }
+                }
+                else
+                    foreach (var p in nested.Properties)
+                        if (!generated.Properties.ContainsKey(p.Key))
+                            generated.Properties.Add(p.Key, p.Value);
             }
             return generated;
         }
@@ -140,22 +152,7 @@ namespace Excogitated.Common
             className += className.EndsWith("Data") ? "Info" : "Data";
             if (!className[0].IsLetter())
             {
-                var names = className.TakeWhile(c => !c.IsLetter()).Select(c => c switch
-                {
-                    '0' => "Zero",
-                    '1' => "One",
-                    '2' => "Two",
-                    '3' => "Three",
-                    '4' => "Four",
-                    '5' => "Five",
-                    '6' => "Six",
-                    '7' => "Seven",
-                    '8' => "Eight",
-                    '9' => "Nine",
-                    '_' => "Underscore",
-                    '-' => "Dash",
-                    _ => "Unknown",
-                }).ToList();
+                var names = className.TakeWhile(c => !c.IsLetter()).GetCharacterNames().ToList();
                 names.Add(className.Substring(names.Count, className.Length - names.Count));
                 className = string.Join("_", names);
             }
@@ -165,11 +162,12 @@ namespace Excogitated.Common
 
     internal class GeneratedClass
     {
-        public int ClassId { get; set; }
-        public string ClassName { get; set; }
         public Dictionary<string, GeneratedClass> Properties { get; } = new Dictionary<string, GeneratedClass>();
         public List<string> ExampleValues { get; } = new List<string>();
+        public string ClassName { get; set; }
+        public int ClassId { get; set; }
         public bool IsArray { get; set; }
+        public bool IsPrimitive { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -204,7 +202,7 @@ namespace Excogitated.Common
             if (depth == 1)
             {
                 foreach (var p in GetAllClasses().Distinct())
-                    if (p.ExampleValues.Count == 0)
+                    if (!p.IsPrimitive || p.Properties.Count > 0)
                     {
                         builder.AppendLine().Append(p.ToString(settings, depth, asKey));
                     }

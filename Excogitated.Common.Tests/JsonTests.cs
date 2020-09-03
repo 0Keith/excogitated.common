@@ -142,6 +142,16 @@ namespace Excogitated.Common.Tests
             Console.WriteLine(Jsonizer.Format(json));
         }
 
+        [TestMethod, Ignore]
+        public async Task GenerateClassFromFile()
+        {
+            var result = await new JsonClassGenerator
+            {
+                Settings = new JsonClassGeneratorSettings { RootName = "FdaDrugSearchModel" }
+            }.FromFile("C:/Users/keith/Downloads/drug-ndc-0001-of-0001.json");
+            Console.WriteLine(result);
+        }
+
         [TestMethod]
         public void JsonObjectOutput()
         {
