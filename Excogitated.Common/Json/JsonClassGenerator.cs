@@ -93,17 +93,20 @@ namespace Excogitated.Common
             {
                 var name = objs.Current.Name;
                 var nested = FromElement(objs.Current.Value, name);
-                var key = nested.ToString(Settings, 0, true);
-                if (_generatedClasses.TryGetValue(key, out var n))
-                    nested = n;
-                else
+                if (nested.ExampleValues.Count == 0)
                 {
-                    while (_generatedClasses.ContainsKey(nested.ClassName + nested.ClassId))
-                        nested.ClassId++;
-                    if (nested.ClassId > 0)
-                        nested.ClassName += nested.ClassId;
-                    _generatedClasses.Add(nested.ClassName, nested);
-                    _generatedClasses.Add(key, nested);
+                    var key = nested.ToString(Settings, 0, true);
+                    if (_generatedClasses.TryGetValue(key, out var n))
+                        nested = n;
+                    else
+                    {
+                        while (_generatedClasses.ContainsKey(nested.ClassName + nested.ClassId))
+                            nested.ClassId++;
+                        _generatedClasses.Add(nested.ClassName + nested.ClassId, nested);
+                        if (nested.ClassId > 0)
+                            nested.ClassName += nested.ClassId;
+                        _generatedClasses.Add(key, nested);
+                    }
                 }
                 generated.Properties.Add(name, nested);
             }
