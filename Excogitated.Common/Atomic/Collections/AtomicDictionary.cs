@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Excogitated.Common.Extensions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Atomic.Collections
 {
     /// <summary>
     /// A synchronized Dictionary wrapper.

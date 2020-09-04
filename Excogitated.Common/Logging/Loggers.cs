@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Excogitated.Common.Atomic;
+using Excogitated.Common.Extensions;
+using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Logging
 {
     public enum LogLevel
     {

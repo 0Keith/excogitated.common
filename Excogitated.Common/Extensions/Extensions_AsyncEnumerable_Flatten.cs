@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Extensions
 {
     public static class Extensions_AsyncEnumerable_Flatten
     {

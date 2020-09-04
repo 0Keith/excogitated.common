@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Atomic.Collections
 {
     public interface IAtomicDictionary<TKey, TValue> : IAtomicCollection<KeyValuePair<TKey, TValue>>
     {

@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Excogitated.Common.Atomic;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Extensions
 {
     public static class Extensions_File
     {

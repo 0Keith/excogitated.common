@@ -1,11 +1,13 @@
-﻿using System;
+﻿using Excogitated.Common.Atomic.Collections;
+using Excogitated.Common.Extensions;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Json
 {
     public class JsonObject
     {

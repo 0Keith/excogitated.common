@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Excogitated.Common.Extensions;
+using System.Collections.Generic;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Atomic.Collections
 {
     public interface IAtomicCollection<T> : IEnumerable<T>
     {

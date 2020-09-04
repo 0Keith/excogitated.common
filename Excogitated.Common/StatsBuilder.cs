@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Excogitated.Common.Atomic.Collections;
+using System;
 using System.Linq;
 using System.Text;
 

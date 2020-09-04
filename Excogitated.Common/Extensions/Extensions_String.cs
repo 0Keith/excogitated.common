@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Excogitated.Common.Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Extensions
 {
     public static class Extensions_String
     {

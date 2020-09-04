@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Excogitated.Common.Extensions;
+using System;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Atomic.Collections
 {
     public class CollectionTransaction<T> : IDisposable
     {

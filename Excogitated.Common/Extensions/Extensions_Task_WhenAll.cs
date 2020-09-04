@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Excogitated.Common.Extensions;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Extensions
 {
     public static class Extensions_Task_WhenAll
     {

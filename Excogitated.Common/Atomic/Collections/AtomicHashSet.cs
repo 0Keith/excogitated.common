@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Atomic.Collections
 {
     public class AtomicHashSet<T> : IAtomicCollection<T>
     {

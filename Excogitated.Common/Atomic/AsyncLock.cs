@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Excogitated.Common.Atomic.Collections;
+using System;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Atomic
 {
     internal class AsyncLockExit : IDisposable
     {

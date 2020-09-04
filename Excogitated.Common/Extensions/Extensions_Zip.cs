@@ -2,7 +2,7 @@
 using System.IO.Compression;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Extensions
 {
     public static class Extensions_Zip
     {
@@ -10,7 +10,7 @@ namespace Excogitated.Common
         {
             zip.NotNull(nameof(zip));
             foreach (var entry in zip.Entries)
-                await ExtractToFileAsync(entry, dir);
+                await entry.ExtractToFileAsync(dir);
         }
 
         public static async ValueTask ExtractToFileAsync(this ZipArchiveEntry entry, DirectoryInfo dir)

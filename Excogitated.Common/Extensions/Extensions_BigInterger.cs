@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Excogitated.Common.Atomic.Collections;
+using Excogitated.Common.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Extensions
 {
     public static class Extensions_BigInteger
     {

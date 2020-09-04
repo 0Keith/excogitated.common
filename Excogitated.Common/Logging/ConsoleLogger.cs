@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Excogitated.Common.Atomic;
+using Excogitated.Common.Atomic.Collections;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Logging
 {
     public class ConsoleLogger : ILogger, IDisposable
     {

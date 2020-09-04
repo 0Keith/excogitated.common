@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Excogitated.Common.Logging;
+using System;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Extensions
 {
     public static class Extensions_Task_Catch
     {

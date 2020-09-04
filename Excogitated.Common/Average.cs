@@ -3,7 +3,7 @@
     public class Average
     {
         private double _sum;
-        private long _count;
+        private double _count;
 
         public double Value => _count == 0 ? 0 : _sum / _count;
 

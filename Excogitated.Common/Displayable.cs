@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Excogitated.Common.Extensions;
+using System;
 
 namespace Excogitated.Common
 {

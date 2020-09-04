@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Atomic.Collections
 {
     public class CowList<T> : IAtomicCollection<T>
     {

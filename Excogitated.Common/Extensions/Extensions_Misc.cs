@@ -1,7 +1,8 @@
-﻿using System.Diagnostics;
+﻿using Excogitated.Common.Atomic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Extensions
 {
     public static class Extensions_Misc
     {

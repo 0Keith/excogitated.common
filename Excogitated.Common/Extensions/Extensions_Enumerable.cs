@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Excogitated.Common.Atomic;
+using Excogitated.Common.Extensions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Extensions
 {
 #if NETSTANDARD2_0
     public static class KeyValuePair
@@ -167,6 +169,7 @@ namespace Excogitated.Common
 
         public static CountedEnumerator<T> GetEnumeratorCounted<T>(this IEnumerable<T> source) => new CountedEnumerator<T>(source);
 
+#if NETSTANDARD2_0
         public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> source, int count)
         {
             source.NotNull(nameof(source));
@@ -178,6 +181,7 @@ namespace Excogitated.Common
                     yield return q.Dequeue();
             }
         }
+#endif
 
         public static TSeed Aggregate<T, TSeed>(this IEnumerable<T> source, TSeed seed, Func<T, T, TSeed, TSeed> aggregator)
         {

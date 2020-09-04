@@ -1,4 +1,5 @@
-using Excogitated.Common;
+using Excogitated.Common.Extensions;
+using Excogitated.Common.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -142,7 +143,7 @@ namespace Excogitated.Common.Tests
             Console.WriteLine(Jsonizer.Format(json));
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public async Task GenerateClassFromFile()
         {
             var result = await new JsonClassGenerator

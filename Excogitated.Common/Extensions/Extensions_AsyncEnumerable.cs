@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Excogitated.Common.Atomic;
+using Excogitated.Common.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Extensions
 {
     public static class Extensions_AsyncEnumerable
     {

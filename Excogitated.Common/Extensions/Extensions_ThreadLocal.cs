@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Extensions
 {
     public static class ThreadLocal
     {

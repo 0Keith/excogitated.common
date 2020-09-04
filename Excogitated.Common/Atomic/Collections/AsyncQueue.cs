@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Excogitated.Common.Extensions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Atomic.Collections
 {
     /// <summary>
     /// Holds a Value and indicates whether or not a Value is held.

@@ -1,10 +1,13 @@
-﻿using System;
+﻿using Excogitated.Common.Atomic.Collections;
+using Excogitated.Common.Extensions;
+using Excogitated.Common.Logging;
+using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Atomic
 {
     public class WatchResult
     {

@@ -1,4 +1,4 @@
-﻿namespace Excogitated.Common
+﻿namespace Excogitated.Common.Atomic
 {
     public class AtomicBool : ICounter<bool>
     {

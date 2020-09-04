@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Excogitated.Common.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Extensions
 {
     public static class Extensions_Enumerable_MinMax
     {

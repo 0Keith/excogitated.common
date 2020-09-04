@@ -1,3 +1,5 @@
+using Excogitated.Common.Atomic;
+using Excogitated.Common.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
