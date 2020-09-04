@@ -11,8 +11,11 @@ namespace Excogitated.Common.Atomic.Collections
         bool TryAdd(T item);
         bool TryRemove(T item);
         bool TryConsume(out T item);
-        IEnumerable<T> GetAndClear();
+
         void Clear();
+        IEnumerable<T> GetAndClear();
+        void ClearAndAdd(IEnumerable<T> items);
+        IEnumerable<T> GetAndClearAndAdd(IEnumerable<T> items);
     }
 
     public static class Extensions_IAtomicCollection

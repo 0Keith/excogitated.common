@@ -123,20 +123,42 @@ namespace Excogitated.Common.Atomic.Collections
             }
         }
 
-        public IEnumerable<KeyValuePair<TKey, TValue>> GetAndClear()
-        {
-            lock (this)
-            {
-                var copy = CopyItems();
-                _items = new Dictionary<TKey, TValue>();
-                return copy;
-            }
-        }
-
         public void Clear()
         {
             lock (this)
                 _items = new Dictionary<TKey, TValue>();
+        }
+
+        public IEnumerable<KeyValuePair<TKey, TValue>> GetAndClear()
+        {
+            lock (this)
+            {
+                var items = _items;
+                _items = new Dictionary<TKey, TValue>();
+                return items;
+            }
+        }
+
+        public void ClearAndAdd(IEnumerable<KeyValuePair<TKey, TValue>> items)
+        {
+            lock (this)
+            {
+                var copy = new Dictionary<TKey, TValue>();
+                if (items is object)
+                    foreach (var item in items)
+                        copy.Add(item.Key, item.Value);
+                _items = copy;
+            }
+        }
+
+        public IEnumerable<KeyValuePair<TKey, TValue>> GetAndClearAndAdd(IEnumerable<KeyValuePair<TKey, TValue>> items)
+        {
+            lock (this)
+            {
+                var current = _items;
+                ClearAndAdd(items);
+                return current;
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

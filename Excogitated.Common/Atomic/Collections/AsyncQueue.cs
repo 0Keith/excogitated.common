@@ -156,7 +156,7 @@ namespace Excogitated.Common.Atomic.Collections
         }
 
         /// <summary>
-        /// Adds a range of items to the queue.
+        /// Adds a range of items to the queue. This is not an atomic operation.
         /// </summary>
         /// <param name="items">Items to add to the queue.</param>
         public void AddRange(IEnumerable<T> items)
@@ -339,6 +339,15 @@ namespace Excogitated.Common.Atomic.Collections
         }
 
         /// <summary>
+        /// Clears the queue.
+        /// </summary>
+        public void Clear()
+        {
+            lock (this)
+                _items.Clear();
+        }
+
+        /// <summary>
         /// Clears the queue and returns the items cleared.
         /// </summary>
         /// <returns>The items cleared from the queue.</returns>
@@ -353,12 +362,25 @@ namespace Excogitated.Common.Atomic.Collections
         }
 
         /// <summary>
-        /// Clears the queue.
+        /// Clears the queue and adds the new items. This is not an atomic operation.
         /// </summary>
-        public void Clear()
+        /// <param name="items">The items to add to the queue.</param>
+        public void ClearAndAdd(IEnumerable<T> items)
         {
-            lock (this)
-                _items.Clear();
+            Clear();
+            AddRange(items);
+        }
+
+        /// <summary>
+        /// Clears the queue, adds the new items, and returns the items cleared. This is not an atomic operation.
+        /// </summary>
+        /// <param name="items">The items to add.</param>
+        /// <returns>The items cleared.</returns>
+        public IEnumerable<T> GetAndClearAndAdd(IEnumerable<T> items)
+        {
+            var current = GetAndClear();
+            AddRange(items);
+            return current;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

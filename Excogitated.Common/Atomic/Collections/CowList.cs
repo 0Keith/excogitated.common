@@ -66,20 +66,38 @@ namespace Excogitated.Common.Atomic.Collections
             }
         }
 
-        public IEnumerable<T> GetAndClear()
-        {
-            lock (this)
-            {
-                var copy = CopyItems();
-                _items.Clear();
-                return copy;
-            }
-        }
-
         public void Clear()
         {
             lock (this)
                 _items = new List<T>();
+        }
+
+        public IEnumerable<T> GetAndClear()
+        {
+            lock (this)
+            {
+                var current = _items;
+                _items = new List<T>();
+                return current;
+            }
+        }
+
+        public void ClearAndAdd(IEnumerable<T> items)
+        {
+            lock (this)
+            {
+                _items = new List<T>(items);
+            }
+        }
+
+        public IEnumerable<T> GetAndClearAndAdd(IEnumerable<T> items)
+        {
+            lock (this)
+            {
+                var current = _items;
+                _items = new List<T>(items);
+                return current;
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

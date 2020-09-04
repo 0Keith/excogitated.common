@@ -54,6 +54,12 @@ namespace Excogitated.Common.Atomic.Collections
             }
         }
 
+        public void Clear()
+        {
+            lock (this)
+                _items.Clear();
+        }
+
         public IEnumerable<T> GetAndClear()
         {
             lock (this)
@@ -64,10 +70,23 @@ namespace Excogitated.Common.Atomic.Collections
             }
         }
 
-        public void Clear()
+        public void ClearAndAdd(IEnumerable<T> items)
         {
             lock (this)
+            {
                 _items.Clear();
+                AddRange(items);
+            }
+        }
+
+        public IEnumerable<T> GetAndClearAndAdd(IEnumerable<T> items)
+        {
+            lock (this)
+            {
+                var current = GetAndClear();
+                AddRange(items);
+                return current;
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
