@@ -9,7 +9,7 @@ namespace Excogitated.Common.Tests
     public class DateTests : TestsBase
     {
         [TestMethod]
-        public void ToIntTest()
+        public void ToInt()
         {
             var chars = Enumerable.Range(0, 10).Select(i => new { Digit = i, Char = i.ToString()[0] }).ToList();
             foreach (var c in chars)
@@ -20,14 +20,14 @@ namespace Excogitated.Common.Tests
         }
 
         [TestMethod]
-        public void ParseTest()
+        public void Parse()
         {
             Assert.IsTrue(Date.TryParse(Date.Today, out var date));
             Assert.AreEqual(Date.Today, date);
         }
 
         [TestMethod]
-        public void ToCharTest()
+        public void ToChar()
         {
             Assert.AreEqual('0', 0.ToChar());
             Assert.AreEqual('1', 1.ToChar());
@@ -42,7 +42,7 @@ namespace Excogitated.Common.Tests
         }
 
         [TestMethod]
-        public void ShortYearTest()
+        public void ShortYear()
         {
             var expected = DateTime.Today.AddYears(-2000).ToString("yyyy-MM-dd");
             var actual = Date.Today.AddYears(-2000).ToString();

@@ -109,7 +109,7 @@ namespace Excogitated.Common.Tests
         }
 
         [TestMethod]
-        public void EscapeFileNameTest()
+        public void EscapeFileName()
         {
             var fileName = new string(Enumerable.Range(char.MinValue, char.MaxValue + char.MaxValue).Randomize().Select(i => (char)i).ToArray());
             var escaped = fileName.EscapeFileName();
@@ -163,28 +163,28 @@ namespace Excogitated.Common.Tests
         }
 
         [TestMethod]
-        public void StringToNumberTest()
+        public void StringToNumber()
         {
             var item = Jsonizer.Deserialize<TestItem2>("{\"Amount\":\"1234.5678\"}");
             Assert.AreEqual(1234.5678m, item.Amount);
         }
 
         [TestMethod]
-        public void NullToNumberTest()
+        public void NullToNumber()
         {
             var item = Jsonizer.Deserialize<TestItem2>("{\"Amount\":null}");
             Assert.AreEqual(0m, item.Amount);
         }
 
         [TestMethod]
-        public void NonStandardEnumValueTest()
+        public void NonStandardEnumValue()
         {
             var item = Jsonizer.Deserialize<TestItem1>("{\"Type\":\"test/2\"}");
             Assert.AreEqual(TestEnum0.test2, item.Type);
         }
 
         [TestMethod]
-        public void CharacterSerializationTest()
+        public void CharacterSerialization()
         {
             var item = new { V1 = Rng.GetDouble().ToPercent(), V2 = Rng.GetDouble().ToPercent() };
             var json = Jsonizer.Serialize(item);

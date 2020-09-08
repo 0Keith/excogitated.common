@@ -6,6 +6,7 @@ namespace Excogitated.Common.Atomic.Collections
     public interface IAtomicDictionary<TKey, TValue> : IAtomicCollection<KeyValuePair<TKey, TValue>>
     {
         TValue this[TKey key] { get; set; }
+        IEnumerable<TKey> Keys { get; }
         IEnumerable<TValue> Values { get; }
 
         void Add(TKey key, TValue value);

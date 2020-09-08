@@ -13,7 +13,7 @@ namespace Excogitated.Common.Tests
     {
 
         [TestMethod]
-        public async Task LowerVsUpperHashcodeTest()
+        public async Task LowerVsUpperHashcode()
         {
             var msg = string.Empty;
             var lowerChars = new string(Enumerable.Range('a', 26).Select(i => (char)i).ToArray());
@@ -37,7 +37,7 @@ namespace Excogitated.Common.Tests
         }
 
         [TestMethod]
-        public void BaseCoversionTest()
+        public void BaseCoversion()
         {
             var value = Rng.GetInt32();
             if (value < 0)
@@ -53,7 +53,7 @@ namespace Excogitated.Common.Tests
         }
 
         [TestMethod]
-        public void DiffTest()
+        public void Diff()
         {
             var item = Jsonizer.DeepCopy(JsonTests.Item);
             var expected = Jsonizer.Serialize(item);
@@ -68,7 +68,7 @@ namespace Excogitated.Common.Tests
         }
 
         [TestMethod]
-        public void SpanTest()
+        public void Span()
         {
             var expected = $"test{Rng.GetInt64()}";
             var actual = new ReadOnlySpan<char>(expected.ToCharArray()).ToString();
@@ -76,7 +76,7 @@ namespace Excogitated.Common.Tests
         }
 
         [TestMethod]
-        public void ToCamelCaseTest()
+        public void ToCamelCase()
         {
             var source = "to_camel case";
             var expected = "To Camel Case";

@@ -13,6 +13,7 @@ namespace Excogitated.Common.Atomic.Collections
 
         public int Count => _items.Count;
 
+        public IEnumerable<TKey> Keys => this.Select(p => p.Key);
         public IEnumerable<TValue> Values => this.Select(p => p.Value);
 
         public TValue this[TKey key]

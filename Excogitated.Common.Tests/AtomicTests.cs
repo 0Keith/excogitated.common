@@ -24,9 +24,9 @@ namespace Excogitated.Common.Tests
                 })
                 .Select(r => r.Delay.Continue(delta =>
                 {
-                    Assert.AreEqual(0, delta, 100);
+                    Assert.AreEqual(0, delta.TotalMilliseconds, 100);
                     Assert.AreEqual(0, r.Expected - watch.ElapsedMilliseconds, 100);
-                    return delta;
+                    return delta.TotalMilliseconds;
                 })));
             Console.WriteLine($"Min Delta: {deltas.Min()}");
             Console.WriteLine($"Max Delta: {deltas.Max()}");

@@ -7,7 +7,7 @@ namespace Excogitated.Common.Tests
     public class ObjectMapperTests : TestsBase
     {
         [TestMethod]
-        public void CopyToTest()
+        public void CopyTo()
         {
             ObjectMapper.Map<long, int>(i => i.ToInt());
             ObjectMapper.Map<int, long>(i => i);

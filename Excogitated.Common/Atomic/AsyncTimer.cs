@@ -3,7 +3,6 @@ using Excogitated.Common.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,12 +10,12 @@ namespace Excogitated.Common.Atomic
 {
     public class DelayResult
     {
-        public AsyncResult<int> Result { get; } = new AsyncResult<int>();
-        public double ExpectedElapsed { get; }
+        public AsyncResult<TimeSpan> Result { get; } = new AsyncResult<TimeSpan>();
+        public DateTimeOffset Expected { get; }
 
-        public DelayResult(double expected)
+        public DelayResult(DateTimeOffset expected)
         {
-            ExpectedElapsed = expected;
+            Expected = expected;
         }
     }
 
@@ -24,21 +23,21 @@ namespace Excogitated.Common.Atomic
     {
         private static readonly AsyncTimerInstance _instance = new AsyncTimerInstance();
 
-        public static Task<int> Delay(Date date) => _instance.Delay(date);
-        public static Task<int> Delay(DateTime date) => _instance.Delay(date);
-        public static Task<int> Delay(DateTimeOffset date) => _instance.Delay(date);
-        public static Task<int> Delay(TimeSpan timespan) => _instance.Delay(timespan);
-        public static Task<int> Delay(int milliseconds) => _instance.Delay(milliseconds);
-        public static Task<int> Delay(double milliseconds) => _instance.Delay(milliseconds);
+        public static Task<TimeSpan> Delay(Date date) => _instance.Delay(date);
+        public static Task<TimeSpan> Delay(DateTime date) => _instance.Delay(date);
+        public static Task<TimeSpan> Delay(TimeSpan timespan) => _instance.Delay(timespan);
+        public static Task<TimeSpan> Delay(int milliseconds) => _instance.Delay(milliseconds);
+        public static Task<TimeSpan> Delay(double milliseconds) => _instance.Delay(milliseconds);
+        public static Task<TimeSpan> Delay(DateTimeOffset date) => _instance.Delay(date);
     }
 
     public class AsyncTimerInstance : IDisposable
     {
+        private static readonly long _ticksPerMillisecond = Stopwatch.Frequency / 1000;
+
         private readonly LinkedList<DelayResult> _consumers = new LinkedList<DelayResult>();
         private readonly ManualResetEventSlim _mre = new ManualResetEventSlim(false);
         private readonly AtomicBool _running = new AtomicBool(true);
-        private readonly Stopwatch _watch = Stopwatch.StartNew();
-        private double _minExpectedElapsed = double.MaxValue;
 
         public void Dispose() => _running.TrySet(false);
 
@@ -54,18 +53,24 @@ namespace Excogitated.Common.Atomic
                 while (_running || _consumers.Count > 0)
                     try
                     {
-                        var delay = GetDelay();
-                        var ready = delay <= 0;
+                        var date = GetNextDate();
+                        var now = DateTimeOffset.Now;
+                        var ready = now >= date;
                         if (!ready)
                         {
+                            var delay = (date - now).TotalMilliseconds;
                             var integerDelay = delay > int.MaxValue ? int.MaxValue : (int)delay;
                             ready = _mre.Wait(integerDelay);
                             if (!ready && delay > integerDelay)
                             {
-                                var ticks = (delay - integerDelay) * Stopwatch.Frequency / 1000;
-                                var time = Stopwatch.StartNew();
-                                while (time.ElapsedTicks < ticks)
-                                    spin.SpinOnce();
+                                var ticks = (delay - integerDelay) * _ticksPerMillisecond;
+                                if (ticks <= _ticksPerMillisecond)
+                                {
+                                    var time = Stopwatch.StartNew();
+                                    while (time.ElapsedTicks < ticks)
+                                        spin.SpinOnce();
+                                    ready = true;
+                                }
                             }
                         }
 
@@ -74,19 +79,16 @@ namespace Excogitated.Common.Atomic
                             lock (_consumers)
                             {
                                 _mre.Reset();
-                                var elapsed = _watch.ElapsedMilliseconds;
-                                var next = _consumers.First;
-                                while (next != null)
+                                now = DateTimeOffset.Now;
+                                var node = _consumers.First;
+                                while (node != null && node.Value.Expected <= now)
                                 {
-                                    if (next.Value.ExpectedElapsed <= elapsed)
-                                    {
-                                        var result = elapsed - next.Value.ExpectedElapsed;
-                                        next.Value.Result.TryComplete((int)result);
-                                        _consumers.Remove(next);
-                                    }
-                                    next = next.Next;
+                                    node.Value.Result.TryComplete(now - node.Value.Expected);
+                                    var prev = node;
+                                    node = node.Next;
+                                    _consumers.Remove(prev);
+                                    now = DateTimeOffset.Now;
                                 }
-                                _minExpectedElapsed = _consumers.Count == 0 ? long.MaxValue : _consumers.Min(c => c.ExpectedElapsed);
                             }
                         }
                     }
@@ -96,31 +98,42 @@ namespace Excogitated.Common.Atomic
                     }
         }
 
-        private double GetDelay()
+        private DateTimeOffset GetNextDate()
         {
             lock (_consumers)
             {
-                return _minExpectedElapsed - _watch.ElapsedMilliseconds;
+                return _consumers.First?.Value.Expected ?? DateTimeOffset.MaxValue;
             }
         }
 
-        public Task<int> Delay(Date date) => Delay(date.DateTime);
-        public Task<int> Delay(DateTime date) => Delay(date - DateTime.Now);
-        public Task<int> Delay(DateTimeOffset date) => Delay(date - DateTimeOffset.Now);
-        public Task<int> Delay(TimeSpan timespan) => Delay(timespan.TotalMilliseconds);
-        public Task<int> Delay(int milliseconds) => Delay((double)milliseconds);
-        public Task<int> Delay(double milliseconds)
+        public Task<TimeSpan> Delay(Date date) => Delay(date.DateTime);
+        public Task<TimeSpan> Delay(DateTime date) => Delay(new DateTimeOffset(date));
+        public Task<TimeSpan> Delay(TimeSpan timespan) => Delay(DateTimeOffset.Now.Add(timespan));
+        public Task<TimeSpan> Delay(int milliseconds) => Delay(DateTimeOffset.Now.AddMilliseconds(milliseconds));
+        public Task<TimeSpan> Delay(double milliseconds) => Delay(DateTimeOffset.Now.AddMilliseconds(milliseconds));
+        public Task<TimeSpan> Delay(DateTimeOffset date)
         {
-            var expectedElapsed = milliseconds + _watch.ElapsedMilliseconds;
-            var result = new DelayResult(expectedElapsed);
+            var result = new DelayResult(date);
             lock (_consumers)
             {
-                _consumers.AddLast(result);
-                if (expectedElapsed < _minExpectedElapsed)
+                var node = _consumers.First;
+                if (node is null)
+                    _consumers.AddFirst(result);
+                else
                 {
-                    _minExpectedElapsed = expectedElapsed;
-                    _mre.Set();
+                    while (node is object)
+                    {
+                        if (node.Value.Expected >= date)
+                        {
+                            _consumers.AddBefore(node, result);
+                            break;
+                        }
+                        node = node.Next;
+                    }
+                    if (node is null)
+                        _consumers.AddLast(result);
                 }
+                _mre.Set();
                 return result.Result.Source;
             }
         }
