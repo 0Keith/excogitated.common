@@ -125,7 +125,7 @@ namespace Excogitated.Common.Caching
 
             // return cached value
             var now = DateTimeOffset.Now;
-            if (now < context.NextRefresh)
+            if (now > context.NextRefresh)
                 if (context.Value is TValue value)
                     return new CacheResult<TValue>
                     {
@@ -164,7 +164,7 @@ namespace Excogitated.Common.Caching
                         {
                             Value = factoryValue,
                             Success = true,
-                            FromFactory = true
+                            FromFactory = false
                         };
                     }
                 }
