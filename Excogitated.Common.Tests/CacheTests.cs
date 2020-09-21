@@ -10,10 +10,10 @@ namespace Excogitated.Common.Tests
     internal class TestDataFactory : ICacheValueFactory<int, string>
     {
         public int RefreshCount { get; private set; }
-        public Task<string> GetValue(int key, CacheResult<string> result)
+        public async ValueTask<string> GetValue(int key, CacheResult<string> result)
         {
             RefreshCount++;
-            return Task.FromResult(key.ToString());
+            return key.ToString();
         }
     }
 
@@ -30,7 +30,7 @@ namespace Excogitated.Common.Tests
             {
                 var result = await cache.GetAsync(i, dataProvider);
                 Assert.AreEqual(i.ToString(), result.Value);
-                Assert.IsTrue(result.FromFactory);
+                Assert.AreEqual(CacheSource.Factory, result.Source);
             }
             Assert.AreEqual(10000, dataProvider.RefreshCount);
 
@@ -39,7 +39,7 @@ namespace Excogitated.Common.Tests
             {
                 var result = await cache.GetAsync(i, dataProvider);
                 Assert.AreEqual(i.ToString(), result.Value);
-                Assert.IsTrue(result.FromCache);
+                Assert.AreEqual(CacheSource.Cache, result.Source);
             }
             Assert.AreEqual(10000, dataProvider.RefreshCount);
         }
@@ -57,7 +57,7 @@ namespace Excogitated.Common.Tests
             {
                 var result = await cache.GetAsync(i, dataProvider);
                 Assert.AreEqual(i.ToString(), result.Value);
-                Assert.IsTrue(result.FromFactory, result.ToString());
+                Assert.AreEqual(CacheSource.Factory, result.Source);
             }
             Assert.AreEqual(10000, dataProvider.RefreshCount);
 
@@ -66,7 +66,7 @@ namespace Excogitated.Common.Tests
             {
                 var result = await cache.GetAsync(i, dataProvider);
                 Assert.AreEqual(i.ToString(), result.Value);
-                Assert.IsTrue(result.FromCache, result.ToString());
+                Assert.AreEqual(CacheSource.Cache, result.Source);
             }
             Assert.AreEqual(10000, dataProvider.RefreshCount);
 
@@ -75,9 +75,22 @@ namespace Excogitated.Common.Tests
             {
                 var result = await cache.GetAsync(i, dataProvider);
                 Assert.AreEqual(i.ToString(), result.Value);
-                Assert.IsTrue(result.FromFactory, result.ToString());
+                Assert.AreEqual(CacheSource.Factory, result.Source);
             }
             Assert.AreEqual(20000, dataProvider.RefreshCount);
+        }
+
+        [TestMethod]
+        public async Task GetAsync_BackupFactory()
+        {
+            var cache = new CowCache(new CowCacheSettings
+            {
+                RefreshInterval = TimeSpan.FromMilliseconds(5000),
+            });
+            var result = await cache.GetAsync<int, string>(0, (k, p) => throw new Exception(k.ToString()), async (k, p) => k.ToString());
+            Assert.AreEqual("0", result.Value);
+            Assert.AreEqual(CacheSource.BackupFactory, result.Source);
+            Assert.AreEqual("0", result.Exception?.Message);
         }
     }
 }

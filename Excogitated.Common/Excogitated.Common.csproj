@@ -5,11 +5,15 @@
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
     <FileVersion>0.0.0.0</FileVersion>
     <Version>0.0.0</Version>
+    <Company>Excogitated</Company>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryUrl>https://github.com/0Keith/excogitated.common</RepositoryUrl>
-    <Company>Excogitated</Company>
+    <PackageProjectUrl>https://github.com/0Keith/excogitated.common</PackageProjectUrl>
+    <Description>https://github.com/0Keith/excogitated.common</Description>
     
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <DocumentationFile>.\Excogitated.Common.xml</DocumentationFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
