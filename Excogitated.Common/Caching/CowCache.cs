@@ -149,25 +149,31 @@ namespace Excogitated.Common.Caching
         /// <summary>
         /// Gets value from cache by type or retrieves from the factory and inserts into the cache.
         /// </summary>
-        public ValueTask<CacheResult<TValue>> GetAsync<TValue>(ICacheValueFactory<TValue> factory)
+        public ValueTask<CacheResult<TValue>> GetAsync<TValue>(ICacheValueFactory<TValue> factory, ICacheValueFactory<TValue> backupFactory = null)
         {
-            return GetAsync<TValue>(factory.GetValue);
-        }
-
-        /// <summary>
-        /// Gets value from cache by type or retrieves from the factory and inserts into the cache.
-        /// </summary>
-        public ValueTask<CacheResult<TValue>> GetAsync<TValue>(Func<Type, CacheResult<TValue>, ValueTask<TValue>> valueFactory)
-        {
-            return GetAsync(typeof(TValue), valueFactory);
+            if (backupFactory is null)
+                return GetAsync<TValue>(factory.GetValue);
+            return GetAsync<TValue>(factory.GetValue, backupFactory.GetValue);
         }
 
         /// <summary>
         /// Gets value from cache with the specified key or retrieves from the factory and inserts into the cache.
         /// </summary>
-        public ValueTask<CacheResult<TValue>> GetAsync<TKey, TValue>(TKey key, ICacheValueFactory<TKey, TValue> factory)
+        public ValueTask<CacheResult<TValue>> GetAsync<TKey, TValue>(TKey key, ICacheValueFactory<TKey, TValue> factory, ICacheValueFactory<TKey, TValue> backupFactory = null)
         {
-            return GetAsync<TKey, TValue>(key, factory.GetValue);
+            if (backupFactory is null)
+                return GetAsync<TKey, TValue>(key, factory.GetValue);
+            return GetAsync<TKey, TValue>(key, factory.GetValue, backupFactory.GetValue);
+        }
+
+        /// <summary>
+        /// Gets value from cache by type or retrieves from the factory and inserts into the cache.
+        /// </summary>
+        public ValueTask<CacheResult<TValue>> GetAsync<TValue>(
+            Func<Type, CacheResult<TValue>, ValueTask<TValue>> valueFactory,
+            Func<Type, CacheResult<TValue>, ValueTask<TValue>> backupFactory = null)
+        {
+            return GetAsync(typeof(TValue), valueFactory, backupFactory);
         }
 
         /// <summary>
