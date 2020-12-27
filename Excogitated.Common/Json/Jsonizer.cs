@@ -136,23 +136,6 @@ namespace Excogitated.Common.Json
             return options;
         }
 
-        public static async Task<TValue> DeserializeFromZipAsync<TValue>(string fileName, string entryName = "data.json")
-        {
-            var file = new FileInfo(fileName);
-            using var zip = ZipFile.OpenRead(file.FullName);
-            using var stream = zip.GetEntry(entryName).Open();
-            return await DeserializeAsync<TValue>(stream);
-        }
-
-        public static async Task SerializeToZipAsync<TValue>(TValue data, string fileName, bool formatted = true, string entryName = "data.json")
-        {
-            var file = new FileInfo(fileName);
-            await file.Directory.CreateStrongAsync();
-            using var zip = ZipFile.Open(file.FullName, ZipArchiveMode.Update);
-            using var stream = zip.CreateEntry(entryName).Open();
-            await SerializeAsync(data, stream, formatted);
-        }
-
         public static void AddClassConverter<T>(this JsonSerializerOptions settings, Func<T, string> serializer, Func<string, Type, T> deserializer)
             where T : class
         {
@@ -214,5 +197,34 @@ namespace Excogitated.Common.Json
 
         public static ValueTask<T> DeserializeAsync<T>(Stream stream) =>
             JsonSerializer.DeserializeAsync<T>(stream, DefaultSettings);
+
+        public static async Task<TValue> DeserializeFromZipAsync<TValue>(string fileName, string entryName = "data.json")
+        {
+            var file = new FileInfo(fileName);
+            using var zip = ZipFile.OpenRead(file.FullName);
+            using var stream = zip.GetEntry(entryName).Open();
+            return await DeserializeAsync<TValue>(stream);
+        }
+
+        public static async Task SerializeToZipAsync<TValue>(TValue data, string fileName, bool formatted = true, string entryName = "data.json")
+        {
+            var file = new FileInfo(fileName);
+            await file.Directory.CreateStrongAsync();
+            using var zip = ZipFile.Open(file.FullName, ZipArchiveMode.Update);
+            using var stream = zip.CreateEntry(entryName).Open();
+            await SerializeAsync(data, stream, formatted);
+        }
+
+        public static async Task<TValue> DeserializeFromFileAsync<TValue>(string fileName)
+        {
+            using var stream = File.OpenRead(fileName);
+            return await DeserializeAsync<TValue>(stream);
+        }
+
+        public static async Task SerializeToFileAsync<TValue>(TValue data, string fileName, bool formatted = true)
+        {
+            using var stream = File.OpenWrite(fileName);
+            await SerializeAsync(data, stream, formatted);
+        }
     }
 }

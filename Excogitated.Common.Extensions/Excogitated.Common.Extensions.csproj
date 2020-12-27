@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>latest</LangVersion>
@@ -10,7 +10,7 @@
     <RepositoryUrl>https://github.com/0Keith/excogitated.common</RepositoryUrl>
     <PackageProjectUrl>https://github.com/0Keith/excogitated.common</PackageProjectUrl>
     <Description>https://github.com/0Keith/excogitated.common</Description>
-    
+
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <DocumentationFile>.\Excogitated.Common.xml</DocumentationFile>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -28,9 +28,5 @@
 
   <ItemGroup>
     <PackageReference Include="System.Text.Json" Version="4.7.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Excogitated.Common.Models\Excogitated.Common.Models.csproj" />
   </ItemGroup>
 </Project>

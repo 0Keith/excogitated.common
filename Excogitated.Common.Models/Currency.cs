@@ -24,7 +24,7 @@ namespace Excogitated.Common
             Value = value;
         }
 
-        public override string ToString() => Value.ToMoney();
+        public override string ToString() => Value.ToString("c");
         public override bool Equals(object obj) => obj is Currency m && m.Value == Value;
         public override int GetHashCode() => Value.GetHashCode();
     }
