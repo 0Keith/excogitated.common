@@ -49,7 +49,7 @@ namespace Excogitated.Common.Mongo
             return result.IsAcknowledged ? result.DeletedCount : 0;
         }
 
-        public async Task<List<AppSettingDocument>> GetAndClear()
+        public async Task<List<AppSettingDocument>> GetAndClearAsync()
         {
             var documents = await _documents.AsQueryable().ToListAsync();
             var ids = documents.Select(d => d.Id).ToList();
