@@ -81,7 +81,7 @@ namespace Excogitated.Common.Logging
                 }
                 catch (Exception e)
                 {
-                    await AsyncTimer.Delay(10000);
+                    await Task.Delay(10000);
                     Loggers.Error(e);
                 }
         }

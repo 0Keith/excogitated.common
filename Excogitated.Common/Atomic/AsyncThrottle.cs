@@ -20,7 +20,7 @@ namespace Excogitated.Common.Atomic
                 while (_consumers > 0)
                 {
                     _flow.Add(false);
-                    await AsyncTimer.Delay(10);
+                    await Task.Delay(10);
                 }
                 _flow.Clear();
             }
@@ -38,7 +38,7 @@ namespace Excogitated.Common.Atomic
                 {
                     while (_running)
                     {
-                        await AsyncTimer.Delay(1000);
+                        await Task.Delay(1000);
                         var count = ratePerSecond - _flow.Count;
                         for (var i = 0; i < count; i++)
                             _flow.Add(true);

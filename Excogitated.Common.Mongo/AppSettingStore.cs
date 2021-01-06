@@ -4,6 +4,7 @@ using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -30,8 +31,8 @@ namespace Excogitated.Common.Mongo
         public Task SetAsync<T>(string key, T value)
         {
             return _documents.UpsertAsync(d => d.Key == key, b => b.Set(d => d.Value, value)
-                .SetOnInsert(d => d.Key, key)
-                .SetOnInsert(d => d.Id, Guid.NewGuid()));
+                .SetOnInsert(d => d.Id, Guid.NewGuid())
+                .SetOnInsert(d => d.Key, key));
         }
 
         public async Task<T> GetAsync<T>([CallerMemberName] string key = null)
@@ -56,5 +57,29 @@ namespace Excogitated.Common.Mongo
             var result = await _documents.DeleteManyAsync(d => ids.Contains(d.Id));
             return result.IsAcknowledged ? documents : null;
         }
+    }
+
+    public class AppSettingStore<T>
+    {
+        public static async Task<AppSettingStore<T>> Create(IMongoDatabase db)
+        {
+            var store = await AppSettingStore.Create(db);
+            return new AppSettingStore<T>(store);
+        }
+
+        private readonly AppSettingStore _store;
+
+        private AppSettingStore(AppSettingStore store)
+        {
+            _store = store;
+        }
+
+        public Task<long> GetCount() => _store.GetCount();
+
+        public Task SetAsync<V>(Expression<Func<T, V>> property, V value) => _store.SetAsync(property.GetFullName(), value);
+
+        public Task<V> GetAsync<V>(Expression<Func<T, V>> property) => _store.GetAsync<V>(property.GetFullName());
+
+        public Task<long> DeleteAsync<V>(Expression<Func<T, V>> property) => _store.DeleteAsync(property.GetFullName());
     }
 }

@@ -78,7 +78,7 @@ namespace Excogitated.Common
             return (T)values.GetValue(selection);
         }
 
-        public static string GetText(int length, string includedCharacters)
+        public static string GetText(int length, string includedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
         {
             var b = new StringBuilder(length);
             for (var i = 0; i < length; i++)

@@ -81,5 +81,11 @@ namespace Excogitated.Common.Mongo
             database.NotNull(nameof(database));
             return AppSettingStore.Create(database);
         }
+
+        public static Task<AppSettingStore<T>> GetAppSettings<T>(this IMongoDatabase database)
+        {
+            database.NotNull(nameof(database));
+            return AppSettingStore<T>.Create(database);
+        }
     }
 }

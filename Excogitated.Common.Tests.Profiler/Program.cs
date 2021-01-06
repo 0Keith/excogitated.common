@@ -1,5 +1,4 @@
-﻿using Excogitated.Common.Atomic;
-using Excogitated.Common.Extensions;
+﻿using Excogitated.Common.Extensions;
 using Excogitated.Common.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -83,7 +82,7 @@ namespace Excogitated.Common.Tests.Profiler
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                await AsyncTimer.Delay(15000);
+                await Task.Delay(15000);
             }
         }
     }

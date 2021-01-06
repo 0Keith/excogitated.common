@@ -1,4 +1,3 @@
-using Excogitated.Common.Atomic;
 using Excogitated.Common.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -60,7 +59,7 @@ namespace Excogitated.Common.Tests
             var threadCount = 2;
             var ids = await items.ToAsync().Batch(threadCount, async i =>
             {
-                await AsyncTimer.Delay(1);
+                await Task.Delay(1);
                 return Thread.CurrentThread.ManagedThreadId;
             }).ToList();
             foreach (var id in ids.Distinct())

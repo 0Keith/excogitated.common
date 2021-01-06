@@ -1,5 +1,4 @@
-﻿using Excogitated.Common.Atomic;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -19,7 +18,7 @@ namespace Excogitated.Common.Extensions
             while (file.Exists)
             {
                 file.Delete();
-                await AsyncTimer.Delay(w.Elapsed);
+                await Task.Delay(w.Elapsed);
                 file.Refresh();
                 if (w.ElapsedMilliseconds > _maxExecutionTime)
                     throw new Exception($"Exceeded max execution time. File: {file}");
@@ -49,7 +48,7 @@ namespace Excogitated.Common.Extensions
             while (!dir.Exists)
             {
                 dir.Create();
-                await AsyncTimer.Delay(w.Elapsed);
+                await Task.Delay(w.Elapsed);
                 dir.Refresh();
                 if (w.ElapsedMilliseconds > _maxExecutionTime)
                     throw new Exception($"Exceeded max execution time. Directory: {dir}");

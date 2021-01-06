@@ -1,5 +1,4 @@
-﻿using Excogitated.Common.Atomic;
-using Excogitated.Common.Atomic.Collections;
+﻿using Excogitated.Common.Atomic.Collections;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,7 +56,7 @@ namespace Excogitated.Common.Logging
                 }
                 catch (Exception e)
                 {
-                    await AsyncTimer.Delay(10000);
+                    await Task.Delay(10000);
                     Loggers.Error(e);
                 }
         }

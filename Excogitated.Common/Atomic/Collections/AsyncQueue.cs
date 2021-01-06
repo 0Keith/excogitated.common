@@ -263,7 +263,7 @@ namespace Excogitated.Common.Atomic.Collections
                 if (_completed)
                     return default;
                 var waiter = new AsyncResult<Result<T>>();
-                AsyncTimer.Delay(millisecondsTimeout).Continue(() => waiter.TryComplete(default)).Catch();
+                Task.Delay(millisecondsTimeout).Continue(() => waiter.TryComplete(default)).Catch();
                 _waiters.Enqueue(waiter);
                 return waiter.ValueSource;
             }
@@ -332,7 +332,7 @@ namespace Excogitated.Common.Atomic.Collections
                 if (_completed)
                     return default;
                 var peeker = new AsyncResult<Result<T>>();
-                AsyncTimer.Delay(millisecondsTimeout).Continue(() => peeker.TryComplete(default)).Catch();
+                Task.Delay(millisecondsTimeout).Continue(() => peeker.TryComplete(default)).Catch();
                 _peekers.Enqueue(peeker);
                 return peeker.ValueSource;
             }

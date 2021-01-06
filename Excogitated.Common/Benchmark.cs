@@ -1,5 +1,4 @@
-﻿using Excogitated.Common.Atomic;
-using Excogitated.Common.Extensions;
+﻿using Excogitated.Common.Extensions;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -84,7 +83,7 @@ namespace Excogitated.Common
         {
             if (duration <= TimeSpan.Zero)
                 throw new ArgumentException("duration <= TimeSpan.Zero");
-            await AsyncTimer.Delay(1000); //cooldown cpu
+            await Task.Delay(1000); //cooldown cpu
             var d = duration.TotalMilliseconds;
             var threads = Environment.ProcessorCount / 2;
             var results = await Enumerable.Repeat(0, threads).Select(i => Task.Run(() =>
@@ -116,7 +115,7 @@ namespace Excogitated.Common
         {
             if (duration <= TimeSpan.Zero)
                 throw new ArgumentException("duration <= TimeSpan.Zero");
-            await AsyncTimer.Delay(1000); //cooldown cpu
+            await Task.Delay(1000); //cooldown cpu
             var d = duration.TotalMilliseconds;
             var threads = Environment.ProcessorCount / 2;
             var results = await Enumerable.Repeat(0, threads).Select(i => Task.Run(async () =>
@@ -148,7 +147,7 @@ namespace Excogitated.Common
         {
             if (duration <= TimeSpan.Zero)
                 throw new ArgumentException("duration <= TimeSpan.Zero");
-            await AsyncTimer.Delay(1000); //cooldown cpu
+            await Task.Delay(1000); //cooldown cpu
             var d = duration.TotalMilliseconds;
             var threads = Environment.ProcessorCount / 2;
             var results = await Enumerable.Repeat(0, threads).Select(i => Task.Run(async () =>

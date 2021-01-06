@@ -1,5 +1,4 @@
-﻿using Excogitated.Common.Atomic;
-using Excogitated.Common.Atomic.Collections;
+﻿using Excogitated.Common.Atomic.Collections;
 using Excogitated.Common.Extensions;
 using Excogitated.Common.Json;
 using Excogitated.Common.Logging;
@@ -59,7 +58,7 @@ namespace Excogitated.Common
                     if (response.StatusCode.EqualsAny(HttpStatusCode.BadGateway, HttpStatusCode.InternalServerError))
                         if (w.Elapsed.TotalMinutes < 15)
                         {
-                            await AsyncTimer.Delay(5000);
+                            await Task.Delay(5000);
                             continue;
                         }
                     Loggers.Error(message);
@@ -82,7 +81,7 @@ namespace Excogitated.Common
                         if (response.StatusCode.EqualsAny(HttpStatusCode.BadGateway, HttpStatusCode.InternalServerError))
                             if (w.Elapsed.TotalMinutes < 15)
                             {
-                                await AsyncTimer.Delay(5000);
+                                await Task.Delay(5000);
                                 continue;
                             }
                         Loggers.Error(message);
