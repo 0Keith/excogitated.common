@@ -15,7 +15,7 @@ namespace Excogitated.Common.Tests
     }
 
     [TestClass]
-    public class MongoTests
+    public class MongoTests : TestsBase
     {
         private readonly IMongoDatabase _db = new MongoStoreConfig
         {
@@ -26,7 +26,7 @@ namespace Excogitated.Common.Tests
         }.GetDatabase();
 
         [TestMethod]
-        public async Task AppConfigTest()
+        public async Task SetGetAppConfig()
         {
             var settings = await _db.GetAppSettings<TestSettingDocument>();
             var expected0 = Rng.GetDecimal();

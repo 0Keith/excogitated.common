@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Excogitated.Common.Mongo\Excogitated.Common.Mongo.csproj" />
+    <ProjectReference Include="..\Excogitated.Common.Scheduling\Excogitated.Common.Scheduling.csproj" />
     <ProjectReference Include="..\Excogitated.Common\Excogitated.Common.csproj" />
   </ItemGroup>
 
