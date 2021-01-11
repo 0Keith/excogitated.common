@@ -40,24 +40,35 @@ namespace Excogitated.Common.Tests
         }
 
         [TestMethod]
-        public void On()
+        public void HourOfDay_StartLessThanEnd()
         {
-            var now = DateTimeOffset.Now;
+            var now = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
-                .
+                .OnHourOfDay(5, 22)
                 .GetEvents(now)
-                .Take(100)
+                .Take(24)
                 .ToList();
             foreach (var e in events)
             {
-                var expected = now
-                    .AddMilliseconds(4)
-                    .AddSeconds(5)
-                    .AddMinutes(6)
-                    .AddHours(7)
-                    .AddDays(8)
-                    .AddMonths(9)
-                    .AddYears(10);
+                var expected = now.AddHours(now.Hour == 22 ? 7 : now.Hour == 0 ? 5 : 1);
+                Console.WriteLine(e.ToString("O"));
+                Assert.AreEqual(expected, e);
+                now = expected;
+            }
+        }
+
+        [TestMethod]
+        public void HourOfDay_StartGreaterThanEnd()
+        {
+            var now = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
+            var events = Schedule.Build()
+                .OnHourOfDay(22, 3)
+                .GetEvents(now)
+                .Take(24)
+                .ToList();
+            foreach (var e in events)
+            {
+                var expected = now.AddHours(now.Hour == 3 ? 19 : 1);
                 Console.WriteLine(e.ToString("O"));
                 Assert.AreEqual(expected, e);
                 now = expected;
