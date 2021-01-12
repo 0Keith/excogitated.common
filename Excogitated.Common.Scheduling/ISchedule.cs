@@ -19,6 +19,17 @@ namespace Excogitated.Common.Scheduling
                 yield return next;
             }
         }
+
+        public static IEnumerable<int> GetRange(this int start, int end, int maxValueExclusive)
+        {
+            for (var i = start; i != end; i++)
+            {
+                if (i >= maxValueExclusive)
+                    i -= maxValueExclusive;
+                yield return i;
+            }
+            yield return end;
+        }
     }
 
     public static class Schedule

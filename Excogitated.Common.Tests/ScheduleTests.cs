@@ -44,14 +44,15 @@ namespace Excogitated.Common.Tests
         {
             var now = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
-                .OnHourOfDay(5, 22)
+                .OnHourOfDayRange(5, 22)
                 .GetEvents(now)
                 .Take(24)
                 .ToList();
             foreach (var e in events)
             {
-                var expected = now.AddHours(now.Hour == 22 ? 7 : now.Hour == 0 ? 5 : 1);
                 Console.WriteLine(e.ToString("O"));
+                var expected = now.AddHours(now.Hour == 22 ? 7 : now.Hour == 0 ? 5 : 1);
+                Assert.AreEqual(expected.Hour, e.Hour);
                 Assert.AreEqual(expected, e);
                 now = expected;
             }
@@ -62,14 +63,129 @@ namespace Excogitated.Common.Tests
         {
             var now = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
-                .OnHourOfDay(22, 3)
+                .OnHourOfDayRange(22, 3)
                 .GetEvents(now)
                 .Take(24)
                 .ToList();
             foreach (var e in events)
             {
-                var expected = now.AddHours(now.Hour == 3 ? 19 : 1);
                 Console.WriteLine(e.ToString("O"));
+                var expected = now.AddHours(now.Hour == 3 ? 19 : 1);
+                Assert.AreEqual(expected.Hour, e.Hour);
+                Assert.AreEqual(expected, e);
+                now = expected;
+            }
+        }
+
+        [TestMethod]
+        public void MinuteOfHour_StartLessThanEnd()
+        {
+            var now = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
+            var events = Schedule.Build()
+                .OnMinuteOfHourRange(5, 22)
+                .GetEvents(now)
+                .Take(60)
+                .ToList();
+            foreach (var e in events)
+            {
+                Console.WriteLine(e.ToString("O"));
+                var expected = now.AddMinutes(now.Minute == 22 ? 43 : now.Minute == 0 ? 5 : 1);
+                Assert.AreEqual(expected.Minute, e.Minute);
+                Assert.AreEqual(expected, e);
+                now = expected;
+            }
+        }
+
+        [TestMethod]
+        public void MinuteOfHour_StartGreaterThanEnd()
+        {
+            var now = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
+            var events = Schedule.Build()
+                .OnMinuteOfHourRange(23, 3)
+                .GetEvents(now)
+                .Take(60)
+                .ToList();
+            foreach (var e in events)
+            {
+                Console.WriteLine(e.ToString("O"));
+                var expected = now.AddMinutes(now.Minute == 3 ? 20 : 1);
+                Assert.AreEqual(expected.Minute, e.Minute);
+                Assert.AreEqual(expected, e);
+                now = expected;
+            }
+        }
+
+        [TestMethod]
+        public void SecondOfMinute_StartLessThanEnd()
+        {
+            var now = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
+            var events = Schedule.Build()
+                .OnSecondOfMinuteRange(5, 22)
+                .GetEvents(now)
+                .Take(60)
+                .ToList();
+            foreach (var e in events)
+            {
+                Console.WriteLine(e.ToString("O"));
+                var expected = now.AddSeconds(now.Second == 22 ? 43 : now.Second == 0 ? 5 : 1);
+                Assert.AreEqual(expected.Second, e.Second);
+                Assert.AreEqual(expected, e);
+                now = expected;
+            }
+        }
+
+        [TestMethod]
+        public void SecondOfMinute_StartGreaterThanEnd()
+        {
+            var now = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
+            var events = Schedule.Build()
+                .OnSecondOfMinuteRange(23, 3)
+                .GetEvents(now)
+                .Take(60)
+                .ToList();
+            foreach (var e in events)
+            {
+                Console.WriteLine(e.ToString("O"));
+                var expected = now.AddSeconds(now.Second == 3 ? 20 : 1);
+                Assert.AreEqual(expected.Second, e.Second);
+                Assert.AreEqual(expected, e);
+                now = expected;
+            }
+        }
+
+        [TestMethod]
+        public void MillisecondOfSecond_StartLessThanEnd()
+        {
+            var now = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
+            var events = Schedule.Build()
+                .OnMillisecondOfSecondRange(5, 22)
+                .GetEvents(now)
+                .Take(1000)
+                .ToList();
+            foreach (var e in events)
+            {
+                Console.WriteLine(e.ToString("O"));
+                var expected = now.AddMilliseconds(now.Millisecond == 22 ? 983 : now.Millisecond == 0 ? 5 : 1);
+                Assert.AreEqual(expected.Millisecond, e.Millisecond);
+                Assert.AreEqual(expected, e);
+                now = expected;
+            }
+        }
+
+        [TestMethod]
+        public void MillisecondOfSecond_StartGreaterThanEnd()
+        {
+            var now = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
+            var events = Schedule.Build()
+                .OnMillisecondOfSecondRange(23, 3)
+                .GetEvents(now)
+                .Take(1000)
+                .ToList();
+            foreach (var e in events)
+            {
+                Console.WriteLine(e.ToString("O"));
+                var expected = now.AddMilliseconds(now.Millisecond == 3 ? 20 : 1);
+                Assert.AreEqual(expected.Millisecond, e.Millisecond);
                 Assert.AreEqual(expected, e);
                 now = expected;
             }

@@ -1,32 +1,29 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Excogitated.Common.Scheduling
 {
     public class SecondOfMinuteSchedule : ISchedule
     {
-        private readonly int _secondOfMinuteStart;
-        private readonly int _secondOfMinuteEnd;
+        private readonly HashSet<int> _secondsOfMinute;
         private readonly ISchedule _schedule;
 
-        public SecondOfMinuteSchedule(int secondOfMinuteStart, int secondOfMinuteEnd, ISchedule schedule = null)
+        public SecondOfMinuteSchedule(int[] secondsOfMinute, ISchedule schedule = null)
         {
-            if (secondOfMinuteStart < 0 || secondOfMinuteStart > 59)
-                throw new ArgumentException("secondOfMinuteStart < 0 || secondOfMinuteStart > 59", nameof(secondOfMinuteStart));
-            if (secondOfMinuteEnd < 0 || secondOfMinuteEnd > 59)
-                throw new ArgumentException("secondOfMinuteEnd < 0 || secondOfMinuteEnd > 59", nameof(secondOfMinuteEnd));
-            _secondOfMinuteStart = secondOfMinuteStart;
-            _secondOfMinuteEnd = secondOfMinuteEnd;
+            if (secondsOfMinute is object)
+                foreach (var secondOfMinute in secondsOfMinute)
+                    if (secondOfMinute < 0 || secondOfMinute > 59)
+                        throw new ArgumentException($"secondOfMinute < 0 || secondOfMinute > 59", nameof(secondOfMinute));
+            _secondsOfMinute = secondsOfMinute?.ToHashSet() ?? new HashSet<int>();
             _schedule = schedule ?? NullSchedule.Instance;
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
         {
             var next = GetNextEventPrivate(previousEvent);
-            if (_secondOfMinuteStart <= _secondOfMinuteEnd)
-                while (next.Second < _secondOfMinuteStart || next.Second > _secondOfMinuteEnd)
-                    next = GetNextEventPrivate(next);
-            else
-                while (next.Second < _secondOfMinuteStart && next.Second > _secondOfMinuteEnd)
+            if (_secondsOfMinute.Count > 0)
+                while (!_secondsOfMinute.Contains(next.Second))
                     next = GetNextEventPrivate(next);
             return next;
         }
@@ -42,9 +39,12 @@ namespace Excogitated.Common.Scheduling
 
     public static partial class ScheduleExtensions
     {
-        public static ISchedule OnSecondOfMinute(this ISchedule schedule, int secondOfMinuteStart, int secondOfMinuteEnd)
+        public static ISchedule OnSecondOfMinute(this ISchedule schedule, params int[] secondsOfMinute) => new SecondOfMinuteSchedule(secondsOfMinute, schedule);
+
+        public static ISchedule OnSecondOfMinuteRange(this ISchedule schedule, int secondOfMinuteStart, int secondOfMinuteEnd)
         {
-            return new SecondOfMinuteSchedule(secondOfMinuteStart, secondOfMinuteEnd, schedule);
+            var secondsOfMinute = secondOfMinuteStart.GetRange(secondOfMinuteEnd, 60).ToArray();
+            return new SecondOfMinuteSchedule(secondsOfMinute, schedule);
         }
     }
 }
