@@ -2,17 +2,17 @@
 
 namespace Excogitated.Common.Scheduling
 {
-    public class IntervalSchedule : ISchedule
+    internal class IntervalSchedule : ISchedule
     {
+        private readonly ISchedule _schedule;
         private readonly TimeUnit _unit;
         private readonly double _interval;
-        private readonly ISchedule _schedule;
 
-        public IntervalSchedule(TimeUnit unit, double interval, ISchedule schedule = null)
+        public IntervalSchedule(ISchedule schedule, TimeUnit unit, double interval)
         {
+            _schedule = schedule ?? NullSchedule.Instance;
             _unit = unit;
             _interval = interval;
-            _schedule = schedule ?? NullSchedule.Instance;
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
@@ -34,7 +34,7 @@ namespace Excogitated.Common.Scheduling
 
     public static partial class ScheduleExtensions
     {
-        public static ISchedule Every(this ISchedule schedule, TimeUnit unit, double interval) => new IntervalSchedule(unit, interval, schedule);
+        public static ISchedule Every(this ISchedule schedule, TimeUnit unit, double interval) => new IntervalSchedule(schedule, unit, interval);
         public static ISchedule EveryMillisecond(this ISchedule schedule, double interval) => schedule.Every(TimeUnit.Millisecond, interval);
         public static ISchedule EverySecond(this ISchedule schedule, double interval) => schedule.Every(TimeUnit.Second, interval);
         public static ISchedule EveryMinute(this ISchedule schedule, double interval) => schedule.Every(TimeUnit.Minute, interval);

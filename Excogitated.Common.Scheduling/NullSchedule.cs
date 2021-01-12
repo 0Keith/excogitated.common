@@ -2,7 +2,7 @@
 
 namespace Excogitated.Common.Scheduling
 {
-    public class NullSchedule : ISchedule
+    internal class NullSchedule : ISchedule
     {
         public static NullSchedule Instance { get; } = new NullSchedule();
 

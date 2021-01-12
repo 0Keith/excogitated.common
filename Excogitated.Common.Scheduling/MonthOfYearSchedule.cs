@@ -4,15 +4,19 @@ using System.Linq;
 
 namespace Excogitated.Common.Scheduling
 {
-    public class MonthOfYearSchedule : ISchedule
+    internal class MonthOfYearSchedule : ISchedule
     {
-        private readonly HashSet<int> _monthsOfYear;
         private readonly ISchedule _schedule;
+        private readonly HashSet<int> _monthsOfYear;
 
-        public MonthOfYearSchedule(int[] months, ISchedule schedule = null)
+        public MonthOfYearSchedule(ISchedule schedule, int[] months)
         {
-            _monthsOfYear = months?.ToHashSet() ?? new HashSet<int>();
+            if (months is object)
+                foreach (var month in months)
+                    if (month < 1 || month > 12)
+                        throw new ArgumentException("month < 1 || month > 12", nameof(month));
             _schedule = schedule ?? NullSchedule.Instance;
+            _monthsOfYear = months?.ToHashSet() ?? new HashSet<int>();
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
@@ -35,7 +39,7 @@ namespace Excogitated.Common.Scheduling
 
     public static partial class ScheduleExtensions
     {
-        public static ISchedule OnMonthOfYear(this ISchedule schedule, params int[] months) => new MonthOfYearSchedule(months, schedule);
+        public static ISchedule OnMonthOfYear(this ISchedule schedule, params int[] months) => new MonthOfYearSchedule(schedule, months);
 
         public static ISchedule OnMonthOfYear(this ISchedule schedule, params MonthOfYear[] months) => schedule.OnMonthOfYear(months?.Cast<int>().ToArray());
     }

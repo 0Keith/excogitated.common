@@ -4,19 +4,19 @@ using System.Linq;
 
 namespace Excogitated.Common.Scheduling
 {
-    public class SecondOfMinuteSchedule : ISchedule
+    internal class SecondOfMinuteSchedule : ISchedule
     {
-        private readonly HashSet<int> _secondsOfMinute;
         private readonly ISchedule _schedule;
+        private readonly HashSet<int> _secondsOfMinute;
 
-        public SecondOfMinuteSchedule(int[] secondsOfMinute, ISchedule schedule = null)
+        public SecondOfMinuteSchedule(ISchedule schedule, int[] secondsOfMinute)
         {
             if (secondsOfMinute is object)
                 foreach (var secondOfMinute in secondsOfMinute)
                     if (secondOfMinute < 0 || secondOfMinute > 59)
                         throw new ArgumentException($"secondOfMinute < 0 || secondOfMinute > 59", nameof(secondOfMinute));
-            _secondsOfMinute = secondsOfMinute?.ToHashSet() ?? new HashSet<int>();
             _schedule = schedule ?? NullSchedule.Instance;
+            _secondsOfMinute = secondsOfMinute?.ToHashSet() ?? new HashSet<int>();
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
@@ -39,12 +39,12 @@ namespace Excogitated.Common.Scheduling
 
     public static partial class ScheduleExtensions
     {
-        public static ISchedule OnSecondOfMinute(this ISchedule schedule, params int[] secondsOfMinute) => new SecondOfMinuteSchedule(secondsOfMinute, schedule);
+        public static ISchedule OnSecondOfMinute(this ISchedule schedule, params int[] secondsOfMinute) => new SecondOfMinuteSchedule(schedule, secondsOfMinute);
 
         public static ISchedule OnSecondOfMinuteRange(this ISchedule schedule, int secondOfMinuteStart, int secondOfMinuteEnd)
         {
             var secondsOfMinute = secondOfMinuteStart.GetRange(secondOfMinuteEnd, 60).ToArray();
-            return new SecondOfMinuteSchedule(secondsOfMinute, schedule);
+            return new SecondOfMinuteSchedule(schedule, secondsOfMinute);
         }
     }
 }

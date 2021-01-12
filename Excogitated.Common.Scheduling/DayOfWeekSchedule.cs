@@ -4,15 +4,15 @@ using System.Linq;
 
 namespace Excogitated.Common.Scheduling
 {
-    public class DayOfWeekSchedule : ISchedule
+    internal class DayOfWeekSchedule : ISchedule
     {
-        private readonly HashSet<DayOfWeek> _daysOfWeek;
         private readonly ISchedule _schedule;
+        private readonly HashSet<DayOfWeek> _daysOfWeek;
 
-        public DayOfWeekSchedule(DayOfWeek[] days, ISchedule schedule = null)
+        public DayOfWeekSchedule(ISchedule schedule, DayOfWeek[] daysOfWeek)
         {
-            _daysOfWeek = days?.ToHashSet() ?? new HashSet<DayOfWeek>();
             _schedule = schedule ?? NullSchedule.Instance;
+            _daysOfWeek = daysOfWeek?.ToHashSet() ?? new HashSet<DayOfWeek>();
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
@@ -35,6 +35,6 @@ namespace Excogitated.Common.Scheduling
 
     public static partial class ScheduleExtensions
     {
-        public static ISchedule OnDayOfWeek(this ISchedule schedule, params DayOfWeek[] days) => new DayOfWeekSchedule(days, schedule);
+        public static ISchedule OnDayOfWeek(this ISchedule schedule, params DayOfWeek[] daysOfWeek) => new DayOfWeekSchedule(schedule, daysOfWeek);
     }
 }

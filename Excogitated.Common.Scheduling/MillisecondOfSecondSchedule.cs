@@ -4,19 +4,19 @@ using System.Linq;
 
 namespace Excogitated.Common.Scheduling
 {
-    public class MillisecondOfSecondSchedule : ISchedule
+    internal class MillisecondOfSecondSchedule : ISchedule
     {
-        private readonly HashSet<int> _millisecondsOfSecond;
         private readonly ISchedule _schedule;
+        private readonly HashSet<int> _millisecondsOfSecond;
 
-        public MillisecondOfSecondSchedule(int[] millisecondsOfSecond, ISchedule schedule = null)
+        public MillisecondOfSecondSchedule(ISchedule schedule, int[] millisecondsOfSecond)
         {
             if (millisecondsOfSecond is object)
                 foreach (var millisecondOfSecond in millisecondsOfSecond)
                     if (millisecondOfSecond < 0 || millisecondOfSecond > 999)
                         throw new ArgumentException("millisecondOfSecond < 0 || millisecondOfSecond > 999", nameof(millisecondOfSecond));
-            _millisecondsOfSecond = millisecondsOfSecond?.ToHashSet() ?? new HashSet<int>();
             _schedule = schedule ?? NullSchedule.Instance;
+            _millisecondsOfSecond = millisecondsOfSecond?.ToHashSet() ?? new HashSet<int>();
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
@@ -41,13 +41,13 @@ namespace Excogitated.Common.Scheduling
     {
         public static ISchedule OnMillisecondOfSecond(this ISchedule schedule, params int[] millisecondsOfSecond)
         {
-            return new MillisecondOfSecondSchedule(millisecondsOfSecond, schedule);
+            return new MillisecondOfSecondSchedule(schedule, millisecondsOfSecond);
         }
 
         public static ISchedule OnMillisecondOfSecondRange(this ISchedule schedule, int millisecondOfSecondStart, int millisecondOfSecondEnd)
         {
             var millisecondsOfSecond = millisecondOfSecondStart.GetRange(millisecondOfSecondEnd, 1000).ToArray();
-            return new MillisecondOfSecondSchedule(millisecondsOfSecond, schedule);
+            return new MillisecondOfSecondSchedule(schedule, millisecondsOfSecond);
         }
     }
 }

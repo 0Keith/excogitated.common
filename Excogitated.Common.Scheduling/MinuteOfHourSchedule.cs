@@ -4,19 +4,19 @@ using System.Linq;
 
 namespace Excogitated.Common.Scheduling
 {
-    public class MinuteOfHourSchedule : ISchedule
+    internal class MinuteOfHourSchedule : ISchedule
     {
-        private readonly HashSet<int> _minutesOfHour;
         private readonly ISchedule _schedule;
+        private readonly HashSet<int> _minutesOfHour;
 
-        public MinuteOfHourSchedule(int[] minutesOfHour, ISchedule schedule = null)
+        public MinuteOfHourSchedule(ISchedule schedule, int[] minutesOfHour)
         {
             if (minutesOfHour is object)
                 foreach (var minuteOfHour in minutesOfHour)
                     if (minuteOfHour < 0 || minuteOfHour > 59)
                         throw new ArgumentException("minuteOfHour < 0 || minuteOfHour > 59", nameof(minuteOfHour));
-            _minutesOfHour = minutesOfHour?.ToHashSet() ?? new HashSet<int>();
             _schedule = schedule ?? NullSchedule.Instance;
+            _minutesOfHour = minutesOfHour?.ToHashSet() ?? new HashSet<int>();
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
@@ -39,12 +39,12 @@ namespace Excogitated.Common.Scheduling
 
     public static partial class ScheduleExtensions
     {
-        public static ISchedule OnMinuteOfHour(this ISchedule schedule, params int[] minutesOfHour) => new MinuteOfHourSchedule(minutesOfHour, schedule);
+        public static ISchedule OnMinuteOfHour(this ISchedule schedule, params int[] minutesOfHour) => new MinuteOfHourSchedule(schedule, minutesOfHour);
 
         public static ISchedule OnMinuteOfHourRange(this ISchedule schedule, int minuteOfHourStart, int minuteOfHourEnd)
         {
             var minutesOfHour = minuteOfHourStart.GetRange(minuteOfHourEnd, 60).ToArray();
-            return new MinuteOfHourSchedule(minutesOfHour, schedule);
+            return new MinuteOfHourSchedule(schedule, minutesOfHour);
         }
     }
 }
