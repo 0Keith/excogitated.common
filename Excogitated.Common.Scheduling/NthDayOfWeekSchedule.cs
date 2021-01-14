@@ -20,7 +20,7 @@ namespace Excogitated.Common.Scheduling
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
         {
             var next = GetNextEventPrivate(previousEvent);
-            while (_dayOfWeek != next.DayOfWeek || next.Day / 7 != _nthDayOfWeek)
+            while (_dayOfWeek != next.DayOfWeek || Math.Ceiling(next.Day / 7d) != _nthDayOfWeek)
                 next = GetNextEventPrivate(next);
             return next;
         }

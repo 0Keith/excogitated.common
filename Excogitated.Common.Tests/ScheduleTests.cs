@@ -255,12 +255,26 @@ namespace Excogitated.Common.Tests
             {
                 Console.WriteLine(e.ToString("O"));
                 expected = expected.AddDays(1);
-                while (expected.DayOfWeek != DayOfWeek.Friday || expected.Day / 7 != 4)
+                while (expected.DayOfWeek != DayOfWeek.Friday || !expected.IsFourthWeek())
                     expected = expected.AddDays(1);
                 Assert.AreEqual(DayOfWeek.Friday, e.DayOfWeek);
                 Assert.AreEqual(expected, e);
             }
         }
 
+        [TestMethod]
+        public void HolidayOfYearSchedule()
+        {
+            var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
+            var events = Schedule.Build()
+                .OnHolidayOfYear()
+                .GetEvents(expected)
+                .Take(1000)
+                .ToList();
+            foreach (var e in events)
+            {
+                Console.WriteLine(e.ToString("O"));
+            }
+        }
     }
 }
