@@ -1,5 +1,6 @@
 ﻿using Excogitated.Common.Atomic;
 using Excogitated.Common.Extensions;
+using Excogitated.Common.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;

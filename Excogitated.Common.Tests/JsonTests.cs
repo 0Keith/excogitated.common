@@ -1,5 +1,6 @@
 using Excogitated.Common.Extensions;
 using Excogitated.Common.Json;
+using Excogitated.Common.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;

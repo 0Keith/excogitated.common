@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Excogitated.Common.Scheduling
 {
     public interface ISchedule
     {
         DateTimeOffset GetNextEvent(DateTimeOffset previousEvent);
+    }
+
+    public interface IAsyncSchedule
+    {
+        ValueTask<DateTimeOffset> GetNextEventAsync(DateTimeOffset previousEvent);
     }
 
     public static partial class ScheduleExtensions

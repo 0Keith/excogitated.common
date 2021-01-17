@@ -1,9 +1,8 @@
-﻿using Excogitated.Common.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Extensions
 {
     public static class Extensions_AsyncEnumerable_SumCount
     {

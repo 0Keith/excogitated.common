@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace Excogitated.Common
+namespace Excogitated.Common.Models
 {
     public struct Currency
     {

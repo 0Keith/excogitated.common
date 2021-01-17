@@ -1,3 +1,4 @@
+using Excogitated.Common.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 

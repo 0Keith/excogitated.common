@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -24,9 +24,10 @@
   <ItemGroup>
     <PackageReference Include="MongoDB.Driver" Version="2.11.5" />
   </ItemGroup>
-
+  
   <ItemGroup>
-    <ProjectReference Include="..\Excogitated.Common\Excogitated.Common.csproj" />
+    <ProjectReference Include="..\Excogitated.Common.Atomic\Excogitated.Common.Atomic.csproj" />
+    <ProjectReference Include="..\Excogitated.Common.Models\Excogitated.Common.Models.csproj" />
   </ItemGroup>
 
 </Project>
