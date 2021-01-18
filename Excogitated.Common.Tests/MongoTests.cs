@@ -1,4 +1,5 @@
-﻿using Excogitated.Common.Mongo;
+﻿using Excogitated.Common.Models;
+using Excogitated.Common.Mongo;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MongoDB.Driver;
 using System;
@@ -28,7 +29,10 @@ namespace Excogitated.Common.Tests
         [TestMethod]
         public async Task SetGetAppConfig()
         {
+            await _db.Client.DropAllAsync();
             var settings = await _db.GetAppSettings<TestSettingDocument>();
+            await settings.ClearAsync();
+
             var expected0 = Rng.GetDecimal();
             await settings.SetAsync(d => d.Test0, expected0);
             var value0 = await settings.GetAsync(d => d.Test0);

@@ -11,7 +11,7 @@ namespace Excogitated.Common.Scheduling
 
     public interface IAsyncSchedule
     {
-        ValueTask<DateTimeOffset> GetNextEventAsync(DateTimeOffset previousEvent);
+        Task Execute(DateTimeOffset previousEvent);
     }
 
     public static partial class ScheduleExtensions

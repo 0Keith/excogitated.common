@@ -57,6 +57,13 @@ namespace Excogitated.Common.Mongo
             var result = await _documents.DeleteManyAsync(d => ids.Contains(d.Id));
             return result.IsAcknowledged ? documents : null;
         }
+
+        public async Task ClearAsync()
+        {
+            var result = await _documents.DeleteManyAsync(d => true);
+            if (!result.IsAcknowledged)
+                throw new Exception("Operation Failed.");
+        }
     }
 
     public class AppSettingStore<T>
@@ -81,5 +88,7 @@ namespace Excogitated.Common.Mongo
         public Task<V> GetAsync<V>(Expression<Func<T, V>> property) => _store.GetAsync<V>(property.GetFullName());
 
         public Task<long> DeleteAsync<V>(Expression<Func<T, V>> property) => _store.DeleteAsync(property.GetFullName());
+
+        public Task ClearAsync() => _store.ClearAsync();
     }
 }

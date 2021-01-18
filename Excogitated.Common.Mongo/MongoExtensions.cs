@@ -8,6 +8,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -87,6 +88,16 @@ namespace Excogitated.Common.Mongo
         {
             database.NotNull(nameof(database));
             return AppSettingStore<T>.Create(database);
+        }
+
+        private static readonly HashSet<string> _systemDbs = new HashSet<string> { "admin", "local" };
+        public static async Task DropAllAsync(this IMongoClient client)
+        {
+            client.NotNull(nameof(client));
+            var result = await client.ListDatabaseNamesAsync();
+            var dbs = await result.ToListAsync();
+            foreach (var db in dbs.Where(n => !_systemDbs.Contains(n)))
+                await client.DropDatabaseAsync(db);
         }
     }
 }
