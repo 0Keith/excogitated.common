@@ -13,11 +13,14 @@ namespace Excogitated.Common.Scheduling
             _schedule = schedule;
         }
 
-        public Task Execute(DateTimeOffset previousEvent)
+        public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
         {
-            if (_previousEvent is null)
-                _previousEvent = previousEvent;
-            return _schedule.Execute(_previousEvent.Value);
+            return _schedule.GetNextEvent(previousEvent);
+        }
+
+        public ValueTask<bool> Execute(DateTimeOffset nextEvent, Func<DateTimeOffset, ValueTask> executeFunc)
+        {
+            return _schedule.Execute(nextEvent, executeFunc);
         }
     }
 

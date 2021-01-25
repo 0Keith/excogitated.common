@@ -15,15 +15,17 @@ namespace Excogitated.Common.Scheduling
             _attempts = attempts;
         }
 
-        public async Task Execute(DateTimeOffset previousEvent)
+        public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent) => _schedule.GetNextEvent(previousEvent);
+
+        public async ValueTask<bool> Execute(DateTimeOffset nextEvent, Func<DateTimeOffset, ValueTask> executeFunc)
         {
             var attempt = 0;
             var exceptions = new List<Exception>();
             while (attempt < _attempts)
                 try
                 {
-                    await _schedule.Execute(previousEvent);
-                    return;
+                    await _schedule.Execute(nextEvent, executeFunc);
+                    return true;
                 }
                 catch (Exception e)
                 {

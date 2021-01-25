@@ -1,7 +1,9 @@
 ﻿using Excogitated.Common.Scheduling;
+using Excogitated.Common.Scheduling.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Excogitated.Common.Tests
 {
@@ -275,6 +277,21 @@ namespace Excogitated.Common.Tests
             {
                 Console.WriteLine(e.ToString("O"));
             }
+        }
+
+        [TestMethod]
+        public async Task ScheduleStart()
+        {
+            var count = 0;
+            var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
+            await Schedule.Build()
+                .EverySecond(1)
+                .Execute()
+                .MaxExecutions(5)
+                .Start(async expected =>
+                {
+                    Console.WriteLine(count++);
+                });
         }
     }
 }
