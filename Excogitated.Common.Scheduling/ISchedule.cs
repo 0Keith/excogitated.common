@@ -11,7 +11,7 @@ namespace Excogitated.Common.Scheduling
 
     public interface IAsyncSchedule
     {
-        DateTimeOffset GetNextEvent(DateTimeOffset previousEvent);
+        ValueTask<DateTimeOffset> GetNextEventAsync(DateTimeOffset previousEvent);
         ValueTask<bool> Execute(DateTimeOffset nextEvent, Func<DateTimeOffset, ValueTask> executeFunc);
     }
 

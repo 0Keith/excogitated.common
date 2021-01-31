@@ -13,11 +13,12 @@ namespace Excogitated.Common.Scheduling.Execution
             var oneMinute = TimeSpan.FromMinutes(1);
             var now = DateTimeOffset.Now;
             var today = now.Date;
-            var next = schedule.GetNextEvent(today);
-            while (true)
+            var next = await schedule.GetNextEventAsync(today);
+            var continueExecution = true;
+            while (continueExecution)
             {
                 while (next < now)
-                    next = schedule.GetNextEvent(next);
+                    next = await schedule.GetNextEventAsync(next);
 
                 var timeUntil = next.Subtract(now);
                 while (timeUntil > TimeSpan.Zero)
@@ -29,9 +30,7 @@ namespace Excogitated.Common.Scheduling.Execution
                     timeUntil = next.Subtract(now);
                 }
 
-                var continueExecution = await schedule.Execute(next, executeFunc);
-                if (!continueExecution)
-                    break;
+                continueExecution = await schedule.Execute(next, executeFunc);
                 now = DateTimeOffset.Now;
             }
         }

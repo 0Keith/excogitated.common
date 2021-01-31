@@ -24,7 +24,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Common.Models",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Common.Mongo", "Excogitated.Common.Mongo\Excogitated.Common.Mongo.csproj", "{8229D7BE-D2D7-43A3-851F-7E97817BDFCB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excogitated.Common.Scheduling", "Excogitated.Common.Scheduling\Excogitated.Common.Scheduling.csproj", "{234C1106-02D8-4642-98D8-394F45165F26}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Common.Scheduling", "Excogitated.Common.Scheduling\Excogitated.Common.Scheduling.csproj", "{234C1106-02D8-4642-98D8-394F45165F26}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Excogitated.Common.Tests.NUnit", "Excogitated.Common.Tests.NUnit\Excogitated.Common.Tests.NUnit.csproj", "{BA7707F5-76F0-42DA-8E80-0D2834243A38}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +70,10 @@ Global
 		{234C1106-02D8-4642-98D8-394F45165F26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{234C1106-02D8-4642-98D8-394F45165F26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{234C1106-02D8-4642-98D8-394F45165F26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA7707F5-76F0-42DA-8E80-0D2834243A38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA7707F5-76F0-42DA-8E80-0D2834243A38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA7707F5-76F0-42DA-8E80-0D2834243A38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA7707F5-76F0-42DA-8E80-0D2834243A38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

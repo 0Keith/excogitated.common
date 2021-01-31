@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Scheduling
+namespace Excogitated.Common.Scheduling.Execution
 {
     internal class MaxExecutionSchedule : IAsyncSchedule
     {
@@ -15,10 +15,7 @@ namespace Excogitated.Common.Scheduling
             _maxExecutions = maxExecutions;
         }
 
-        public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
-        {
-            return _schedule.GetNextEvent(previousEvent);
-        }
+        public ValueTask<DateTimeOffset> GetNextEventAsync(DateTimeOffset previousEvent) => _schedule.GetNextEventAsync(previousEvent);
 
         public async ValueTask<bool> Execute(DateTimeOffset nextEvent, Func<DateTimeOffset, ValueTask> executeFunc)
         {

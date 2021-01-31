@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Scheduling
+namespace Excogitated.Common.Scheduling.Execution
 {
-    internal class ResilientSchedule : IAsyncSchedule
+    internal class MaxRetrySchedule : IAsyncSchedule
     {
         private readonly IAsyncSchedule _schedule;
         private readonly int _attempts;
 
-        public ResilientSchedule(IAsyncSchedule schedule, int attempts)
+        public MaxRetrySchedule(IAsyncSchedule schedule, int attempts)
         {
             _schedule = schedule;
             _attempts = attempts;
         }
 
-        public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent) => _schedule.GetNextEvent(previousEvent);
+        public ValueTask<DateTimeOffset> GetNextEventAsync(DateTimeOffset previousEvent) => _schedule.GetNextEventAsync(previousEvent);
 
         public async ValueTask<bool> Execute(DateTimeOffset nextEvent, Func<DateTimeOffset, ValueTask> executeFunc)
         {
@@ -24,8 +24,7 @@ namespace Excogitated.Common.Scheduling
             while (attempt < _attempts)
                 try
                 {
-                    await _schedule.Execute(nextEvent, executeFunc);
-                    return true;
+                    return await _schedule.Execute(nextEvent, executeFunc);
                 }
                 catch (Exception e)
                 {
@@ -38,6 +37,6 @@ namespace Excogitated.Common.Scheduling
 
     public static partial class ScheduleExtensions
     {
-        public static IAsyncSchedule Retry(this IAsyncSchedule schedule, int attempts) => new ResilientSchedule(schedule, attempts);
+        public static IAsyncSchedule MaxRetries(this IAsyncSchedule schedule, int attempts) => new MaxRetrySchedule(schedule, attempts);
     }
 }

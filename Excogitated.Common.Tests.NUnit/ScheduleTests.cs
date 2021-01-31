@@ -1,16 +1,13 @@
 ﻿using Excogitated.Common.Scheduling;
-using Excogitated.Common.Scheduling.Execution;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Excogitated.Common.Tests
 {
-    [TestClass]
     public class ScheduleTests : TestsBase
     {
-        [TestMethod]
+        [Test]
         public void Interval()
         {
             var expected = DateTimeOffset.Now;
@@ -40,7 +37,7 @@ namespace Excogitated.Common.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void HourOfDay_StartLessThanEnd()
         {
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
@@ -58,7 +55,7 @@ namespace Excogitated.Common.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void HourOfDay_StartGreaterThanEnd()
         {
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
@@ -76,7 +73,7 @@ namespace Excogitated.Common.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void MinuteOfHour_StartLessThanEnd()
         {
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
@@ -94,7 +91,7 @@ namespace Excogitated.Common.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void MinuteOfHour_StartGreaterThanEnd()
         {
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
@@ -112,7 +109,7 @@ namespace Excogitated.Common.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void SecondOfMinute_StartLessThanEnd()
         {
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
@@ -130,7 +127,7 @@ namespace Excogitated.Common.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void SecondOfMinute_StartGreaterThanEnd()
         {
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
@@ -148,7 +145,7 @@ namespace Excogitated.Common.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void MillisecondOfSecond_StartLessThanEnd()
         {
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
@@ -166,7 +163,7 @@ namespace Excogitated.Common.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void MillisecondOfSecond_StartGreaterThanEnd()
         {
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
@@ -184,7 +181,7 @@ namespace Excogitated.Common.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void DayOfMonthSchedule()
         {
             var days = new[] { 3, 5, 7, 12, 29, 31 }.ToHashSet();
@@ -204,7 +201,7 @@ namespace Excogitated.Common.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void DayOfWeekSchedule()
         {
             var days = new[] { DayOfWeek.Friday, DayOfWeek.Monday, DayOfWeek.Sunday, DayOfWeek.Wednesday }.ToHashSet();
@@ -224,7 +221,7 @@ namespace Excogitated.Common.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void DayOfYearSchedule()
         {
             var days = new[] { 3, 12, 123, 234, 345, 366 }.ToHashSet();
@@ -244,7 +241,7 @@ namespace Excogitated.Common.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void NthDayOfWeekSchedule()
         {
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
@@ -264,7 +261,7 @@ namespace Excogitated.Common.Tests
             }
         }
 
-        [TestMethod]
+        [Test]
         public void HolidayOfYearSchedule()
         {
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
@@ -277,21 +274,6 @@ namespace Excogitated.Common.Tests
             {
                 Console.WriteLine(e.ToString("O"));
             }
-        }
-
-        [TestMethod]
-        public async Task ScheduleStart()
-        {
-            var count = 0;
-            var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
-            await Schedule.Build()
-                .EverySecond(1)
-                .Execute()
-                .MaxExecutions(5)
-                .Start(async expected =>
-                {
-                    Console.WriteLine(count++);
-                });
         }
     }
 }
