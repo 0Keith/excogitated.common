@@ -1,8 +1,10 @@
-﻿using Excogitated.Common.Scheduling;
+﻿using Excogitated.Common.Extensions;
+using Excogitated.Common.Scheduling;
 using Excogitated.Common.Scheduling.Execution;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -77,24 +79,36 @@ namespace Excogitated.Common.Tests
         [Test]
         public async Task WithFileStore()
         {
-            var deltas = new List<double>();
-            var maxDelta = TimeSpan.FromSeconds(1).TotalMilliseconds;
-            const int expectedMaxExecutions = 10;
+            var file = new FileInfo("./schedule.test.json");
+            if (file.Exists)
+                await file.DeleteAsync();
+
             await Schedule.Build()
                 .EveryMillisecond(100)
                 .Execute()
-                .MaxExecutions(expectedMaxExecutions)
-                .WithFileStore("")
+                .MaxExecutions(1)
+                .WithFileStore(file.FullName)
                 .Start(async expected =>
                 {
-                    var now = DateTimeOffset.Now;
-                    var delta = Math.Abs(expected.Subtract(now).TotalMilliseconds);
-                    Assert.LessOrEqual(delta, maxDelta);
-                    deltas.Add(delta);
+                    file.Refresh();
+                    Assert.IsTrue(file.Exists);
+                    var actual = DateTimeOffset.Parse(await File.ReadAllTextAsync(file.FullName));
+                    Assert.AreEqual(expected, actual);
                 });
-            LogStats(deltas);
-            Assert.AreEqual(expectedMaxExecutions, deltas.Count);
-        }
 
+            await Task.Delay(1000);
+            var actual = DateTimeOffset.Parse(await File.ReadAllTextAsync(file.FullName));
+            await Schedule.Build()
+                .EveryMillisecond(100)
+                .Execute()
+                .MaxExecutions(1)
+                
+                .WithFileStore(file.FullName)
+                .Start(async expected =>
+                {
+                    var delta = expected.Subtract(actual);
+                    Assert.AreEqual(expected, actual);
+                });
+        }
     }
 }

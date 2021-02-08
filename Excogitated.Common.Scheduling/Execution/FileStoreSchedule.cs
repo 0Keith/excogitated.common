@@ -22,18 +22,17 @@ namespace Excogitated.Common.Scheduling.Execution
             {
                 var text = await File.ReadAllTextAsync(_file.FullName);
                 if (DateTimeOffset.TryParse(text, out var result))
-                    _previousEvent = result;
+                    _previousEvent = previousEvent = result;
             }
-
-            if (_previousEvent != previousEvent)
-                await File.WriteAllTextAsync(_file.FullName, previousEvent.ToString("O"));
-
             return await _schedule.GetNextEventAsync(previousEvent);
         }
 
-        public ValueTask<bool> Execute(DateTimeOffset nextEvent, Func<DateTimeOffset, ValueTask> executeFunc)
+        public async ValueTask<bool> Execute(DateTimeOffset nextEvent, Func<DateTimeOffset, ValueTask> executeFunc)
         {
-            return _schedule.Execute(nextEvent, executeFunc);
+            await File.WriteAllTextAsync(_file.FullName, nextEvent.ToString("O"));
+            _previousEvent = nextEvent;
+            _file.Refresh();
+            return await _schedule.Execute(nextEvent, executeFunc);
         }
     }
 

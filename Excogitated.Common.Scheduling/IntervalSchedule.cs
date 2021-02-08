@@ -34,14 +34,14 @@ namespace Excogitated.Common.Scheduling
 
     public static partial class ScheduleExtensions
     {
-        public static ISchedule Every(this ISchedule schedule, TimeUnit unit, double interval) => new IntervalSchedule(schedule, unit, interval);
-        public static ISchedule EveryMillisecond(this ISchedule schedule, double interval) => schedule.Every(TimeUnit.Millisecond, interval);
-        public static ISchedule EverySecond(this ISchedule schedule, double interval) => schedule.Every(TimeUnit.Second, interval);
-        public static ISchedule EveryMinute(this ISchedule schedule, double interval) => schedule.Every(TimeUnit.Minute, interval);
-        public static ISchedule EveryHour(this ISchedule schedule, double interval) => schedule.Every(TimeUnit.Hour, interval);
-        public static ISchedule EveryDay(this ISchedule schedule, double interval) => schedule.Every(TimeUnit.Day, interval);
-        public static ISchedule EveryMonth(this ISchedule schedule, int interval) => schedule.Every(TimeUnit.Month, interval);
-        public static ISchedule EveryYear(this ISchedule schedule, int interval) => schedule.Every(TimeUnit.Year, interval);
+        public static ISchedule Every(this ISchedule schedule, TimeUnit unit, double interval = 1) => new IntervalSchedule(schedule, unit, interval);
+        public static ISchedule EveryMillisecond(this ISchedule schedule, double interval = 1) => schedule.Every(TimeUnit.Millisecond, interval);
+        public static ISchedule EverySecond(this ISchedule schedule, double interval = 1) => schedule.Every(TimeUnit.Second, interval);
+        public static ISchedule EveryMinute(this ISchedule schedule, double interval = 1) => schedule.Every(TimeUnit.Minute, interval);
+        public static ISchedule EveryHour(this ISchedule schedule, double interval = 1) => schedule.Every(TimeUnit.Hour, interval);
+        public static ISchedule EveryDay(this ISchedule schedule, double interval = 1) => schedule.Every(TimeUnit.Day, interval);
+        public static ISchedule EveryMonth(this ISchedule schedule, int interval = 1) => schedule.Every(TimeUnit.Month, interval);
+        public static ISchedule EveryYear(this ISchedule schedule, int interval = 1) => schedule.Every(TimeUnit.Year, interval);
     }
 
     public enum TimeUnit
