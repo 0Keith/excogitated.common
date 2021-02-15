@@ -15,24 +15,16 @@ namespace Excogitated.Common.Scheduling
                 foreach (var minuteOfHour in minutesOfHour)
                     if (minuteOfHour < 0 || minuteOfHour > 59)
                         throw new ArgumentException("minuteOfHour < 0 || minuteOfHour > 59", nameof(minuteOfHour));
-            _schedule = schedule ?? NullSchedule.Instance;
+            _schedule = schedule.OrEvery(TimeUnit.Minute);
             _minutesOfHour = minutesOfHour?.ToHashSet() ?? new HashSet<int>();
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
         {
-            var next = GetNextEventPrivate(previousEvent);
+            var next = _schedule.GetNextEvent(previousEvent);
             if (_minutesOfHour.Count > 0)
                 while (!_minutesOfHour.Contains(next.Minute))
-                    next = GetNextEventPrivate(next);
-            return next;
-        }
-
-        private DateTimeOffset GetNextEventPrivate(DateTimeOffset previousEvent)
-        {
-            var next = _schedule.GetNextEvent(previousEvent);
-            if (previousEvent == next)
-                return next.AddMinutes(1);
+                    next = _schedule.GetNextEvent(next);
             return next;
         }
     }

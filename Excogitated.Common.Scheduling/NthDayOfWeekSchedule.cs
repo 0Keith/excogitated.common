@@ -12,24 +12,16 @@ namespace Excogitated.Common.Scheduling
         {
             if (nthDayOfWeek < 1 || nthDayOfWeek > 5)
                 throw new ArgumentException("nthDayOfWeek < 1 || nthDayOfWeek > 5", nameof(nthDayOfWeek));
-            _schedule = schedule ?? NullSchedule.Instance;
+            _schedule = schedule.OrEvery(TimeUnit.Day);
             _dayOfWeek = dayOfWeek;
             _nthDayOfWeek = nthDayOfWeek;
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
         {
-            var next = GetNextEventPrivate(previousEvent);
-            while (_dayOfWeek != next.DayOfWeek || Math.Ceiling(next.Day / 7d) != _nthDayOfWeek)
-                next = GetNextEventPrivate(next);
-            return next;
-        }
-
-        private DateTimeOffset GetNextEventPrivate(DateTimeOffset previousEvent)
-        {
             var next = _schedule.GetNextEvent(previousEvent);
-            if (previousEvent == next)
-                return next.AddDays(1);
+            while (_dayOfWeek != next.DayOfWeek || Math.Ceiling(next.Day / 7d) != _nthDayOfWeek)
+                next = _schedule.GetNextEvent(next);
             return next;
         }
     }

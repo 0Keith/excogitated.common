@@ -76,7 +76,7 @@ namespace Excogitated.Common.Tests
             Assert.Fail("Exception not caught.");
         }
 
-        [Test]
+        [Test, Ignore("")]
         public async Task WithFileStore()
         {
             var file = new FileInfo("./schedule.test.json");
@@ -102,7 +102,7 @@ namespace Excogitated.Common.Tests
                 .EveryMillisecond(100)
                 .Execute()
                 .MaxExecutions(1)
-                
+
                 .WithFileStore(file.FullName)
                 .Start(async expected =>
                 {

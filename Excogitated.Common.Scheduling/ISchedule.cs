@@ -41,6 +41,6 @@ namespace Excogitated.Common.Scheduling
 
     public static class Schedule
     {
-        public static ISchedule Build() => NullSchedule.Instance;
+        public static ISchedule Build() => null;
     }
 }

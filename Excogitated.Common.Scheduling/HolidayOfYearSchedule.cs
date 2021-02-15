@@ -25,7 +25,7 @@ namespace Excogitated.Common.Scheduling
 
         public HolidayOfYearSchedule(ISchedule schedule, HolidayOfYear[] holidaysOfYear)
         {
-            _schedule = schedule ?? NullSchedule.Instance;
+            _schedule = schedule.OrEvery(TimeUnit.Day);
             _holidaysOfYear = holidaysOfYear ?? Enum.GetValues<HolidayOfYear>();
             if (_holidaysOfYear.Length == 0)
                 _holidaysOfYear = Enum.GetValues<HolidayOfYear>();
@@ -33,9 +33,9 @@ namespace Excogitated.Common.Scheduling
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
         {
-            var next = GetNextEventPrivate(previousEvent);
+            var next = _schedule.GetNextEvent(previousEvent);
             while (!IsHoliday(next))
-                next = GetNextEventPrivate(next);
+                next = _schedule.GetNextEvent(next);
             return next;
         }
 
@@ -63,14 +63,6 @@ namespace Excogitated.Common.Scheduling
                     return true;
             }
             return false;
-        }
-
-        private DateTimeOffset GetNextEventPrivate(DateTimeOffset previousEvent)
-        {
-            var next = _schedule.GetNextEvent(previousEvent);
-            if (previousEvent == next)
-                return next.AddDays(1);
-            return next;
         }
     }
 

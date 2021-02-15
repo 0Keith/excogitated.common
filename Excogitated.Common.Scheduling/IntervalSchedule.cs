@@ -10,14 +10,16 @@ namespace Excogitated.Common.Scheduling
 
         public IntervalSchedule(ISchedule schedule, TimeUnit unit, double interval)
         {
-            _schedule = schedule ?? NullSchedule.Instance;
+            if (interval == 0)
+                throw new ArgumentException("interval == 0");
+            _schedule = schedule;
             _unit = unit;
             _interval = interval;
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
         {
-            var next = _schedule.GetNextEvent(previousEvent);
+            var next = _schedule is null ? previousEvent : _schedule.GetNextEvent(previousEvent);
             return _unit switch
             {
                 TimeUnit.Millisecond => next.AddMilliseconds(_interval),
@@ -42,6 +44,11 @@ namespace Excogitated.Common.Scheduling
         public static ISchedule EveryDay(this ISchedule schedule, double interval = 1) => schedule.Every(TimeUnit.Day, interval);
         public static ISchedule EveryMonth(this ISchedule schedule, int interval = 1) => schedule.Every(TimeUnit.Month, interval);
         public static ISchedule EveryYear(this ISchedule schedule, int interval = 1) => schedule.Every(TimeUnit.Year, interval);
+
+        public static ISchedule OrEvery(this ISchedule schedule, TimeUnit unit, double interval = 1)
+        {
+            return schedule ?? schedule.Every(unit, interval);
+        }
     }
 
     public enum TimeUnit

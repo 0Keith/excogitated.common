@@ -15,24 +15,16 @@ namespace Excogitated.Common.Scheduling
                 foreach (var dayOfYear in daysOfYear)
                     if (dayOfYear < 1 || dayOfYear > 366)
                         throw new ArgumentException("dayOfYear < 1 || dayOfYear > 366", nameof(dayOfYear));
-            _schedule = schedule ?? NullSchedule.Instance;
+            _schedule = schedule.OrEvery(TimeUnit.Day);
             _daysOfYear = daysOfYear?.ToHashSet() ?? new HashSet<int>();
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
         {
-            var next = GetNextEventPrivate(previousEvent);
+            var next = _schedule.GetNextEvent(previousEvent);
             if (_daysOfYear.Count > 0)
                 while (!_daysOfYear.Contains(next.DayOfYear))
-                    next = GetNextEventPrivate(next);
-            return next;
-        }
-
-        private DateTimeOffset GetNextEventPrivate(DateTimeOffset previousEvent)
-        {
-            var next = _schedule.GetNextEvent(previousEvent);
-            if (previousEvent == next)
-                return next.AddDays(1);
+                    next = _schedule.GetNextEvent(next);
             return next;
         }
     }

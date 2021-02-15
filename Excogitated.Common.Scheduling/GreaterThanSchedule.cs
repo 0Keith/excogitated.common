@@ -10,7 +10,7 @@ namespace Excogitated.Common.Scheduling
 
         public GreaterThanSchedule(ISchedule schedule, Func<DateTimeOffset> greaterThan)
         {
-            _schedule = schedule ?? NullSchedule.Instance;
+            _schedule = schedule.OrEvery(TimeUnit.Day);
             _greaterThan = greaterThan.NotNull(nameof(greaterThan));
         }
 
@@ -19,7 +19,7 @@ namespace Excogitated.Common.Scheduling
             var minNext = _greaterThan();
             var next = _schedule.GetNextEvent(previousEvent);
             while (next < minNext)
-                next = GetNextEventPrivate(next);
+                next = _schedule.GetNextEvent(previousEvent);
             return next;
         }
     }
@@ -27,5 +27,7 @@ namespace Excogitated.Common.Scheduling
     public static partial class ScheduleExtensions
     {
         public static ISchedule GreaterThan(this ISchedule schedule, Func<DateTimeOffset> greaterThan) => new GreaterThanSchedule(schedule, greaterThan);
+
+        public static ISchedule GreaterThanNow(this ISchedule schedule) => schedule.GreaterThan(() => DateTimeOffset.Now);
     }
 }

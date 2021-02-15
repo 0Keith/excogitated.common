@@ -15,24 +15,16 @@ namespace Excogitated.Common.Scheduling
                 foreach (var millisecondOfSecond in millisecondsOfSecond)
                     if (millisecondOfSecond < 0 || millisecondOfSecond > 999)
                         throw new ArgumentException("millisecondOfSecond < 0 || millisecondOfSecond > 999", nameof(millisecondOfSecond));
-            _schedule = schedule ?? NullSchedule.Instance;
+            _schedule = schedule.OrEvery(TimeUnit.Millisecond);
             _millisecondsOfSecond = millisecondsOfSecond?.ToHashSet() ?? new HashSet<int>();
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
         {
-            var next = GetNextEventPrivate(previousEvent);
+            var next = _schedule.GetNextEvent(previousEvent);
             if (_millisecondsOfSecond.Count > 0)
                 while (!_millisecondsOfSecond.Contains(next.Millisecond))
-                    next = GetNextEventPrivate(next);
-            return next;
-        }
-
-        private DateTimeOffset GetNextEventPrivate(DateTimeOffset previousEvent)
-        {
-            var next = _schedule.GetNextEvent(previousEvent);
-            if (previousEvent == next)
-                return next.AddMilliseconds(1);
+                    next = _schedule.GetNextEvent(next);
             return next;
         }
     }

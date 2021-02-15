@@ -11,24 +11,16 @@ namespace Excogitated.Common.Scheduling
 
         public DayOfWeekSchedule(ISchedule schedule, DayOfWeek[] daysOfWeek)
         {
-            _schedule = schedule ?? NullSchedule.Instance;
+            _schedule = schedule.OrEvery(TimeUnit.Day);
             _daysOfWeek = daysOfWeek?.ToHashSet() ?? new HashSet<DayOfWeek>();
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
         {
-            var next = GetNextEventPrivate(previousEvent);
+            var next = _schedule.GetNextEvent(previousEvent);
             if (_daysOfWeek.Count > 0)
                 while (!_daysOfWeek.Contains(next.DayOfWeek))
-                    next = GetNextEventPrivate(next);
-            return next;
-        }
-
-        private DateTimeOffset GetNextEventPrivate(DateTimeOffset previousEvent)
-        {
-            var next = _schedule.GetNextEvent(previousEvent);
-            if (previousEvent == next)
-                return next.AddDays(1);
+                    next = _schedule.GetNextEvent(next);
             return next;
         }
     }

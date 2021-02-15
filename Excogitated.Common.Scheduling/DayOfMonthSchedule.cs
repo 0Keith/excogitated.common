@@ -15,24 +15,16 @@ namespace Excogitated.Common.Scheduling
                 foreach (var dayOfMonth in daysOfMonth)
                     if (dayOfMonth < 1 || dayOfMonth > 31)
                         throw new ArgumentException("dayOfMonth < 1 || dayOfMonth > 31", nameof(dayOfMonth));
-            _schedule = schedule ?? NullSchedule.Instance;
+            _schedule = schedule.OrEvery(TimeUnit.Day);
             _daysOfMonth = daysOfMonth?.ToHashSet() ?? new HashSet<int>();
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
         {
-            var next = GetNextEventPrivate(previousEvent);
+            var next = _schedule.GetNextEvent(previousEvent);
             if (_daysOfMonth.Count > 0)
                 while (!_daysOfMonth.Contains(next.Day))
-                    next = GetNextEventPrivate(next);
-            return next;
-        }
-
-        private DateTimeOffset GetNextEventPrivate(DateTimeOffset previousEvent)
-        {
-            var next = _schedule.GetNextEvent(previousEvent);
-            if (previousEvent == next)
-                return next.AddDays(1);
+                    next = _schedule.GetNextEvent(next);
             return next;
         }
     }

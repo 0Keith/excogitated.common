@@ -15,24 +15,16 @@ namespace Excogitated.Common.Scheduling
                 foreach (var hourOfDay in hoursOfDay)
                     if (hourOfDay < 0 || hourOfDay > 23)
                         throw new ArgumentException("hourOfDay < 0 || hourOfDay > 23", nameof(hourOfDay));
-            _schedule = schedule ?? NullSchedule.Instance;
+            _schedule = schedule.OrEvery(TimeUnit.Hour);
             _hoursOfDay = hoursOfDay?.ToHashSet() ?? new HashSet<int>();
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
         {
-            var next = GetNextEventPrivate(previousEvent);
+            var next = _schedule.GetNextEvent(previousEvent);
             if (_hoursOfDay.Count > 0)
                 while (!_hoursOfDay.Contains(next.Hour))
-                    next = GetNextEventPrivate(next);
-            return next;
-        }
-
-        private DateTimeOffset GetNextEventPrivate(DateTimeOffset previousEvent)
-        {
-            var next = _schedule.GetNextEvent(previousEvent);
-            if (previousEvent == next)
-                return next.AddHours(1);
+                    next = _schedule.GetNextEvent(next);
             return next;
         }
     }
