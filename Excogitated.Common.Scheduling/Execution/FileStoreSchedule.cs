@@ -27,7 +27,7 @@ namespace Excogitated.Common.Scheduling.Execution
             return await _schedule.GetNextEventAsync();
         }
 
-        public async ValueTask<bool> Execute(ScheduleContext context, Func<ScheduleContext, ValueTask> executeFunc)
+        public async ValueTask<bool> Execute(ScheduledJobContext context, Func<ScheduledJobContext, ValueTask> executeFunc)
         {
             await File.WriteAllTextAsync(_file.FullName, context.Expected.ToString("O"));
             _previousEvent = context.Expected;
@@ -36,9 +36,9 @@ namespace Excogitated.Common.Scheduling.Execution
         }
     }
 
-    public static partial class ScheduleExtensions
+    public static partial class ScheduledJobExtensions
     {
-        public static IScheduledJob WithFileStore(this IScheduledJob schedule, string fileName) => new FileStoreSchedule(schedule, fileName)
+        public static IScheduledJob WithFileStore(this IScheduledJob job, string fileName) => new FileStoreSchedule(job, fileName)
             .ImmediatelyRestart();
     }
 }

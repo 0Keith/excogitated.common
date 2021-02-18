@@ -4,9 +4,14 @@ using System.Threading.Tasks;
 
 namespace Excogitated.Common.Scheduling.Execution
 {
-    public static partial class ScheduleExtensions
+    public interface IScheduledJob
     {
-        public static async Task Start(this IScheduledJob schedule, Func<ScheduleContext, ValueTask> executeFunc)
+        ValueTask<bool> Execute(ScheduledJobContext context);
+    }
+
+    public static partial class ScheduledJobExtensions
+    {
+        public static async Task Start(this IScheduledJob schedule, Func<ScheduledJobContext, ValueTask> executeFunc)
         {
             schedule.NotNull(nameof(schedule));
             executeFunc.NotNull(nameof(schedule));
@@ -17,7 +22,7 @@ namespace Excogitated.Common.Scheduling.Execution
             var continueExecution = true;
             while (continueExecution)
             {
-                var context = new ScheduleContext();
+                var context = new ScheduledJobContext();
                 while (next < now)
                 {
                     context.MissedEvents.Add(next);
@@ -34,7 +39,7 @@ namespace Excogitated.Common.Scheduling.Execution
                     timeUntil = next.Subtract(now);
                 }
 
-                continueExecution = await schedule.Execute(context, executeFunc);
+                continueExecution = await schedule.Execute(context);
                 now = DateTimeOffset.Now;
             }
         }

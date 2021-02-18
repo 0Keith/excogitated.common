@@ -15,16 +15,14 @@ namespace Excogitated.Common.Scheduling.Execution
             _attempts = attempts;
         }
 
-        public ValueTask<DateTimeOffset> GetNextEventAsync(DateTimeOffset previousEvent) => _schedule.GetNextEventAsync(previousEvent);
-
-        public async ValueTask<bool> Execute(ScheduleContext context, Func<ScheduleContext, ValueTask> executeFunc)
+        public async ValueTask<bool> Execute(ScheduledJobContext context)
         {
             var attempt = 0;
             var exceptions = new List<Exception>();
             while (attempt < _attempts)
                 try
                 {
-                    return await _schedule.Execute(context, executeFunc);
+                    return await _schedule.Execute(context);
                 }
                 catch (Exception e)
                 {
@@ -35,8 +33,8 @@ namespace Excogitated.Common.Scheduling.Execution
         }
     }
 
-    public static partial class ScheduleExtensions
+    public static partial class ScheduledJobExtensions
     {
-        public static IScheduledJob MaxRetries(this IScheduledJob schedule, int attempts) => new MaxRetrySchedule(schedule, attempts);
+        public static IScheduledJob MaxRetries(this IScheduledJob job, int attempts) => new MaxRetrySchedule(job, attempts);
     }
 }

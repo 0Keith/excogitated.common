@@ -15,19 +15,17 @@ namespace Excogitated.Common.Scheduling.Execution
             _maxExecutions = maxExecutions;
         }
 
-        public ValueTask<DateTimeOffset> GetNextEventAsync(DateTimeOffset previousEvent) => _schedule.GetNextEventAsync(previousEvent);
-
-        public async ValueTask<bool> Execute(ScheduleContext context, Func<ScheduleContext, ValueTask> executeFunc)
+        public async ValueTask<bool> Execute(ScheduledJobContext context)
         {
             if (_executionCount >= _maxExecutions)
                 return false;
             _executionCount++;
-            return await _schedule.Execute(context, executeFunc);
+            return await _schedule.Execute(context);
         }
     }
 
-    public static partial class ScheduleExtensions
+    public static partial class ScheduledJobExtensions
     {
-        public static IScheduledJob MaxExecutions(this IScheduledJob schedule, int maxExecutions) => new MaxExecutionSchedule(schedule, maxExecutions);
+        public static IScheduledJob MaxExecutions(this IScheduledJob job, int maxExecutions) => new MaxExecutionSchedule(job, maxExecutions);
     }
 }

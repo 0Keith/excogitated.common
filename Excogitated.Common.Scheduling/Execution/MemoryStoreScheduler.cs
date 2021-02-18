@@ -20,14 +20,14 @@ namespace Excogitated.Common.Scheduling.Execution
             return _schedule.GetNextEvent();
         }
 
-        public ValueTask<bool> Execute(ScheduleContext context, Func<ScheduleContext, ValueTask> executeFunc)
+        public ValueTask<bool> Execute(ScheduledJobContext context, Func<ScheduledJobContext, ValueTask> executeFunc)
         {
             _previousEvent = context.Expected;
             return executeFunc(context);
         }
     }
 
-    public static partial class ScheduleExtensions
+    public static partial class ScheduledJobExtensions
     {
         public static IScheduledJob BuildJob(this ISchedule schedule) => new MemoryStoreScheduler(schedule);
     }

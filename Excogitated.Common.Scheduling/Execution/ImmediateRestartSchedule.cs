@@ -17,14 +17,14 @@ namespace Excogitated.Common.Scheduling.Execution
             return await _schedule.GetNextEventAsync(previousEvent);
         }
 
-        public ValueTask<bool> Execute(ScheduleContext context, Func<ScheduleContext, ValueTask> executeFunc)
+        public ValueTask<bool> Execute(ScheduledJobContext context, Func<ScheduledJobContext, ValueTask> executeFunc)
         {
             return _schedule.Execute(context, executeFunc);
         }
     }
 
-    public static partial class ScheduleExtensions
+    public static partial class ScheduledJobExtensions
     {
-        public static IScheduledJob ImmediatelyRestart(this IScheduledJob schedule) => new ImmediateRestartSchedule(schedule);
+        public static IScheduledJob ImmediatelyRestart(this IScheduledJob job) => new ImmediateRestartSchedule(job);
     }
 }
