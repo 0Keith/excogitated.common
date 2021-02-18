@@ -19,13 +19,22 @@ namespace Excogitated.Common.Scheduling
             _monthsOfYear = months?.ToHashSet() ?? new HashSet<int>();
         }
 
-        public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
+        public DateTimeOffset GetNextEvent(DateTimeOffset start)
         {
-            var next = _schedule.GetNextEvent(previousEvent);
+            var next = _schedule.GetNextEvent(start);
             if (_monthsOfYear.Count > 0)
                 while (!_monthsOfYear.Contains(next.Month))
                     next = _schedule.GetNextEvent(next);
             return next;
+        }
+
+        public DateTimeOffset GetPreviousEvent(DateTimeOffset start)
+        {
+            var previous = _schedule.GetPreviousEvent(start);
+            if (_monthsOfYear.Count > 0)
+                while (!_monthsOfYear.Contains(previous.Month))
+                    previous = _schedule.GetPreviousEvent(previous);
+            return previous;
         }
     }
 

@@ -19,7 +19,7 @@ namespace Excogitated.Common.Tests
                 .EveryDay(8)
                 .EveryMonth(9)
                 .EveryYear(10)
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(100)
                 .ToList();
             foreach (var e in events)
@@ -43,7 +43,7 @@ namespace Excogitated.Common.Tests
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
                 .OnHourOfDayRange(5, 22)
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(24)
                 .ToList();
             foreach (var e in events)
@@ -61,7 +61,7 @@ namespace Excogitated.Common.Tests
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
                 .OnHourOfDayRange(22, 3)
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(24)
                 .ToList();
             foreach (var e in events)
@@ -79,7 +79,7 @@ namespace Excogitated.Common.Tests
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
                 .OnMinuteOfHourRange(5, 22)
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(60)
                 .ToList();
             foreach (var e in events)
@@ -97,7 +97,7 @@ namespace Excogitated.Common.Tests
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
                 .OnMinuteOfHourRange(23, 3)
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(60)
                 .ToList();
             foreach (var e in events)
@@ -115,7 +115,7 @@ namespace Excogitated.Common.Tests
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
                 .OnSecondOfMinuteRange(5, 22)
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(60)
                 .ToList();
             foreach (var e in events)
@@ -133,7 +133,7 @@ namespace Excogitated.Common.Tests
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
                 .OnSecondOfMinuteRange(23, 3)
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(60)
                 .ToList();
             foreach (var e in events)
@@ -151,7 +151,7 @@ namespace Excogitated.Common.Tests
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
                 .OnMillisecondOfSecondRange(5, 22)
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(1000)
                 .ToList();
             foreach (var e in events)
@@ -169,7 +169,7 @@ namespace Excogitated.Common.Tests
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
                 .OnMillisecondOfSecondRange(23, 3)
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(1000)
                 .ToList();
             foreach (var e in events)
@@ -188,7 +188,7 @@ namespace Excogitated.Common.Tests
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
                 .OnDayOfMonth(days.ToArray())
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(1000)
                 .ToList();
             foreach (var e in events)
@@ -208,7 +208,7 @@ namespace Excogitated.Common.Tests
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
                 .OnDayOfWeek(days.ToArray())
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(1000)
                 .ToList();
             foreach (var e in events)
@@ -228,7 +228,7 @@ namespace Excogitated.Common.Tests
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
                 .OnDayOfYear(days.ToArray())
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(1000)
                 .ToList();
             foreach (var e in events)
@@ -247,7 +247,7 @@ namespace Excogitated.Common.Tests
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
                 .OnDayOfWeek(DayOfWeek.Friday, 4)
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(1000)
                 .ToList();
             foreach (var e in events)
@@ -267,7 +267,7 @@ namespace Excogitated.Common.Tests
             var expected = new DateTimeOffset(1985, 12, 17, 0, 0, 0, TimeSpan.FromHours(-6));
             var events = Schedule.Build()
                 .OnHolidayOfYear()
-                .GetEvents(expected)
+                .GetNextEvents(expected)
                 .Take(1000)
                 .ToList();
             foreach (var e in events)

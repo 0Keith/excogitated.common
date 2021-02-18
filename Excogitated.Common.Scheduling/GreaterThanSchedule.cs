@@ -14,13 +14,22 @@ namespace Excogitated.Common.Scheduling
             _greaterThan = greaterThan.NotNull(nameof(greaterThan));
         }
 
-        public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
+        public DateTimeOffset GetNextEvent(DateTimeOffset start)
         {
             var minNext = _greaterThan();
-            var next = _schedule.GetNextEvent(previousEvent);
+            var next = _schedule.GetNextEvent(start);
             while (next < minNext)
-                next = _schedule.GetNextEvent(previousEvent);
+                next = _schedule.GetNextEvent(start);
             return next;
+        }
+
+        public DateTimeOffset GetPreviousEvent(DateTimeOffset start)
+        {
+            var minPrevious = _greaterThan();
+            var previous = _schedule.GetPreviousEvent(start);
+            while (previous < minPrevious)
+                previous = _schedule.GetPreviousEvent(start);
+            return previous;
         }
     }
 

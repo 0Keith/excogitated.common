@@ -19,13 +19,22 @@ namespace Excogitated.Common.Scheduling
             _minutesOfHour = minutesOfHour?.ToHashSet() ?? new HashSet<int>();
         }
 
-        public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
+        public DateTimeOffset GetNextEvent(DateTimeOffset start)
         {
-            var next = _schedule.GetNextEvent(previousEvent);
+            var next = _schedule.GetNextEvent(start);
             if (_minutesOfHour.Count > 0)
                 while (!_minutesOfHour.Contains(next.Minute))
                     next = _schedule.GetNextEvent(next);
             return next;
+        }
+
+        public DateTimeOffset GetPreviousEvent(DateTimeOffset start)
+        {
+            var previous = _schedule.GetPreviousEvent(start);
+            if (_minutesOfHour.Count > 0)
+                while (!_minutesOfHour.Contains(previous.Minute))
+                    previous = _schedule.GetPreviousEvent(previous);
+            return previous;
         }
     }
 

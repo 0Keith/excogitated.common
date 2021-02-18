@@ -31,12 +31,20 @@ namespace Excogitated.Common.Scheduling
                 _holidaysOfYear = Enum.GetValues<HolidayOfYear>();
         }
 
-        public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
+        public DateTimeOffset GetNextEvent(DateTimeOffset start)
         {
-            var next = _schedule.GetNextEvent(previousEvent);
+            var next = _schedule.GetNextEvent(start);
             while (!IsHoliday(next))
                 next = _schedule.GetNextEvent(next);
             return next;
+        }
+
+        public DateTimeOffset GetPreviousEvent(DateTimeOffset start)
+        {
+            var previous = _schedule.GetPreviousEvent(start);
+            while (!IsHoliday(previous))
+                previous = _schedule.GetPreviousEvent(previous);
+            return previous;
         }
 
         private bool IsHoliday(DateTimeOffset next)

@@ -34,12 +34,12 @@ namespace Excogitated.Common.Tests
             const int expectedMaxExecutions = 10;
             await Schedule.Build()
                 .EveryMillisecond(100)
-                .Execute()
+                .BuildJob()
                 .MaxExecutions(expectedMaxExecutions)
-                .Start(async expected =>
+                .Start(async context =>
                 {
                     var now = DateTimeOffset.Now;
-                    var delta = Math.Abs(expected.Subtract(now).TotalMilliseconds);
+                    var delta = Math.Abs(context.Expected.Subtract(now).TotalMilliseconds);
                     Assert.LessOrEqual(delta, maxDelta);
                     deltas.Add(delta);
                 });
@@ -56,12 +56,12 @@ namespace Excogitated.Common.Tests
             {
                 await Schedule.Build()
                     .EveryMillisecond(100)
-                    .Execute()
+                    .BuildJob()
                     .MaxRetries(10)
-                    .Start(async expected =>
+                    .Start(async context =>
                     {
                         var now = DateTimeOffset.Now;
-                        var delta = Math.Abs(expected.Subtract(now).TotalMilliseconds);
+                        var delta = Math.Abs(context.Expected.Subtract(now).TotalMilliseconds);
                         Assert.LessOrEqual(delta, maxDelta);
                         deltas.Add(delta);
                         throw new Exception(deltas.Count.ToString());
@@ -71,43 +71,44 @@ namespace Excogitated.Common.Tests
             {
                 LogStats(deltas);
                 Console.WriteLine(e.Message);
+                Assert.AreEqual(10, deltas.Count);
                 return;
             }
             Assert.Fail("Exception not caught.");
         }
 
-        [Test, Ignore("")]
+        [Test]
         public async Task WithFileStore()
         {
             var file = new FileInfo("./schedule.test.json");
             if (file.Exists)
                 await file.DeleteAsync();
-
+            var expected = DateTimeOffset.Now;
             await Schedule.Build()
                 .EveryMillisecond(100)
-                .Execute()
+                .BuildJob()
                 .MaxExecutions(1)
                 .WithFileStore(file.FullName)
-                .Start(async expected =>
+                .Start(async context =>
                 {
                     file.Refresh();
-                    Assert.IsTrue(file.Exists);
-                    var actual = DateTimeOffset.Parse(await File.ReadAllTextAsync(file.FullName));
-                    Assert.AreEqual(expected, actual);
+                    Assert.IsFalse(file.Exists);
+                    expected = context.Expected;
                 });
+            var actual = DateTimeOffset.Parse(await File.ReadAllTextAsync(file.FullName));
+            Assert.AreEqual(expected, actual);
 
             await Task.Delay(1000);
-            var actual = DateTimeOffset.Parse(await File.ReadAllTextAsync(file.FullName));
             await Schedule.Build()
                 .EveryMillisecond(100)
-                .Execute()
+                .BuildJob()
                 .MaxExecutions(1)
-
                 .WithFileStore(file.FullName)
-                .Start(async expected =>
+                .Start(async context =>
                 {
-                    var delta = expected.Subtract(actual);
-                    Assert.AreEqual(expected, actual);
+                    Assert.AreEqual(10, context.MissedEvents.Count);
+                    var delta = context.Expected.Subtract(actual);
+                    Assert.AreEqual(context.Expected, actual);
                 });
         }
     }

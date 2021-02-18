@@ -17,12 +17,20 @@ namespace Excogitated.Common.Scheduling
             _nthDayOfWeek = nthDayOfWeek;
         }
 
-        public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
+        public DateTimeOffset GetNextEvent(DateTimeOffset start)
         {
-            var next = _schedule.GetNextEvent(previousEvent);
+            var next = _schedule.GetNextEvent(start);
             while (_dayOfWeek != next.DayOfWeek || Math.Ceiling(next.Day / 7d) != _nthDayOfWeek)
                 next = _schedule.GetNextEvent(next);
             return next;
+        }
+
+        public DateTimeOffset GetPreviousEvent(DateTimeOffset start)
+        {
+            var previous = _schedule.GetPreviousEvent(start);
+            while (_dayOfWeek != previous.DayOfWeek || Math.Ceiling(previous.Day / 7d) != _nthDayOfWeek)
+                previous = _schedule.GetPreviousEvent(previous);
+            return previous;
         }
     }
 

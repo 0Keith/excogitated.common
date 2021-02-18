@@ -19,13 +19,22 @@ namespace Excogitated.Common.Scheduling
             _daysOfYear = daysOfYear?.ToHashSet() ?? new HashSet<int>();
         }
 
-        public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
+        public DateTimeOffset GetNextEvent(DateTimeOffset start)
         {
-            var next = _schedule.GetNextEvent(previousEvent);
+            var next = _schedule.GetNextEvent(start);
             if (_daysOfYear.Count > 0)
                 while (!_daysOfYear.Contains(next.DayOfYear))
                     next = _schedule.GetNextEvent(next);
             return next;
+        }
+
+        public DateTimeOffset GetPreviousEvent(DateTimeOffset start)
+        {
+            var previous = _schedule.GetPreviousEvent(start);
+            if (_daysOfYear.Count > 0)
+                while (!_daysOfYear.Contains(previous.DayOfYear))
+                    previous = _schedule.GetPreviousEvent(previous);
+            return previous;
         }
     }
 

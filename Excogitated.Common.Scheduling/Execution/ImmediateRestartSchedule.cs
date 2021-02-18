@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 
 namespace Excogitated.Common.Scheduling.Execution
 {
-    internal class ImmediateRestartSchedule : IAsyncSchedule
+    internal class ImmediateRestartSchedule : IScheduledJob
     {
-        private readonly IAsyncSchedule _schedule;
+        private readonly IScheduledJob _schedule;
 
-        public ImmediateRestartSchedule(IAsyncSchedule schedule)
+        public ImmediateRestartSchedule(IScheduledJob schedule)
         {
             _schedule = schedule;
         }
@@ -17,14 +17,14 @@ namespace Excogitated.Common.Scheduling.Execution
             return await _schedule.GetNextEventAsync(previousEvent);
         }
 
-        public ValueTask<bool> Execute(DateTimeOffset nextEvent, Func<DateTimeOffset, ValueTask> executeFunc)
+        public ValueTask<bool> Execute(ScheduleContext context, Func<ScheduleContext, ValueTask> executeFunc)
         {
-            return _schedule.Execute(nextEvent, executeFunc);
+            return _schedule.Execute(context, executeFunc);
         }
     }
 
     public static partial class ScheduleExtensions
     {
-        public static IAsyncSchedule ImmediatelyRestart(this IAsyncSchedule schedule) => new ImmediateRestartSchedule(schedule);
+        public static IScheduledJob ImmediatelyRestart(this IScheduledJob schedule) => new ImmediateRestartSchedule(schedule);
     }
 }

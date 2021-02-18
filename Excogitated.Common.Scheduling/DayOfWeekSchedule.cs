@@ -15,13 +15,22 @@ namespace Excogitated.Common.Scheduling
             _daysOfWeek = daysOfWeek?.ToHashSet() ?? new HashSet<DayOfWeek>();
         }
 
-        public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
+        public DateTimeOffset GetNextEvent(DateTimeOffset start)
         {
-            var next = _schedule.GetNextEvent(previousEvent);
+            var next = _schedule.GetNextEvent(start);
             if (_daysOfWeek.Count > 0)
                 while (!_daysOfWeek.Contains(next.DayOfWeek))
                     next = _schedule.GetNextEvent(next);
             return next;
+        }
+
+        public DateTimeOffset GetPreviousEvent(DateTimeOffset start)
+        {
+            var previous = _schedule.GetPreviousEvent(start);
+            if (_daysOfWeek.Count > 0)
+                while (!_daysOfWeek.Contains(previous.DayOfWeek))
+                    previous = _schedule.GetPreviousEvent(previous);
+            return previous;
         }
     }
 

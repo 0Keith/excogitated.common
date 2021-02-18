@@ -1,42 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Excogitated.Common.Scheduling.Execution;
+using System;
 using System.Threading.Tasks;
 
 namespace Excogitated.Common.Scheduling
 {
     public interface ISchedule
     {
-        DateTimeOffset GetNextEvent(DateTimeOffset previousEvent);
+        DateTimeOffset GetNextEvent(DateTimeOffset start);
+        DateTimeOffset GetPreviousEvent(DateTimeOffset start);
     }
 
-    public interface IAsyncSchedule
+    public interface IScheduledJob
     {
-        ValueTask<DateTimeOffset> GetNextEventAsync(DateTimeOffset previousEvent);
-        ValueTask<bool> Execute(DateTimeOffset nextEvent, Func<DateTimeOffset, ValueTask> executeFunc);
-    }
-
-    public static partial class ScheduleExtensions
-    {
-        public static IEnumerable<DateTimeOffset> GetEvents(this ISchedule schedule, DateTimeOffset? previousEvent = null)
-        {
-            var next = previousEvent ?? DateTimeOffset.Now;
-            while (true)
-            {
-                next = schedule.GetNextEvent(next);
-                yield return next;
-            }
-        }
-
-        public static IEnumerable<int> GetRange(this int start, int end, int maxValueExclusive)
-        {
-            for (var i = start; i != end; i++)
-            {
-                if (i >= maxValueExclusive)
-                    i -= maxValueExclusive;
-                yield return i;
-            }
-            yield return end;
-        }
+        ValueTask<bool> Execute(ScheduleContext context, Func<ScheduleContext, ValueTask> executeFunc);
     }
 
     public static class Schedule

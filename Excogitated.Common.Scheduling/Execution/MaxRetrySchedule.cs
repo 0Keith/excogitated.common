@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 
 namespace Excogitated.Common.Scheduling.Execution
 {
-    internal class MaxRetrySchedule : IAsyncSchedule
+    internal class MaxRetrySchedule : IScheduledJob
     {
-        private readonly IAsyncSchedule _schedule;
+        private readonly IScheduledJob _schedule;
         private readonly int _attempts;
 
-        public MaxRetrySchedule(IAsyncSchedule schedule, int attempts)
+        public MaxRetrySchedule(IScheduledJob schedule, int attempts)
         {
             _schedule = schedule;
             _attempts = attempts;
@@ -17,14 +17,14 @@ namespace Excogitated.Common.Scheduling.Execution
 
         public ValueTask<DateTimeOffset> GetNextEventAsync(DateTimeOffset previousEvent) => _schedule.GetNextEventAsync(previousEvent);
 
-        public async ValueTask<bool> Execute(DateTimeOffset nextEvent, Func<DateTimeOffset, ValueTask> executeFunc)
+        public async ValueTask<bool> Execute(ScheduleContext context, Func<ScheduleContext, ValueTask> executeFunc)
         {
             var attempt = 0;
             var exceptions = new List<Exception>();
             while (attempt < _attempts)
                 try
                 {
-                    return await _schedule.Execute(nextEvent, executeFunc);
+                    return await _schedule.Execute(context, executeFunc);
                 }
                 catch (Exception e)
                 {
@@ -37,6 +37,6 @@ namespace Excogitated.Common.Scheduling.Execution
 
     public static partial class ScheduleExtensions
     {
-        public static IAsyncSchedule MaxRetries(this IAsyncSchedule schedule, int attempts) => new MaxRetrySchedule(schedule, attempts);
+        public static IScheduledJob MaxRetries(this IScheduledJob schedule, int attempts) => new MaxRetrySchedule(schedule, attempts);
     }
 }

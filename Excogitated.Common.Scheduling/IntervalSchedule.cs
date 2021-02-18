@@ -17,18 +17,30 @@ namespace Excogitated.Common.Scheduling
             _interval = interval;
         }
 
-        public DateTimeOffset GetNextEvent(DateTimeOffset previousEvent)
+        public DateTimeOffset GetNextEvent(DateTimeOffset start)
         {
-            var next = _schedule is null ? previousEvent : _schedule.GetNextEvent(previousEvent);
+            var next = _schedule is null ? start : _schedule.GetNextEvent(start);
+            return AddTime(next, 1);
+        }
+
+        public DateTimeOffset GetPreviousEvent(DateTimeOffset start)
+        {
+            var previous = _schedule is null ? start : _schedule.GetPreviousEvent(start);
+            return AddTime(previous, -1);
+        }
+
+        private DateTimeOffset AddTime(DateTimeOffset next, int multiplier)
+        {
+            var interval = _interval * multiplier;
             return _unit switch
             {
-                TimeUnit.Millisecond => next.AddMilliseconds(_interval),
-                TimeUnit.Second => next.AddSeconds(_interval),
-                TimeUnit.Minute => next.AddMinutes(_interval),
-                TimeUnit.Hour => next.AddHours(_interval),
-                TimeUnit.Day => next.AddDays(_interval),
-                TimeUnit.Month => next.AddMonths((int)_interval),
-                TimeUnit.Year => next.AddYears((int)_interval),
+                TimeUnit.Millisecond => next.AddMilliseconds(interval),
+                TimeUnit.Second => next.AddSeconds(interval),
+                TimeUnit.Minute => next.AddMinutes(interval),
+                TimeUnit.Hour => next.AddHours(interval),
+                TimeUnit.Day => next.AddDays(interval),
+                TimeUnit.Month => next.AddMonths((int)interval),
+                TimeUnit.Year => next.AddYears((int)interval),
                 _ => throw new ArgumentOutOfRangeException(),
             };
         }
