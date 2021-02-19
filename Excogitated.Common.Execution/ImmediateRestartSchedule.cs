@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Scheduling.Execution
+namespace Excogitated.Common.Execution
 {
     internal class ImmediateRestartSchedule : IScheduledJob
     {

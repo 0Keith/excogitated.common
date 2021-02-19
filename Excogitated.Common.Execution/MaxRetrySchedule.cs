@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Scheduling.Execution
+namespace Excogitated.Common.Execution
 {
     internal class MaxRetrySchedule : IScheduledJob
     {

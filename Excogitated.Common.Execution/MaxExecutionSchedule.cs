@@ -1,7 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace Excogitated.Common.Scheduling.Execution
+namespace Excogitated.Common.Execution
 {
     internal class MaxExecutionSchedule : IScheduledJob
     {

@@ -1,15 +1,15 @@
 ﻿using Excogitated.Common.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Scheduling.Execution
+namespace Excogitated.Common.Execution
 {
-    public interface IScheduledJob
+    public class ScheduledJob
     {
-        ValueTask<bool> Execute(ScheduledJobContext context);
     }
 
-    public static partial class ScheduledJobExtensions
+    public static class ScheduledJobExtensions
     {
         public static async Task Start(this IScheduledJob schedule, Func<ScheduledJobContext, ValueTask> executeFunc)
         {
@@ -43,5 +43,11 @@ namespace Excogitated.Common.Scheduling.Execution
                 now = DateTimeOffset.Now;
             }
         }
+    }
+
+    public class ScheduledJobContext : JobContext
+    {
+        public List<DateTimeOffset> MissedEvents { get; } = new List<DateTimeOffset>();
+        public DateTimeOffset Expected { get; set; }
     }
 }
