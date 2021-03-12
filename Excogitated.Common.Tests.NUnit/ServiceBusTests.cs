@@ -30,8 +30,8 @@ namespace Excogitated.Tests.NUnit
         {
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((c, s) => s.StartHostedServiceBusWithAzureTransport(typeof(ServiceBusTests).Assembly)
-                .AddRedelivery(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
-                .AddRetry(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) }))
+                .AddConsumerRedelivery(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
+                .AddConsumerRetry(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) }))
                 .Build();
             await host.StartAsync();
             return host;

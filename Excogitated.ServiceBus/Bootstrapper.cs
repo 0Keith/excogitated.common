@@ -47,7 +47,7 @@ namespace Excogitated.ServiceBus
             return config;
         }
 
-        public static IServiceBusConfigurator AddRedelivery(this IServiceBusConfigurator config, RetryDefinition retryDefinition)
+        public static IServiceBusConfigurator AddConsumerRedelivery(this IServiceBusConfigurator config, RetryDefinition retryDefinition)
         {
             config.ThrowIfNull(nameof(config));
             config.ThrowIfNull(nameof(retryDefinition));
@@ -55,21 +55,21 @@ namespace Excogitated.ServiceBus
             return config;
         }
 
-        public static IServiceBusConfigurator AddRetry(this IServiceBusConfigurator config, RetryDefinition retryDefinition)
+        public static IServiceBusConfigurator AddConsumerRetry(this IServiceBusConfigurator config, RetryDefinition retryDefinition)
         {
             config.ThrowIfNull(nameof(config));
             config.Services.AddSingleton<IRetryPipelineFactory>(new DefaultRetryPipelineFactory(retryDefinition));
             return config;
         }
 
-        public static IServiceBusConfigurator AddTransaction(this IServiceBusConfigurator config)
+        public static IServiceBusConfigurator AddConsumerTransaction(this IServiceBusConfigurator config)
         {
             config.ThrowIfNull(nameof(config));
             config.Services.AddSingleton<ITransactionPipelineFactory, DefaultTransactionPipelineFactory>();
             return config;
         }
 
-        public static IServiceBusConfigurator AddHostedService(this IServiceBusConfigurator config)
+        public static IServiceBusConfigurator AddHostedServiceBus(this IServiceBusConfigurator config)
         {
             config.ThrowIfNull(nameof(config));
             config.Services.AddHostedService<DefaultHostedService>();

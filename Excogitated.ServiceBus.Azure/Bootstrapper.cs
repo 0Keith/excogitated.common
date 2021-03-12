@@ -17,19 +17,19 @@ namespace Excogitated.ServiceBus.Azure
             {
                 config.AddConsumers(consumerAssemblies);
             }
-            return config.AddHostedService()
+            return config.AddHostedServiceBus()
                 .AddTopologyBuilder<AzureForwardingTopologyBuilder>()
                 .AddPublisherTransport<AzurePublisherTransport>()
                 .AddConsumerTransport<AzureConsumerTransport>()
                 .AddClientFactory<AzureClientFactory>()
-                .AddTransaction()
-                .AddRetry(new RetryDefinition
+                .AddConsumerTransaction()
+                .AddConsumerRetry(new RetryDefinition
                 {
                     MaxDuration = TimeSpan.FromMinutes(1),
                     Interval = TimeSpan.FromSeconds(1),
                     Increment = TimeSpan.FromSeconds(1)
                 })
-                .AddRedelivery(new RetryDefinition
+                .AddConsumerRedelivery(new RetryDefinition
                 {
                     MaxDuration = TimeSpan.FromDays(14),
                     Interval = TimeSpan.FromMinutes(5),
