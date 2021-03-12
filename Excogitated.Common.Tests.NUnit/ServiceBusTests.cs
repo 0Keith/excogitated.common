@@ -1,7 +1,6 @@
 ﻿using Excogitated.Common.Atomic;
 using Excogitated.ServiceBus;
 using Excogitated.ServiceBus.Abstractions;
-using Excogitated.ServiceBus.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
@@ -21,8 +20,9 @@ namespace Excogitated.Tests.NUnit
         {
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((c, s) => s.AddDefaultServiceBus()
-                .AddHostedServiceBus()
-                .AddAzureTransport())
+                .AddMemoryTransport()
+                //.AddAzureTransport()
+                .AddHostedServiceBus())
                 .Build();
             await host.StartAsync();
             return host;
@@ -33,19 +33,12 @@ namespace Excogitated.Tests.NUnit
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((c, s) => s.AddDefaultServiceBus()
                 .AddHostedServiceBus()
-                .AddConsumers(typeof(ServiceBusTests).Assembly)
+                .AddMemoryTransport()
+                //.AddAzureTransport()
+                .AddConsumers()
                 .AddConsumerRedelivery(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
                 .AddConsumerRetry(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
                 .AddConsumerTransaction())
-                .Build();
-            await host.StartAsync();
-            return host;
-        }
-
-        private static async Task<IHost> StartMemoryEndpoint()
-        {
-            var host = Host.CreateDefaultBuilder()
-                //.ConfigureServices((c, s) => s.StartMassTransitHostedServiceWithMemoryTransport(c.Configuration, typeof(EndpointTests).Assembly))
                 .Build();
             await host.StartAsync();
             return host;
@@ -56,7 +49,9 @@ namespace Excogitated.Tests.NUnit
         {
             using (var host = await StartConsumeEndpoint())
             {
-                await Task.Delay(5000); //let queues clear
+                while (await TestObjectCreatedConsumer.WaitAsync(500)) ;
+                while (await TestObjectCreatedConsumer2.WaitAsync(500)) ;
+                while (await TestObjectUpdatedConsumer.WaitAsync(500)) ;
             }
             await TestObjectCreatedConsumer.ResetAsync();
             await TestObjectCreatedConsumer2.ResetAsync();
@@ -83,8 +78,9 @@ namespace Excogitated.Tests.NUnit
             var avg = Math.Round(watch.Elapsed.TotalMilliseconds / publishedCount, 2);
             var publishResult = new
             {
-                PublishRate = $"{rate} msgs per min",
-                PublishAvg = $"{avg}ms per msg"
+                Published = publishedCount,
+                PublishRate = $"{rate:n} msgs per min",
+                PublishAvg = $"{avg:n}ms per msg"
             };
 
             using (var host = await StartConsumeEndpoint())
@@ -92,7 +88,7 @@ namespace Excogitated.Tests.NUnit
                 watch.Restart();
                 while (TestObjectUpdatedConsumer.Consumed < publishedCount)
                 {
-                    await TestObjectUpdatedConsumer.WaitAsync(5000);
+                    await TestObjectUpdatedConsumer.WaitAsync(1000);
                 }
                 watch.Stop();
             }
@@ -100,8 +96,9 @@ namespace Excogitated.Tests.NUnit
             avg = Math.Round(watch.Elapsed.TotalMilliseconds / TestObjectUpdatedConsumer.Consumed, 2);
             var consumeResult = new
             {
-                ConsumeRate = $"{rate} msgs per min",
-                ConsumeAvg = $"{avg}ms per msg"
+                TestObjectUpdatedConsumer.Consumed,
+                ConsumeRate = $"{rate:n} msgs per min",
+                ConsumeAvg = $"{avg:n}ms per msg"
             };
 
             Console.WriteLine(publishResult);
@@ -180,7 +177,10 @@ namespace Excogitated.Tests.NUnit
 
         public static int Consumed => _consumed.Value;
 
-        public static Task WaitAsync(int millisecondsTimeout) => _sync.WaitAsync(Debugger.IsAttached ? millisecondsTimeout * 10 : millisecondsTimeout);
+        public static Task<bool> WaitAsync(int millisecondsTimeout)
+        {
+            return _sync.WaitAsync(Debugger.IsAttached ? millisecondsTimeout * 10 : millisecondsTimeout);
+        }
 
         public static async Task ResetAsync()
         {

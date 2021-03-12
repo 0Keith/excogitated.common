@@ -18,10 +18,17 @@ namespace Excogitated.ServiceBus
             return new DefaultServiceBusConfigurator(services);
         }
 
+        public static IServiceBusConfigurator AddMemoryTransport(this IServiceBusConfigurator config)
+        {
+            return config.ThrowIfNull(nameof(config))
+                .AddConsumerTransport<DefaultMemoryTransport>()
+                .AddPublisherTransport<DefaultMemoryTransport>();
+        }
+
         public static IServiceBusConfigurator AddConsumers(this IServiceBusConfigurator config, params Assembly[] consumerAssemblies)
         {
             config.ThrowIfNull(nameof(config));
-            if (consumerAssemblies is null)
+            if (consumerAssemblies is null || consumerAssemblies.Length == 0)
             {
                 consumerAssemblies = AppDomain.CurrentDomain.GetAssemblies();
             }
