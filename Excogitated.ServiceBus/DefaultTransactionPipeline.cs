@@ -14,7 +14,7 @@ namespace Excogitated.ServiceBus
             _pipeline = pipeline;
         }
 
-        public async Task Execute(IConsumeContext context, BinaryData message, ConsumerDefinition definition)
+        public async ValueTask Execute(IConsumeContext context, BinaryData message, ConsumerDefinition definition)
         {
             using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             var transactionContext = new DefaultTransactionConsumeContext(context);

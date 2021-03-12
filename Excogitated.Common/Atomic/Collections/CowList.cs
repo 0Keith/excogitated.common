@@ -5,8 +5,8 @@ namespace Excogitated.Common.Atomic.Collections
 {
     public class CowList<T> : IAtomicCollection<T>
     {
-        private List<T> _items = new List<T>();
-        private List<T> CopyItems() => new List<T>(_items);
+        private List<T> _items = new();
+        private List<T> CopyItems() => new(_items);
 
         public int Count => _items.Count;
 

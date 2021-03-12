@@ -26,13 +26,13 @@ namespace Excogitated.ServiceBus.Azure
 
         public DateTimeOffset InitialDeliveryDate => _context.Message.EnqueuedTime;
 
-        public async Task Reschedule(DateTimeOffset deliveryDate)
+        public async ValueTask Reschedule(DateTimeOffset deliveryDate)
         {
             var message = new ServiceBusMessage(_context.Message);
             await _sender.ScheduleMessageAsync(message, deliveryDate);
         }
 
-        Task IConsumeContext.Publish<T>(T message)
+        ValueTask IConsumeContext.Publish<T>(T message)
         {
             return _serviceBus.Publish(message);
         }

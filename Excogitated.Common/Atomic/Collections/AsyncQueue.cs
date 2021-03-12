@@ -41,8 +41,8 @@ namespace Excogitated.Common.Atomic.Collections
     /// <typeparam name="T">Specifies the Type returned on completion.</typeparam>
     public class AsyncResult<T>
     {
-        private readonly TaskCompletionSource<T> _source = new TaskCompletionSource<T>();
-        private readonly AtomicBool _complete = new AtomicBool();
+        private readonly TaskCompletionSource<T> _source = new();
+        private readonly AtomicBool _complete = new();
 
         /// <summary>
         /// Returns a Task to await completion.
@@ -52,7 +52,7 @@ namespace Excogitated.Common.Atomic.Collections
         /// <summary>
         /// Returns a ValueTask to await completion.
         /// </summary>
-        public ValueTask<T> ValueSource => new ValueTask<T>(_source.Task);
+        public ValueTask<T> ValueSource => new(_source.Task);
 
         /// <summary>
         /// Whether or not a result has been set.
@@ -87,9 +87,9 @@ namespace Excogitated.Common.Atomic.Collections
     /// <typeparam name="T">Specifies the Type of items that will be queued.</typeparam>
     public class AsyncQueue<T> : IAtomicCollection<T>
     {
-        private readonly Queue<AsyncResult<Result<T>>> _waiters = new Queue<AsyncResult<Result<T>>>();
-        private readonly Queue<AsyncResult<Result<T>>> _peekers = new Queue<AsyncResult<Result<T>>>();
-        private readonly AtomicBool _completed = new AtomicBool();
+        private readonly Queue<AsyncResult<Result<T>>> _waiters = new();
+        private readonly Queue<AsyncResult<Result<T>>> _peekers = new();
+        private readonly AtomicBool _completed = new();
         private readonly Queue<T> _items;
 
         /// <summary>

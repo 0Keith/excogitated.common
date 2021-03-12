@@ -7,34 +7,35 @@ namespace Excogitated.ServiceBus
 {
     internal class DefaultTransactionConsumeContext : IConsumeContext
     {
-        private readonly ConcurrentQueue<Func<Task>> _messages = new ConcurrentQueue<Func<Task>>();
-        private readonly IConsumeContext _context;
+        private readonly ConcurrentQueue<Func<ValueTask>> _messages = new();
+
+        public IConsumeContext Context { get; }
 
         public DefaultTransactionConsumeContext(IConsumeContext context)
         {
-            _context = context;
+            Context = context;
         }
 
-        public int Retries => _context.Retries;
+        public int Retries => Context.Retries;
 
-        public int Attempts => _context.Attempts;
+        public int Attempts => Context.Attempts;
 
-        public int Redeliveries => _context.Redeliveries;
+        public int Redeliveries => Context.Redeliveries;
 
-        public DateTimeOffset InitialDeliveryDate => _context.InitialDeliveryDate;
+        public DateTimeOffset InitialDeliveryDate => Context.InitialDeliveryDate;
 
-        public Task Publish<T>(T message) where T : class
+        public ValueTask Publish<T>(T message) where T : class
         {
-            _messages.Enqueue(() => _context.Publish(message));
-            return Task.CompletedTask;
+            _messages.Enqueue(() => Context.Publish(message));
+            return new();
         }
 
-        public Task Reschedule(DateTimeOffset rescheduleDate)
+        public ValueTask Reschedule(DateTimeOffset rescheduleDate)
         {
-            return _context.Reschedule(rescheduleDate);
+            return Context.Reschedule(rescheduleDate);
         }
 
-        internal async Task PublishMessages()
+        public async ValueTask PublishMessages()
         {
             while (_messages.TryDequeue(out var publishMessage))
             {

@@ -22,7 +22,7 @@ namespace Excogitated.Common.Extensions
 
         public static decimal ToDecimal(this int value) => value;
         public static decimal ToDecimal(this long value) => value;
-        public static decimal ToDecimal(this double value) => new decimal(value);
+        public static decimal ToDecimal(this double value) => new(value);
 
         public static int ToInt(this long value) => value > int.MaxValue ? int.MaxValue : value < int.MinValue ? int.MinValue : (int)value;
 

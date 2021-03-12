@@ -38,7 +38,7 @@ namespace Excogitated.Common.Extensions
 
     public class SimpleGrouping<R, T> : IGrouping<R, T> where R : IComparable<R>
     {
-        private readonly List<T> _items = new List<T>();
+        private readonly List<T> _items = new();
 
         public void AddItem(T item) => _items.Add(item);
         public IEnumerator<T> GetEnumerator() => _items.GetEnumerator();

@@ -37,9 +37,9 @@ namespace Excogitated.Common.Atomic
 
     public class AtomicWatch : IDisposable
     {
-        private readonly AsyncResult<bool> _running = new AsyncResult<bool>();
+        private readonly AsyncResult<bool> _running = new();
         private readonly Stopwatch _totalTime = Stopwatch.StartNew();
-        private readonly AtomicInt64 _count = new AtomicInt64();
+        private readonly AtomicInt64 _count = new();
 
         public AtomicInt64 Total { get; } = new AtomicInt64();
 

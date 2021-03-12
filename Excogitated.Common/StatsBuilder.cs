@@ -9,7 +9,7 @@ namespace Excogitated.Common
 
     public class StatsBuilder
     {
-        private readonly AtomicList<(string Name, object Value)> _stats = new AtomicList<(string, object)>();
+        private readonly AtomicList<(string Name, object Value)> _stats = new();
         private readonly string _title;
 
         public StatsBuilder(string title = null)

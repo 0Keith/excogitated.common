@@ -5,7 +5,7 @@ namespace Excogitated.Common.Atomic.Collections
 {
     public class CollectionTransaction<T> : IDisposable
     {
-        private readonly AtomicBool _completed = new AtomicBool();
+        private readonly AtomicBool _completed = new();
         private readonly IAtomicCollection<CollectionTransaction<T>> _items;
 
         public T Item { get; }

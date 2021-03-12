@@ -5,6 +5,6 @@ namespace Excogitated.ServiceBus.Abstractions
     public interface IConsumer { }
     public interface IConsumer<T> : IConsumer where T : class
     {
-        Task Consume(IConsumeContext context, T message);
+        ValueTask Consume(IConsumeContext context, T message);
     }
 }

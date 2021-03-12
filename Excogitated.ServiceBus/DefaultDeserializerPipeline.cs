@@ -17,7 +17,7 @@ namespace Excogitated.ServiceBus
             _serializer = serializer;
         }
 
-        public async Task Execute(IConsumeContext context, BinaryData messageData, ConsumerDefinition definition)
+        public async ValueTask Execute(IConsumeContext context, BinaryData messageData, ConsumerDefinition definition)
         {
             var message = _serializer.Deserialize<TMessage>(messageData);
             if (message is not null)

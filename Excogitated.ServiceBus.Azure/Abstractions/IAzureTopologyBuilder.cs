@@ -1,6 +1,6 @@
 ﻿using Excogitated.ServiceBus.Abstractions;
 
-namespace Excogitated.ServiceBus.Azure
+namespace Excogitated.ServiceBus.Azure.Abstractions
 {
     public interface IAzureTopologyBuilder
     {

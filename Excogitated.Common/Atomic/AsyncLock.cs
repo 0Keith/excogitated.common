@@ -18,7 +18,7 @@ namespace Excogitated.Common.Atomic
 
     public class AsyncLock
     {
-        private readonly AsyncQueue<int> _locks = new AsyncQueue<int>();
+        private readonly AsyncQueue<int> _locks = new();
         private readonly IDisposable _exit;
 
         internal void Exit() => _locks.Add(0);

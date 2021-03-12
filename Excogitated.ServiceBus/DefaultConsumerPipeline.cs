@@ -14,7 +14,7 @@ namespace Excogitated.ServiceBus
             _provider = provider;
         }
 
-        public async Task Execute(IConsumeContext context, BinaryData message, ConsumerDefinition definition)
+        public async ValueTask Execute(IConsumeContext context, BinaryData message, ConsumerDefinition definition)
         {
             using var scope = _provider.CreateScope();
             var pipeline = scope.ServiceProvider.GetRequiredService(definition.PipelineType) as IConsumerPipeline

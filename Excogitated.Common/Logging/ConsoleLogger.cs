@@ -7,9 +7,9 @@ namespace Excogitated.Common.Logging
 {
     public class ConsoleLogger : ILogger, IDisposable
     {
-        public static ConsoleLogger CreateDefault(params LogLevel[] levels) => new ConsoleLogger(levels);
+        public static ConsoleLogger CreateDefault(params LogLevel[] levels) => new(levels);
 
-        private readonly AsyncQueue<LogMessage> _messages = new AsyncQueue<LogMessage>();
+        private readonly AsyncQueue<LogMessage> _messages = new();
         private readonly bool _all;
         private readonly LogLevel[] _levels;
         private readonly Task _task;

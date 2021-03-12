@@ -8,7 +8,7 @@ namespace Excogitated.Common
 {
     public static class ObjectMapper
     {
-        private static readonly CowDictionary<(Type, Type), Func<object, object>> _convertors = new CowDictionary<(Type, Type), Func<object, object>>();
+        private static readonly CowDictionary<(Type, Type), Func<object, object>> _convertors = new();
         public static void Map<Source, Target>(Func<Source, Target> convertor)
         {
             _convertors[(typeof(Source), typeof(Target))] = source => convertor((Source)source);

@@ -17,8 +17,8 @@ namespace Excogitated.Common.Logging
             return new FileLogger(levels, Path.Combine(RootDir, $"{type.FullName}.{levelPath}.log"));
         }
 
-        private readonly AsyncQueue<CollectionTransaction<LogMessage>> _messages = new AsyncQueue<CollectionTransaction<LogMessage>>();
-        private readonly AsyncLock _fileLock = new AsyncLock();
+        private readonly AsyncQueue<CollectionTransaction<LogMessage>> _messages = new();
+        private readonly AsyncLock _fileLock = new();
         private readonly bool _all;
         private readonly LogLevel[] _levels;
         private readonly bool _formatMessage;

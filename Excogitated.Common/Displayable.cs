@@ -5,7 +5,7 @@ namespace Excogitated.Common
 {
     public static class Displayable
     {
-        public static Displayable<T> Create<T>(T value, string valueString) where T : IEquatable<T>, IComparable<T> => new Displayable<T>(value, valueString);
+        public static Displayable<T> Create<T>(T value, string valueString) where T : IEquatable<T>, IComparable<T> => new(value, valueString);
         public static Displayable<float> ToPercentage(this float value, int decimals = 2) => Create(value, $"{Math.Round(value * 100, decimals)}%");
         public static Displayable<double> ToPercentage(this double value, int decimals = 2) => Create(value, $"{Math.Round(value * 100, decimals)}%");
         public static Displayable<decimal> ToPercentage(this decimal value, int decimals = 2) => Create(value, $"{Math.Round(value * 100, decimals)}%");

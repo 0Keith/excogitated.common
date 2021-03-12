@@ -22,7 +22,7 @@ namespace Excogitated.Common.Atomic
     /// </summary>
     public class AsyncLock
     {
-        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _lock = new(1, 1);
         private readonly IDisposable _exit;
 
         internal void Exit() => _lock.Release();

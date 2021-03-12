@@ -5,6 +5,6 @@ namespace Excogitated.ServiceBus.Abstractions
 {
     public interface IConsumerPipeline
     {
-        Task Execute(IConsumeContext context, BinaryData message, ConsumerDefinition definition);
+        ValueTask Execute(IConsumeContext context, BinaryData message, ConsumerDefinition definition);
     }
 }

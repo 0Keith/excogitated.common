@@ -22,7 +22,7 @@ namespace Excogitated.Common.Json
 
     public class JsonClassGenerator
     {
-        private readonly Dictionary<string, GeneratedClass> _generatedClasses = new Dictionary<string, GeneratedClass>();
+        private readonly Dictionary<string, GeneratedClass> _generatedClasses = new();
 
         public JsonClassGeneratorSettings Settings { get; set; }
 

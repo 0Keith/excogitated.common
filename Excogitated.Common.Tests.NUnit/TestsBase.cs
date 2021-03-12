@@ -24,7 +24,7 @@ namespace Excogitated.Common.Tests
 
     internal class TestLogger : ILogger
     {
-        private readonly AtomicQueue<LogMessage> _messages = new AtomicQueue<LogMessage>();
+        private readonly AtomicQueue<LogMessage> _messages = new();
 
         public Task ClearLog() => null;
 

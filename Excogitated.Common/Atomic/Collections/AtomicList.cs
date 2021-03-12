@@ -7,7 +7,7 @@ namespace Excogitated.Common.Atomic.Collections
 {
     public class AtomicList<T> : IAtomicCollection<T>
     {
-        private readonly List<T> _items = new List<T>();
+        private readonly List<T> _items = new();
 
         public int Count => _items.Count;
 

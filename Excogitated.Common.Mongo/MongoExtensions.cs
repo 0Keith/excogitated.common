@@ -54,7 +54,7 @@ namespace Excogitated.Common.Mongo
             return collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(keys, new CreateIndexOptions { Unique = unique }));
         }
 
-        private static readonly UpdateOptions _upsert = new UpdateOptions { IsUpsert = true };
+        private static readonly UpdateOptions _upsert = new() { IsUpsert = true };
         public static Task<UpdateResult> UpsertAsync<T>(this IMongoCollection<T> collection, Expression<Func<T, bool>> filter, Func<UpdateDefinitionBuilder<T>, UpdateDefinition<T>> update)
         {
             collection.NotNull(nameof(collection));
@@ -62,7 +62,7 @@ namespace Excogitated.Common.Mongo
         }
 
 
-        private static readonly AtomicBool _initialized = new AtomicBool();
+        private static readonly AtomicBool _initialized = new();
         public static IMongoDatabase GetDatabase(this MongoStoreConfig config)
         {
             config.NotNull(nameof(config));
@@ -90,7 +90,7 @@ namespace Excogitated.Common.Mongo
             return AppSettingStore<T>.Create(database);
         }
 
-        private static readonly HashSet<string> _systemDbs = new HashSet<string> { "admin", "local" };
+        private static readonly HashSet<string> _systemDbs = new() { "admin", "local" };
         public static async Task DropAllAsync(this IMongoClient client)
         {
             client.NotNull(nameof(client));

@@ -5,8 +5,8 @@ namespace Excogitated.Common.Extensions
 {
     public static class Extensions_Task_Continue
     {
-        public static ValueTask<T> ToValueTask<T>(this Task<T> task) => new ValueTask<T>(task);
-        public static ValueTask ToValueTask(this Task task) => new ValueTask(task);
+        public static ValueTask<T> ToValueTask<T>(this Task<T> task) => new(task);
+        public static ValueTask ToValueTask(this Task task) => new(task);
 
         public static async Task<R> Continue<T, R>(this Task<T> task, Func<T, Task<R>> selector)
         {

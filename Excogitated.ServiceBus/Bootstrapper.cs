@@ -13,12 +13,12 @@ namespace Excogitated.ServiceBus
         {
             services.ThrowIfNull(nameof(services));
             services.AddSingleton<IServiceBus, DefaultServiceBus>();
-            services.AddSingleton<IServiceBusSerializer, DefaultServiceBusSerializer>();
+            services.AddSingleton<IServiceBusSerializer, DefaultSerializer>();
             services.AddSingleton<IConsumerPipeline, DefaultConsumerPipeline>();
             return new DefaultServiceBusConfigurator(services);
         }
 
-        public static IServiceBusConfigurator AddServiceBusConsumers(this IServiceBusConfigurator config, params Assembly[] consumerAssemblies)
+        public static IServiceBusConfigurator AddConsumers(this IServiceBusConfigurator config, params Assembly[] consumerAssemblies)
         {
             config.ThrowIfNull(nameof(config));
             if (consumerAssemblies is null)
@@ -47,7 +47,7 @@ namespace Excogitated.ServiceBus
             return config;
         }
 
-        public static IServiceBusConfigurator AddServiceBusRedelivery(this IServiceBusConfigurator config, RetryDefinition retryDefinition)
+        public static IServiceBusConfigurator AddRedelivery(this IServiceBusConfigurator config, RetryDefinition retryDefinition)
         {
             config.ThrowIfNull(nameof(config));
             config.ThrowIfNull(nameof(retryDefinition));
@@ -55,17 +55,38 @@ namespace Excogitated.ServiceBus
             return config;
         }
 
-        public static IServiceBusConfigurator AddServiceBusRetry(this IServiceBusConfigurator config, RetryDefinition retryDefinition)
+        public static IServiceBusConfigurator AddRetry(this IServiceBusConfigurator config, RetryDefinition retryDefinition)
         {
             config.ThrowIfNull(nameof(config));
             config.Services.AddSingleton<IRetryPipelineFactory>(new DefaultRetryPipelineFactory(retryDefinition));
             return config;
         }
 
-        public static IServiceBusConfigurator AddServiceBusTransaction(this IServiceBusConfigurator config)
+        public static IServiceBusConfigurator AddTransaction(this IServiceBusConfigurator config)
         {
             config.ThrowIfNull(nameof(config));
             config.Services.AddSingleton<ITransactionPipelineFactory, DefaultTransactionPipelineFactory>();
+            return config;
+        }
+
+        public static IServiceBusConfigurator AddHostedService(this IServiceBusConfigurator config)
+        {
+            config.ThrowIfNull(nameof(config));
+            config.Services.AddHostedService<DefaultHostedService>();
+            return config;
+        }
+
+        public static IServiceBusConfigurator AddConsumerTransport<T>(this IServiceBusConfigurator config) where T : class, IConsumerTransport
+        {
+            config.ThrowIfNull(nameof(config));
+            config.Services.AddTransient<IConsumerTransport, T>();
+            return config;
+        }
+
+        public static IServiceBusConfigurator AddPublisherTransport<T>(this IServiceBusConfigurator config) where T : class, IPublisherTransport
+        {
+            config.ThrowIfNull(nameof(config));
+            config.Services.AddTransient<IPublisherTransport, T>();
             return config;
         }
     }

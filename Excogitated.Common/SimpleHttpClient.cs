@@ -17,7 +17,7 @@ namespace Excogitated.Common
 {
     public class SimpleHttpClient : IDisposable
     {
-        private readonly AtomicStack<IDisposable> _resources = new AtomicStack<IDisposable>();
+        private readonly AtomicStack<IDisposable> _resources = new();
         private readonly HttpClientHandler _handler;
         private readonly HttpClient _client;
 

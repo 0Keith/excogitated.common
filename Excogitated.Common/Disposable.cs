@@ -16,6 +16,6 @@ namespace Excogitated.Common
 
     public static class Disposable
     {
-        public static DisposableAction Action(Action action) => new DisposableAction(action);
+        public static DisposableAction Action(Action action) => new(action);
     }
 }

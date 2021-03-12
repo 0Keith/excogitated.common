@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Excogitated.ServiceBus
 {
-    internal class DefaultServiceBusSerializer : IServiceBusSerializer
+    internal class DefaultSerializer : IServiceBusSerializer
     {
         T IServiceBusSerializer.Deserialize<T>(BinaryData message)
         {

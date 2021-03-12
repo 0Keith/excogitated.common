@@ -4,7 +4,7 @@
     {
         public static implicit operator bool(AtomicBool counter) => counter.Value;
 
-        private readonly AtomicInt32 _counter = new AtomicInt32();
+        private readonly AtomicInt32 _counter = new();
 
         public bool Value
         {

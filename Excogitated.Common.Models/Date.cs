@@ -18,8 +18,8 @@ namespace Excogitated.Common.Models
 
     public struct MonthDayYear
     {
-        public static implicit operator MonthDayYear(string mdy) => new MonthDayYear(mdy);
-        public static implicit operator MonthDayYear(Date date) => new MonthDayYear(date);
+        public static implicit operator MonthDayYear(string mdy) => new(mdy);
+        public static implicit operator MonthDayYear(Date date) => new(date);
         public static implicit operator string(MonthDayYear mdy) => mdy.ToString();
         public static implicit operator Date(MonthDayYear mdy) => mdy.Value;
 
@@ -74,10 +74,10 @@ namespace Excogitated.Common.Models
         public static implicit operator string(Date date) => date.ToString();
         public static implicit operator int(Date date) => date.YearMonthDay;
 
-        public static implicit operator Date(DateTimeOffset date) => new Date(date.Year, date.Month, date.Day);
-        public static implicit operator Date(DateTime date) => new Date(date.Year, date.Month, date.Day);
+        public static implicit operator Date(DateTimeOffset date) => new(date.Year, date.Month, date.Day);
+        public static implicit operator Date(DateTime date) => new(date.Year, date.Month, date.Day);
         public static implicit operator Date(string date) => Parse(date);
-        public static implicit operator Date(int ymd) => new Date(ymd);
+        public static implicit operator Date(int ymd) => new(ymd);
 
         public static bool operator ==(Date left, Date right) => left.YearMonthDay == right.YearMonthDay;
         public static bool operator !=(Date left, Date right) => left.YearMonthDay != right.YearMonthDay;
@@ -175,8 +175,8 @@ namespace Excogitated.Common.Models
                 throw new ArgumentException(ex);
         }
 
-        public Date GetStartOfMonth() => new Date(Year, Month, 1);
-        public Date GetStartOfYear() => new Date(Year, 1, 1);
+        public Date GetStartOfMonth() => new(Year, Month, 1);
+        public Date GetStartOfYear() => new(Year, 1, 1);
 
         public Date AddDays(int days) => DateTime.AddDays(days);
         public Date AddWeeks(int weeks) => DateTime.AddDays(weeks * 7);

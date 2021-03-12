@@ -9,7 +9,7 @@ namespace Excogitated.Common.Extensions
 {
     public static class Extensions_BigInteger
     {
-        private static readonly CowDictionary<string, Dictionary<char, int>> _digitsCache = new CowDictionary<string, Dictionary<char, int>>();
+        private static readonly CowDictionary<string, Dictionary<char, int>> _digitsCache = new();
         public static BigInteger ToBase10(this string value, string digits)
         {
             if (value.IsNullOrWhiteSpace())

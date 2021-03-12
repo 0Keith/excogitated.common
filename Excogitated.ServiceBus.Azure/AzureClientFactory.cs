@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
+using Excogitated.ServiceBus.Azure.Abstractions;
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Excogitated.ServiceBus.Azure
 {
-    internal class AzureClientFactory : IAsyncDisposable
+    internal class AzureClientFactory : IAzureClientFactory, IAsyncDisposable
     {
         private readonly ServiceBusAdministrationClient _admin;
         private readonly ServiceBusClient _client;

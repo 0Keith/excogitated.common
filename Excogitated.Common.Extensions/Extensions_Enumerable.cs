@@ -24,7 +24,7 @@ namespace Excogitated.Common.Extensions
     {
         public static TValue GetOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> items, TKey key) => items.NotNull(nameof(items)).TryGetValue(key, out var item) ? item : default;
 
-        public static DisposableEnumerable<T> AsDisposable<T>(this IEnumerable<T> resources) where T : IDisposable => new DisposableEnumerable<T>(resources);
+        public static DisposableEnumerable<T> AsDisposable<T>(this IEnumerable<T> resources) where T : IDisposable => new(resources);
 
         public static void Dispose<T>(this IEnumerable<T> resources) where T : IDisposable
         {
@@ -147,7 +147,7 @@ namespace Excogitated.Common.Extensions
             return selector(first, last);
         }
 
-        public static CountedEnumerator<T> GetEnumeratorCounted<T>(this IEnumerable<T> source) => new CountedEnumerator<T>(source);
+        public static CountedEnumerator<T> GetEnumeratorCounted<T>(this IEnumerable<T> source) => new(source);
 
 #if NETSTANDARD2_0
         public static IEnumerable<T> SkipLast<T>(this IEnumerable<T> source, int count)

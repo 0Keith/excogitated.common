@@ -7,9 +7,14 @@ namespace Excogitated.ServiceBus
 {
     internal class DefaultRetryConsumeContext : IConsumeContext
     {
-        private readonly AtomicInt32 _retries = new AtomicInt32();
+        private readonly AtomicInt32 _retries = new();
 
         public IConsumeContext Context { get; }
+
+        public DefaultRetryConsumeContext(IConsumeContext context)
+        {
+            Context = context;
+        }
 
         public int Retries => Context.Retries + _retries;
 
@@ -19,21 +24,16 @@ namespace Excogitated.ServiceBus
 
         public DateTimeOffset InitialDeliveryDate => Context.InitialDeliveryDate;
 
-        public DefaultRetryConsumeContext(IConsumeContext context)
-        {
-            Context = context;
-        }
+        public void Increment() => _retries.Increment();
 
-        public Task Publish<T>(T message) where T : class
+        public ValueTask Publish<T>(T message) where T : class
         {
             return Context.Publish(message);
         }
 
-        public Task Reschedule(DateTimeOffset deliveryDate)
+        public ValueTask Reschedule(DateTimeOffset deliveryDate)
         {
             return Context.Reschedule(deliveryDate);
         }
-
-        internal void Increment() => _retries.Increment();
     }
 }

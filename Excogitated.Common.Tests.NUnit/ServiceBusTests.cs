@@ -30,8 +30,8 @@ namespace Excogitated.Tests.NUnit
         {
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((c, s) => s.StartHostedServiceBusWithAzureTransport(typeof(ServiceBusTests).Assembly)
-                .AddServiceBusRedelivery(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
-                .AddServiceBusRetry(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) }))
+                .AddRedelivery(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
+                .AddRetry(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) }))
                 .Build();
             await host.StartAsync();
             return host;
@@ -166,8 +166,8 @@ namespace Excogitated.Tests.NUnit
 
     public abstract class TestObjectConsumerBase<TConsumer, TMessage>
     {
-        protected static readonly SemaphoreSlim _sync = new SemaphoreSlim(0);
-        protected static readonly AtomicInt32 _consumed = new AtomicInt32();
+        protected static readonly SemaphoreSlim _sync = new(0);
+        protected static readonly AtomicInt32 _consumed = new();
 
         public static TMessage LastMessage { get; protected set; }
 
@@ -191,7 +191,7 @@ namespace Excogitated.Tests.NUnit
     {
         public static AtomicInt32 Redeliveries { get; } = new AtomicInt32();
 
-        public async Task Consume(IConsumeContext context, TestObjectCreated message)
+        public async ValueTask Consume(IConsumeContext context, TestObjectCreated message)
         {
             //await context.Publish(new TestObjectUpdated { Id = message.Id });
 
@@ -212,7 +212,7 @@ namespace Excogitated.Tests.NUnit
     {
         public static AtomicInt32 Retries { get; } = new AtomicInt32();
 
-        public async Task Consume(IConsumeContext context, TestObjectCreated message)
+        public async ValueTask Consume(IConsumeContext context, TestObjectCreated message)
         {
             await context.Publish(new TestObjectUpdated { Id = message.Id });
 
@@ -230,12 +230,12 @@ namespace Excogitated.Tests.NUnit
 
     public class TestObjectUpdatedConsumer : TestObjectConsumerBase<TestObjectUpdatedConsumer, TestObjectUpdated>, IConsumer<TestObjectUpdated>
     {
-        public Task Consume(IConsumeContext context, TestObjectUpdated message)
+        public ValueTask Consume(IConsumeContext context, TestObjectUpdated message)
         {
             _consumed.Increment();
             LastMessage = message;
             _sync.Release();
-            return Task.CompletedTask;
+            return new();
         }
     }
 

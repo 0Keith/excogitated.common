@@ -17,7 +17,7 @@ namespace Excogitated.Common.Atomic.Collections
     /// <typeparam name="TValue">The Type of values in the dictionary.</typeparam>
     public class AtomicDictionary<TKey, TValue> : IAtomicDictionary<TKey, TValue>
     {
-        private readonly Dictionary<TKey, TValue> _items = new Dictionary<TKey, TValue>();
+        private readonly Dictionary<TKey, TValue> _items = new();
 
         /// <summary>
         /// An estimated count of items in the dictionary.

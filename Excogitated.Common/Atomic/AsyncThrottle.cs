@@ -7,9 +7,9 @@ namespace Excogitated.Common.Atomic
 {
     public class AsyncThrottle : IAsyncDisposable
     {
-        private readonly AsyncQueue<bool> _flow = new AsyncQueue<bool>();
-        private readonly AtomicInt32 _consumers = new AtomicInt32();
-        private readonly AtomicBool _running = new AtomicBool(true);
+        private readonly AsyncQueue<bool> _flow = new();
+        private readonly AtomicInt32 _consumers = new();
+        private readonly AtomicBool _running = new(true);
         private readonly Task _producer;
 
         public async ValueTask DisposeAsync()

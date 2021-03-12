@@ -10,7 +10,7 @@ namespace Excogitated.ServiceBus.Abstractions
         int Redeliveries { get; }
         DateTimeOffset InitialDeliveryDate { get; }
 
-        Task Publish<T>(T message) where T : class;
-        Task Reschedule(DateTimeOffset deliveryDate);
+        ValueTask Publish<T>(T message) where T : class;
+        ValueTask Reschedule(DateTimeOffset deliveryDate);
     }
 }

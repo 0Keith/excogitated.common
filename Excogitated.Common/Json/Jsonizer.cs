@@ -18,7 +18,7 @@ namespace Excogitated.Common.Json
 
     public class CustomJsonStringEnumConverter : JsonConverterFactory
     {
-        private static readonly CowDictionary<Type, JsonConverter> _converters = new CowDictionary<Type, JsonConverter>();
+        private static readonly CowDictionary<Type, JsonConverter> _converters = new();
         public override bool CanConvert(Type typeToConvert) => typeToConvert.IsEnum;
         public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
@@ -33,7 +33,7 @@ namespace Excogitated.Common.Json
 
     public class CustomJsonStringEnumConverter<T> : JsonConverter<T> where T : struct
     {
-        private static readonly CowDictionary<string, T> _valuesByText = new CowDictionary<string, T>();
+        private static readonly CowDictionary<string, T> _valuesByText = new();
         public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var text = reader.GetString();
@@ -55,7 +55,7 @@ namespace Excogitated.Common.Json
             return value;
         }
 
-        private static readonly CowDictionary<T, string> _textByValue = new CowDictionary<T, string>();
+        private static readonly CowDictionary<T, string> _textByValue = new();
         public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
         {
             if (!_textByValue.TryGetValue(value, out var text))

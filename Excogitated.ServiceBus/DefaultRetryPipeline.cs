@@ -17,7 +17,7 @@ namespace Excogitated.ServiceBus
             Definition = definition;
         }
 
-        public async Task Execute(IConsumeContext context, BinaryData message, ConsumerDefinition definition)
+        public async ValueTask Execute(IConsumeContext context, BinaryData message, ConsumerDefinition definition)
         {
             List<Exception> exceptions = null;
             var watch = Stopwatch.StartNew();

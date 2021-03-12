@@ -21,7 +21,7 @@ namespace Excogitated.Common.Logging
     public static class ExecutionTimings
     {
         private const int maxExecutionTime = 1000;
-        private static readonly CowDictionary<string, ExecutionTiming> _timings = new CowDictionary<string, ExecutionTiming>();
+        private static readonly CowDictionary<string, ExecutionTiming> _timings = new();
 
         private static void CacheTiming(string name, string file, long elapsedMilliseconds, bool logDelays)
         {

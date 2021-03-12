@@ -7,7 +7,7 @@ namespace Excogitated.Common.Atomic.Collections
 {
     public class AtomicStack<T> : IAtomicCollection<T>
     {
-        private readonly Stack<T> _items = new Stack<T>();
+        private readonly Stack<T> _items = new();
 
         public int Count => _items.Count;
 

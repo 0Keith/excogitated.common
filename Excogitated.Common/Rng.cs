@@ -44,7 +44,7 @@ namespace Excogitated.Common
             return minInclusive + d;
         }
 
-        public static decimal GetDecimal() => new decimal(GetInt32(), GetInt32(), GetInt32(), GetBit(), 2);
+        public static decimal GetDecimal() => new(GetInt32(), GetInt32(), GetInt32(), GetBit(), 2);
 
         public static T SelectOne<T>(ReadOnlySpan<T> possibilities)
         {
@@ -70,7 +70,7 @@ namespace Excogitated.Common
             return possibilities[selection];
         }
 
-        private static readonly CowDictionary<Type, Array> _enumValues = new CowDictionary<Type, Array>();
+        private static readonly CowDictionary<Type, Array> _enumValues = new();
         public static T SelectOne<T>() where T : Enum
         {
             var values = _enumValues.GetOrAdd(typeof(T), k => Enum.GetValues(k));

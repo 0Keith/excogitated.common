@@ -7,7 +7,7 @@ namespace Excogitated.Common.Models
         public static implicit operator Currency(string value) => TryParse(value, out var m) ? m : default;
         public static implicit operator string(Currency money) => money.ToString();
 
-        public static implicit operator Currency(decimal value) => new Currency(value);
+        public static implicit operator Currency(decimal value) => new(value);
         public static implicit operator decimal(Currency money) => money.Value;
 
         public static bool TryParse(string value, out Currency money)

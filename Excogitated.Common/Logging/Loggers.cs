@@ -24,7 +24,7 @@ namespace Excogitated.Common.Logging
 
     public class LogMessage
     {
-        private static readonly AtomicInt32 _id = new AtomicInt32();
+        private static readonly AtomicInt32 _id = new();
 
         public DateTimeOffset Time { get; } = DateTimeOffset.Now;
         public int Id { get; } = _id.Increment();

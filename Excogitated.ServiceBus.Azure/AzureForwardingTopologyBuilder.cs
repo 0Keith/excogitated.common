@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus.Administration;
 using Excogitated.ServiceBus.Abstractions;
+using Excogitated.ServiceBus.Azure.Abstractions;
 using System;
 
 namespace Excogitated.ServiceBus.Azure

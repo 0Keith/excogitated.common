@@ -131,7 +131,7 @@ namespace Excogitated.Common.Caching
             }
         }
 
-        private readonly CowDictionary<object, Context> _contexts = new CowDictionary<object, Context>();
+        private readonly CowDictionary<object, Context> _contexts = new();
 
         /// <summary>
         /// The cache Settings

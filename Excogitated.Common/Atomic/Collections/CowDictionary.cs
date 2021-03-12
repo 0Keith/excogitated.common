@@ -8,8 +8,8 @@ namespace Excogitated.Common.Atomic.Collections
 {
     public class CowDictionary<TKey, TValue> : IAtomicDictionary<TKey, TValue>
     {
-        private Dictionary<TKey, TValue> _items = new Dictionary<TKey, TValue>();
-        private Dictionary<TKey, TValue> CopyItems() => new Dictionary<TKey, TValue>(_items);
+        private Dictionary<TKey, TValue> _items = new();
+        private Dictionary<TKey, TValue> CopyItems() => new(_items);
 
         public int Count => _items.Count;
 

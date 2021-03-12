@@ -5,7 +5,7 @@ namespace Excogitated.ServiceBus.Abstractions
 {
     public interface IConsumerTransport
     {
-        Task StartAsync(ConsumerDefinition consumerDefinition, IConsumerPipeline pipeline, CancellationToken cancellationToken);
-        Task StopAsync(CancellationToken cancellationToken);
+        ValueTask StartAsync(ConsumerDefinition consumerDefinition, IConsumerPipeline pipeline, CancellationToken cancellationToken);
+        ValueTask StopAsync(CancellationToken cancellationToken);
     }
 }

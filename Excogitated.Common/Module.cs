@@ -12,7 +12,7 @@ namespace Excogitated.Common
     /// <typeparam name="T">Specifies the Type to Register or Resolve</typeparam>
     public static class Module<T>
     {
-        private static readonly CowList<Func<T>> _resolvers = new CowList<Func<T>>();
+        private static readonly CowList<Func<T>> _resolvers = new();
         private static Func<T> _resolver;
 
         /// <summary>
