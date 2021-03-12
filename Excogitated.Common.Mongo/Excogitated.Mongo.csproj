@@ -7,7 +7,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Excogitated.Common.Atomic\Excogitated.Atomic.csproj" />
+    <ProjectReference Include="..\Excogitated.Common.Atomic\Excogitated.Threading.csproj" />
     <ProjectReference Include="..\Excogitated.Common.Models\Excogitated.Models.csproj" />
   </ItemGroup>
 

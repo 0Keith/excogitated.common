@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\Common.xml" />
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Excogitated.Common.Atomic\Excogitated.Threading.csproj" />
+    <ProjectReference Include="..\Excogitated.Common.Extensions\Excogitated.Extensions.csproj" />
+    <ProjectReference Include="..\Excogitated.ServiceBus\Excogitated.ServiceBus.csproj" />
+  </ItemGroup>
+
+</Project>

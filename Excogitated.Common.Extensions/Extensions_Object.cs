@@ -16,6 +16,12 @@ namespace Excogitated.Common.Extensions
                 throw new ArgumentNullException(name);
             return value;
         }
+        public static T ThrowIfNull<T>(this T value, string name)
+        {
+            if (value is null)
+                throw new ArgumentNullException(name);
+            return value;
+        }
 
         public static string NotNullOrWhitespace(this string value, string name) => value.IsNullOrWhiteSpace() ? throw new ArgumentNullException(name) : value;
 

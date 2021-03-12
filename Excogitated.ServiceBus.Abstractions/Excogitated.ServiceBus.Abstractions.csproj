@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\Common.xml" />
+
+  <ItemGroup>
+    <PackageReference Include="System.Memory.Data" Version="1.0.1" />
+  </ItemGroup>
+
+</Project>
