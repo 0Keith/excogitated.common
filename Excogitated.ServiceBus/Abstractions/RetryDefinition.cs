@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Excogitated.ServiceBus
+namespace Excogitated.ServiceBus.Abstractions
 {
     public struct RetryDefinition
     {
@@ -12,17 +12,11 @@ namespace Excogitated.ServiceBus
         public void Validate()
         {
             if (Interval < TimeSpan.Zero)
-            {
                 throw new ArgumentException("Interval must be greater than or equal to zero");
-            }
             if (Increment < TimeSpan.Zero)
-            {
                 throw new ArgumentException("Increment must be greater than or equal to zero");
-            }
             if (Multiplier < 0)
-            {
                 throw new ArgumentException("Multiplier must be greater than or equal to zero");
-            }
         }
     }
 }

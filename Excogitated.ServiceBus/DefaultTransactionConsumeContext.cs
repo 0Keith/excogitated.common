@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace Excogitated.ServiceBus
 {
-    internal class TransactionConsumeContext : IConsumeContext
+    internal class DefaultTransactionConsumeContext : IConsumeContext
     {
         private readonly ConcurrentQueue<Func<Task>> _messages = new ConcurrentQueue<Func<Task>>();
         private readonly IConsumeContext _context;
 
-        public TransactionConsumeContext(IConsumeContext context)
+        public DefaultTransactionConsumeContext(IConsumeContext context)
         {
             _context = context;
         }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Excogitated.ServiceBus
 {
-    internal class RetryConsumeContext : IConsumeContext
+    internal class DefaultRetryConsumeContext : IConsumeContext
     {
         private readonly AtomicInt32 _retries = new AtomicInt32();
 
@@ -19,7 +19,7 @@ namespace Excogitated.ServiceBus
 
         public DateTimeOffset InitialDeliveryDate => Context.InitialDeliveryDate;
 
-        public RetryConsumeContext(IConsumeContext context)
+        public DefaultRetryConsumeContext(IConsumeContext context)
         {
             Context = context;
         }

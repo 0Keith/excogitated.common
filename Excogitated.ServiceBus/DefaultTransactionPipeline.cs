@@ -17,7 +17,7 @@ namespace Excogitated.ServiceBus
         public async Task Execute(IConsumeContext context, BinaryData message, ConsumerDefinition definition)
         {
             using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-            var transactionContext = new TransactionConsumeContext(context);
+            var transactionContext = new DefaultTransactionConsumeContext(context);
             await _pipeline.Execute(transactionContext, message, definition);
             await transactionContext.PublishMessages();
             transaction.Complete();

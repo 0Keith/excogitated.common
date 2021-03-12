@@ -9,18 +9,18 @@ namespace Excogitated.ServiceBus
 {
     public static partial class Bootstrapper
     {
-        public static IServiceCollection AddDefaultServiceBus(this IServiceCollection services)
+        public static IServiceBusConfigurator AddDefaultServiceBus(this IServiceCollection services)
         {
             services.ThrowIfNull(nameof(services));
             services.AddSingleton<IServiceBus, DefaultServiceBus>();
             services.AddSingleton<IServiceBusSerializer, DefaultServiceBusSerializer>();
             services.AddSingleton<IConsumerPipeline, DefaultConsumerPipeline>();
-            return services;
+            return new DefaultServiceBusConfigurator(services);
         }
 
-        public static IServiceCollection AddServiceBusConsumers(this IServiceCollection services, params Assembly[] consumerAssemblies)
+        public static IServiceBusConfigurator AddServiceBusConsumers(this IServiceBusConfigurator config, params Assembly[] consumerAssemblies)
         {
-            services.ThrowIfNull(nameof(services));
+            config.ThrowIfNull(nameof(config));
             if (consumerAssemblies is null)
             {
                 consumerAssemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -38,35 +38,35 @@ namespace Excogitated.ServiceBus
                     {
                         var messageType = consumerInterface.GenericTypeArguments[0];
                         var pipelineType = typeof(DefaultDeserializerPipeline<,>).MakeGenericType(consumerType, messageType);
-                        services.AddSingleton(new ConsumerDefinition(consumerType, consumerInterface, messageType, pipelineType));
-                        services.AddScoped(consumerType);
-                        services.AddScoped(pipelineType);
+                        config.Services.AddSingleton(new ConsumerDefinition(consumerType, consumerInterface, messageType, pipelineType));
+                        config.Services.AddScoped(consumerType);
+                        config.Services.AddScoped(pipelineType);
                     }
                 }
             }
-            return services;
+            return config;
         }
 
-        public static IServiceCollection AddServiceBusRedelivery(this IServiceCollection services, RetryDefinition retryDefinition)
+        public static IServiceBusConfigurator AddServiceBusRedelivery(this IServiceBusConfigurator config, RetryDefinition retryDefinition)
         {
-            services.ThrowIfNull(nameof(services));
-            services.ThrowIfNull(nameof(retryDefinition));
-            services.AddSingleton<IRedeliveryPipelineFactory>(new DefaultRedeliveryPipelineFactory(retryDefinition));
-            return services;
+            config.ThrowIfNull(nameof(config));
+            config.ThrowIfNull(nameof(retryDefinition));
+            config.Services.AddSingleton<IRedeliveryPipelineFactory>(new DefaultRedeliveryPipelineFactory(retryDefinition));
+            return config;
         }
 
-        public static IServiceCollection AddServiceBusRetry(this IServiceCollection services, RetryDefinition retryDefinition)
+        public static IServiceBusConfigurator AddServiceBusRetry(this IServiceBusConfigurator config, RetryDefinition retryDefinition)
         {
-            services.ThrowIfNull(nameof(services));
-            services.AddSingleton<IRetryPipelineFactory>(new DefaultRetryPipelineFactory(retryDefinition));
-            return services;
+            config.ThrowIfNull(nameof(config));
+            config.Services.AddSingleton<IRetryPipelineFactory>(new DefaultRetryPipelineFactory(retryDefinition));
+            return config;
         }
 
-        public static IServiceCollection AddServiceBusTransaction(this IServiceCollection services)
+        public static IServiceBusConfigurator AddServiceBusTransaction(this IServiceBusConfigurator config)
         {
-            services.ThrowIfNull(nameof(services));
-            services.AddSingleton<ITransactionPipelineFactory, DefaultTransactionPipelineFactory>();
-            return services;
+            config.ThrowIfNull(nameof(config));
+            config.Services.AddSingleton<ITransactionPipelineFactory, DefaultTransactionPipelineFactory>();
+            return config;
         }
     }
 }

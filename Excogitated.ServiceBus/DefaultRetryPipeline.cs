@@ -22,7 +22,7 @@ namespace Excogitated.ServiceBus
             List<Exception> exceptions = null;
             var watch = Stopwatch.StartNew();
             var interval = Definition.Interval;
-            var retryContext = new RetryConsumeContext(context);
+            var retryContext = new DefaultRetryConsumeContext(context);
             while (true)
             {
                 try
