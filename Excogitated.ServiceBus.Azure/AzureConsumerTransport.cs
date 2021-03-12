@@ -16,18 +16,19 @@ namespace Excogitated.ServiceBus.Azure
         private readonly AtomicBool _started = new();
         private readonly AtomicBool _stopped = new();
 
-        private readonly IAzureClientFactory _clientFactory;
-        private readonly IAzureTopologyBuilder _topologyBuilder;
-        private readonly IServiceBus _serviceBus;
         private ServiceBusProcessor _processor;
         private ServiceBusSender _sender;
         private ConsumerDefinition _consumerDefinition;
 
+        public IAzureClientFactory ClientFactory { get; }
+        public IAzureTopologyBuilder TopologyBuilder { get; }
+        public IServiceBus ServiceBus { get; }
+
         public AzureConsumerTransport(IAzureClientFactory clientFactory, IAzureTopologyBuilder topologyBuilder, IServiceBus serviceBus)
         {
-            _clientFactory = clientFactory;
-            _topologyBuilder = topologyBuilder;
-            _serviceBus = serviceBus;
+            ClientFactory = clientFactory;
+            TopologyBuilder = topologyBuilder;
+            ServiceBus = serviceBus;
         }
 
         public ValueTask DisposeAsync() => StopAsync(default);
@@ -37,14 +38,14 @@ namespace Excogitated.ServiceBus.Azure
             if (_started.TrySet(true))
             {
                 _consumerDefinition = consumerDefinition;
-                var topologyDefinition = _topologyBuilder.BuildFrom(consumerDefinition);
-                _processor = await _clientFactory.BuildProcessorAsync(topologyDefinition, cancellationToken);
-                _sender = await _clientFactory.BuildSenderAsync(topologyDefinition, cancellationToken);
+                var topologyDefinition = TopologyBuilder.BuildFrom(consumerDefinition);
+                _processor = await ClientFactory.BuildProcessorAsync(topologyDefinition, cancellationToken);
+                _sender = await ClientFactory.BuildSenderAsync(topologyDefinition, cancellationToken);
                 _processor.ProcessMessageAsync += async e =>
                 {
                     _totalMessagesProcessed.Increment();
                     var watch = Stopwatch.StartNew();
-                    var context = new AzureConsumeContext(e, _serviceBus, _sender);
+                    var context = new AzureConsumeContext(e, ServiceBus, _sender);
                     await pipeline.Execute(context, e.Message.Body, consumerDefinition);
                     _totalProcessTime.Add(watch.ElapsedTicks);
                 };

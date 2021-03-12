@@ -7,16 +7,16 @@ namespace Excogitated.ServiceBus
 {
     internal class DefaultConsumerPipeline : IConsumerPipeline
     {
-        private readonly IServiceProvider _provider;
+        public IServiceProvider Provider { get; }
 
         public DefaultConsumerPipeline(IServiceProvider provider)
         {
-            _provider = provider;
+            Provider = provider;
         }
 
         public async ValueTask Execute(IConsumeContext context, BinaryData message, ConsumerDefinition definition)
         {
-            using var scope = _provider.CreateScope();
+            using var scope = Provider.CreateScope();
             var pipeline = scope.ServiceProvider.GetRequiredService(definition.PipelineType) as IConsumerPipeline
                 ?? throw new ArgumentException($"{definition.PipelineType} does not implement {typeof(IConsumerPipeline).FullName}");
             var factories = new IConsumerPipelineFactory[] {

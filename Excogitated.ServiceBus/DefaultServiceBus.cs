@@ -12,62 +12,72 @@ namespace Excogitated.ServiceBus
 {
     internal class DefaultServiceBus : IServiceBus
     {
-        private readonly ConcurrentDictionary<Type, IPublisherTransport> _publishers = new();
-        private readonly ConcurrentQueue<IConsumerTransport> _consumers = new();
+        private readonly ConcurrentDictionary<Type, IPublisherTransport> _publisherTransports = new();
+        private readonly ConcurrentQueue<IConsumerTransport> _consumerTransports = new();
         private readonly AsyncLock _publisherLock = new();
         private readonly AtomicBool _started = new();
         private readonly AtomicBool _stopped = new();
-        private readonly IServiceProvider _provider;
-        private readonly ConsumerDefinition[] _consumerDefinitions;
+
+        public IServiceProvider Provider { get; }
 
         public DefaultServiceBus(IServiceProvider provider)
         {
-            _provider = provider;
-            _consumerDefinitions = _provider.GetServices<ConsumerDefinition>().ToArray();
+            Provider = provider;
         }
 
         async ValueTask IServiceBus.Publish<T>(T message, CancellationToken cancellationToken)
         {
             var messageType = message.ThrowIfNull(nameof(message)).GetType();
-            if (!_publishers.TryGetValue(messageType, out var publisher))
+            if (!_publisherTransports.TryGetValue(messageType, out var transport))
             {
                 using (await _publisherLock.EnterAsync())
                 {
-                    if (!_publishers.TryGetValue(messageType, out publisher))
+                    if (!_publisherTransports.TryGetValue(messageType, out transport))
                     {
-                        publisher = _provider.GetRequiredService<IPublisherTransport>();
-                        await publisher.StartAsync(new PublisherDefinition
+                        transport = Provider.GetRequiredService<IPublisherTransport>();
+                        await transport.StartAsync(new PublisherDefinition
                         {
                             MessageType = messageType
                         }, cancellationToken);
-                        _publishers[messageType] = publisher;
+                        _publisherTransports[messageType] = transport;
                     }
                 }
             }
-            var serializer = _provider.GetRequiredService<IServiceBusSerializer>();
+            var serializer = Provider.GetRequiredService<IServiceBusSerializer>();
             var data = serializer.Serialize(message);
-            await publisher.Publish(data, cancellationToken);
+            await transport.Publish(data, cancellationToken);
         }
 
-        public ValueTask StartAsync(CancellationToken cancellationToken) => Task.Run(async () =>
+        public async ValueTask StartAsync(CancellationToken cancellationToken)
         {
             if (_started.TrySet(true))
-                foreach (var definition in _consumerDefinitions)
+            {
+                var consumerDefinitions = Provider.GetServices<ConsumerDefinition>().ToList();
+                foreach (var definition in consumerDefinitions)
                 {
-                    var consumer = _provider.GetRequiredService<IConsumerTransport>();
-                    var pipeline = _provider.GetRequiredService<IConsumerPipeline>();
-                    await consumer.StartAsync(definition, pipeline, cancellationToken);
-                    _consumers.Enqueue(consumer);
+                    var pipeline = Provider.GetRequiredService<IConsumerPipeline>();
+                    var transport = Provider.GetRequiredService<IConsumerTransport>();
+                    await transport.StartAsync(definition, pipeline, cancellationToken);
+                    _consumerTransports.Enqueue(transport);
                 }
-        }, cancellationToken).ToValueTask();
+            }
+        }
 
-        public ValueTask StopAsync(CancellationToken cancellationToken) => Task.Run(async () =>
+        public async ValueTask StopAsync(CancellationToken cancellationToken)
         {
             if (_started && _stopped.TrySet(true))
-                while (_consumers.TryDequeue(out var consumer))
+            {
+                while (_consumerTransports.TryDequeue(out var transport))
                 {
-                    await consumer.StopAsync(cancellationToken);
+                    await transport.StopAsync(cancellationToken);
                 }
-        }, cancellationToken).ToValueTask();
+
+                foreach (var key in _publisherTransports.Keys)
+                {
+                    if (_publisherTransports.TryRemove(key, out var transport))
+                        await transport.StopAsync(cancellationToken);
+                }
+            }
+        }
     }
 }

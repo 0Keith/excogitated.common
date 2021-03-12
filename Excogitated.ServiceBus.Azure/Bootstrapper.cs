@@ -2,39 +2,29 @@
 using Excogitated.ServiceBus.Abstractions;
 using Excogitated.ServiceBus.Azure.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Reflection;
 
 namespace Excogitated.ServiceBus.Azure
 {
     public static class Bootstrapper
     {
-        public static IServiceBusConfigurator StartHostedServiceBusWithAzureTransport(this IServiceCollection services, params Assembly[] consumerAssemblies)
+        public static IServiceBusConfigurator AddAzureTransport(this IServiceBusConfigurator config, string entityPrefix = null)
         {
-            var config = services.ThrowIfNull(nameof(services))
-                .AddDefaultServiceBus();
-            if (consumerAssemblies?.Length > 0)
-            {
-                config.AddConsumers(consumerAssemblies);
-            }
-            return config.AddHostedServiceBus()
-                .AddTopologyBuilder<AzureForwardingTopologyBuilder>()
+            return config.ThrowIfNull(nameof(config))
                 .AddPublisherTransport<AzurePublisherTransport>()
                 .AddConsumerTransport<AzureConsumerTransport>()
-                .AddClientFactory<AzureClientFactory>()
-                .AddConsumerTransaction()
-                .AddConsumerRetry(new RetryDefinition
-                {
-                    MaxDuration = TimeSpan.FromMinutes(1),
-                    Interval = TimeSpan.FromSeconds(1),
-                    Increment = TimeSpan.FromSeconds(1)
-                })
-                .AddConsumerRedelivery(new RetryDefinition
-                {
-                    MaxDuration = TimeSpan.FromDays(14),
-                    Interval = TimeSpan.FromMinutes(5),
-                    Increment = TimeSpan.FromMinutes(5)
-                });
+                .AddClientFactory<AzureClientFactory>();
+        }
+
+        public static IServiceBusConfigurator AddForwardingTopologyBuilder(this IServiceBusConfigurator config, string entityPrefix = null)
+        {
+            return config.AddTopologyBuilder(new AzureForwardingTopologyBuilder(entityPrefix));
+        }
+
+        public static IServiceBusConfigurator AddTopologyBuilder(this IServiceBusConfigurator config, IAzureTopologyBuilder builder)
+        {
+            config.ThrowIfNull(nameof(config));
+            config.Services.AddSingleton(builder);
+            return config;
         }
 
         public static IServiceBusConfigurator AddTopologyBuilder<T>(this IServiceBusConfigurator config)

@@ -8,21 +8,21 @@ namespace Excogitated.ServiceBus
       where TConsumer : IConsumer<TMessage>
       where TMessage : class
     {
-        private readonly TConsumer _consumer;
-        private readonly IServiceBusSerializer _serializer;
+        public TConsumer Consumer { get; }
+        public IServiceBusSerializer Serializer { get; }
 
         public DefaultDeserializerPipeline(TConsumer consumer, IServiceBusSerializer serializer)
         {
-            _consumer = consumer;
-            _serializer = serializer;
+            Consumer = consumer;
+            Serializer = serializer;
         }
 
         public async ValueTask Execute(IConsumeContext context, BinaryData messageData, ConsumerDefinition definition)
         {
-            var message = _serializer.Deserialize<TMessage>(messageData);
+            var message = Serializer.Deserialize<TMessage>(messageData);
             if (message is not null)
             {
-                await _consumer.Consume(context, message);
+                await Consumer.Consume(context, message);
             }
         }
     }

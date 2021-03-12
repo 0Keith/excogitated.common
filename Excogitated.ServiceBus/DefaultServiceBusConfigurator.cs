@@ -7,6 +7,7 @@ namespace Excogitated.ServiceBus
     internal class DefaultServiceBusConfigurator : IServiceBusConfigurator
     {
         public IServiceCollection Services { get; }
+
         public DefaultServiceBusConfigurator(IServiceCollection services)
         {
             Services = services.ThrowIfNull(nameof(services));

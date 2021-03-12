@@ -7,11 +7,11 @@ namespace Excogitated.ServiceBus.Azure
 {
     internal class AzureForwardingTopologyBuilder : IAzureTopologyBuilder
     {
-        private readonly string _entityPrefix;
+        public string EntityPrefix { get; }
 
         public AzureForwardingTopologyBuilder(string entityPrefix)
         {
-            _entityPrefix = entityPrefix;
+            EntityPrefix = entityPrefix;
         }
 
         public AzureTopologyDefinition BuildFrom(PublisherDefinition definition)
@@ -42,7 +42,7 @@ namespace Excogitated.ServiceBus.Azure
         private CreateQueueOptions BuildQueue(Type consumerType)
         {
             var path = consumerType.FullName
-                .Shorten(260, _entityPrefix) //max queue name length is 260 chars
+                .Shorten(260, EntityPrefix) //max queue name length is 260 chars
                 .ToLower();
             return new CreateQueueOptions(path)
             {
@@ -53,7 +53,7 @@ namespace Excogitated.ServiceBus.Azure
         private CreateTopicOptions BuildTopic(Type messageType)
         {
             var path = messageType.FullName
-                .Shorten(260, _entityPrefix) //max topic name length is 260 chars
+                .Shorten(260, EntityPrefix) //max topic name length is 260 chars
                 .ToLower();
             return new CreateTopicOptions(path)
             {
@@ -63,7 +63,7 @@ namespace Excogitated.ServiceBus.Azure
         private CreateSubscriptionOptions BuildSubscription(string topicName, string queueName, Type consumerType)
         {
             var name = consumerType.FullName
-                .Shorten(50, _entityPrefix) //max subscription name length is 50 chars
+                .Shorten(50, EntityPrefix) //max subscription name length is 50 chars
                 .ToLower();
             return new CreateSubscriptionOptions(topicName, name)
             {

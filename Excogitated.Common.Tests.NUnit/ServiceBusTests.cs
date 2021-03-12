@@ -20,7 +20,9 @@ namespace Excogitated.Tests.NUnit
         private static async Task<IHost> StartPublishEndpoint()
         {
             var host = Host.CreateDefaultBuilder()
-                .ConfigureServices((c, s) => s.StartHostedServiceBusWithAzureTransport())
+                .ConfigureServices((c, s) => s.AddDefaultServiceBus()
+                .AddHostedServiceBus()
+                .AddAzureTransport())
                 .Build();
             await host.StartAsync();
             return host;
@@ -29,9 +31,12 @@ namespace Excogitated.Tests.NUnit
         private static async Task<IHost> StartConsumeEndpoint()
         {
             var host = Host.CreateDefaultBuilder()
-                .ConfigureServices((c, s) => s.StartHostedServiceBusWithAzureTransport(typeof(ServiceBusTests).Assembly)
+                .ConfigureServices((c, s) => s.AddDefaultServiceBus()
+                .AddHostedServiceBus()
+                .AddConsumers(typeof(ServiceBusTests).Assembly)
                 .AddConsumerRedelivery(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
-                .AddConsumerRetry(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) }))
+                .AddConsumerRetry(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
+                .AddConsumerTransaction())
                 .Build();
             await host.StartAsync();
             return host;
