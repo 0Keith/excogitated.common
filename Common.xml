@@ -1,0 +1,19 @@
+﻿<Project>
+    <PropertyGroup>
+        <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+        <LangVersion>latest</LangVersion>
+        <Company>Excogitated</Company>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <RepositoryUrl>https://github.com/0Keith/excogitated.common</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/0Keith/excogitated.common</PackageProjectUrl>
+        <Description>https://github.com/0Keith/excogitated.common</Description>
+
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\.editorconfig" Link=".editorconfig" />
+    </ItemGroup>
+</Project>

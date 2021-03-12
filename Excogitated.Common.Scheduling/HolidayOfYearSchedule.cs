@@ -26,9 +26,18 @@ namespace Excogitated.Common.Scheduling
         public HolidayOfYearSchedule(ISchedule schedule, HolidayOfYear[] holidaysOfYear)
         {
             _schedule = schedule.OrEvery(TimeUnit.Day);
-            _holidaysOfYear = holidaysOfYear ?? Enum.GetValues<HolidayOfYear>();
+            _holidaysOfYear = holidaysOfYear ?? GetAllHolidays();
             if (_holidaysOfYear.Length == 0)
-                _holidaysOfYear = Enum.GetValues<HolidayOfYear>();
+                _holidaysOfYear = GetAllHolidays();
+        }
+
+        private static HolidayOfYear[] GetAllHolidays()
+        {
+#if NETSTANDARD2_0
+            return (HolidayOfYear[])Enum.GetValues(typeof(HolidayOfYear));
+#else
+            return Enum.GetValues<HolidayOfYear>();
+#endif
         }
 
         public DateTimeOffset GetNextEvent(DateTimeOffset start)

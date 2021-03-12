@@ -18,7 +18,7 @@ namespace Excogitated.Common.Extensions
             if (radix < 2)
                 throw new ArgumentException("At least 2 digits are necessary to comprise a number system");
 
-            var cache = _digitsCache.GetOrAdd(digits, k => k.Select((c, i) => KeyValuePair.Create(c, i)).ToDictionary());
+            var cache = _digitsCache.GetOrAdd(digits, k => k.Select((c, i) => new { c, i }).ToDictionary(p => p.c, p => p.i));
             var negative = value[0] == '-';
             BigInteger result = 0;
             for (var i = negative ? 1 : 0; i < value.Length; i++)

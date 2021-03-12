@@ -6,6 +6,9 @@ namespace Excogitated.Common.Scheduling
 {
     public static partial class ScheduleExtensions
     {
+#if NETSTANDARD2_0
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source) => new HashSet<T>(source);
+#endif
         public static DateTimeOffset GetNextEvent(this ISchedule schedule) => schedule.NotNull(nameof(schedule)).GetNextEvent(DateTimeOffset.Now);
 
         public static DateTimeOffset GetPreviousEvent(this ISchedule schedule) => schedule.NotNull(nameof(schedule)).GetPreviousEvent(DateTimeOffset.Now);
