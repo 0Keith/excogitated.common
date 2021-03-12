@@ -7,9 +7,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Excogitated.Common.Atomic\Excogitated.Common.Atomic.csproj" />
-    <ProjectReference Include="..\Excogitated.Common.Extensions\Excogitated.Common.Extensions.csproj" />
-    <ProjectReference Include="..\Excogitated.Common.Models\Excogitated.Common.Models.csproj" />
+    <ProjectReference Include="..\Excogitated.Common.Atomic\Excogitated.Atomic.csproj" />
+    <ProjectReference Include="..\Excogitated.Common.Extensions\Excogitated.Extensions.csproj" />
+    <ProjectReference Include="..\Excogitated.Common.Models\Excogitated.Models.csproj" />
   </ItemGroup>
 
 </Project>

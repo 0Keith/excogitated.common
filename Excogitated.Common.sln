@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.29505.145
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Common", "Excogitated.Common\Excogitated.Common.csproj", "{BAC030A3-AF42-4F35-B035-2E5DACE92A57}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Common.Tests", "Excogitated.Common.Tests\Excogitated.Common.Tests.csproj", "{A5FCBE2A-A16C-4633-BD0F-009EACB62342}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Tests", "Excogitated.Common.Tests\Excogitated.Tests.csproj", "{A5FCBE2A-A16C-4633-BD0F-009EACB62342}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Common.Tests.Profiler", "Excogitated.Common.Tests.Profiler\Excogitated.Common.Tests.Profiler.csproj", "{6D9B024F-5483-450A-BA73-4905342CD808}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Tests.Profiler", "Excogitated.Common.Tests.Profiler\Excogitated.Tests.Profiler.csproj", "{6D9B024F-5483-450A-BA73-4905342CD808}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AD681927-A59A-4CEE-A419-CD3444E5913A}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,19 +15,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Common.xml = Common.xml
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Common.Json", "Excogitated.Common.Json\Excogitated.Common.Json.csproj", "{39611C6A-D440-4517-BA47-CC48D4B9838A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Json", "Excogitated.Common.Json\Excogitated.Json.csproj", "{39611C6A-D440-4517-BA47-CC48D4B9838A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Common.Extensions", "Excogitated.Common.Extensions\Excogitated.Common.Extensions.csproj", "{8A8F7B60-8897-4148-95B7-C989716A4F57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Extensions", "Excogitated.Common.Extensions\Excogitated.Extensions.csproj", "{8A8F7B60-8897-4148-95B7-C989716A4F57}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Common.Atomic", "Excogitated.Common.Atomic\Excogitated.Common.Atomic.csproj", "{AF26D740-C985-4426-B806-1DE7A0E959BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Atomic", "Excogitated.Common.Atomic\Excogitated.Atomic.csproj", "{AF26D740-C985-4426-B806-1DE7A0E959BF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Common.Models", "Excogitated.Common.Models\Excogitated.Common.Models.csproj", "{C67482D3-E818-4EE8-9531-5DB1B97BD63C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Models", "Excogitated.Common.Models\Excogitated.Models.csproj", "{C67482D3-E818-4EE8-9531-5DB1B97BD63C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Common.Mongo", "Excogitated.Common.Mongo\Excogitated.Common.Mongo.csproj", "{8229D7BE-D2D7-43A3-851F-7E97817BDFCB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Mongo", "Excogitated.Common.Mongo\Excogitated.Mongo.csproj", "{8229D7BE-D2D7-43A3-851F-7E97817BDFCB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Common.Scheduling", "Excogitated.Common.Scheduling\Excogitated.Common.Scheduling.csproj", "{234C1106-02D8-4642-98D8-394F45165F26}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Scheduling", "Excogitated.Common.Scheduling\Excogitated.Scheduling.csproj", "{234C1106-02D8-4642-98D8-394F45165F26}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Common.Tests.NUnit", "Excogitated.Common.Tests.NUnit\Excogitated.Common.Tests.NUnit.csproj", "{BA7707F5-76F0-42DA-8E80-0D2834243A38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Excogitated.Tests.NUnit", "Excogitated.Common.Tests.NUnit\Excogitated.Tests.NUnit.csproj", "{BA7707F5-76F0-42DA-8E80-0D2834243A38}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

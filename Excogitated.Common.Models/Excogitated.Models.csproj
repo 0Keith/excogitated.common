@@ -7,7 +7,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Excogitated.Common.Extensions\Excogitated.Common.Extensions.csproj" />
+    <ProjectReference Include="..\Excogitated.Common.Extensions\Excogitated.Extensions.csproj" />
   </ItemGroup>
   
 </Project>
