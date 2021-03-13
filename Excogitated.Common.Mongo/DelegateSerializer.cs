@@ -1,8 +1,8 @@
-﻿using Excogitated.Common.Extensions;
+﻿using Excogitated.Extensions;
 using MongoDB.Bson.Serialization;
 using System;
 
-namespace Excogitated.Common.Mongo
+namespace Excogitated.Mongo
 {
     public class DelegateSerializer<T> : IBsonSerializer<T>
     {

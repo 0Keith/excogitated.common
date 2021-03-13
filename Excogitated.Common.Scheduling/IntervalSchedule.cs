@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Excogitated.Common.Scheduling
+namespace Excogitated.Scheduling
 {
     internal class IntervalSchedule : ISchedule
     {

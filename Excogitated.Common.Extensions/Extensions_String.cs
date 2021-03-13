@@ -1,11 +1,11 @@
-﻿using Excogitated.Common.Extensions;
+﻿using Excogitated.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Excogitated.Common.Extensions
+namespace Excogitated.Extensions
 {
     public static class Extensions_String
     {
@@ -186,7 +186,7 @@ namespace Excogitated.Common.Extensions
                 separator = string.Empty;
             var separated = false;
             var b = new StringBuilder(value.Length);
-            for (int i = 0; i < value.Length; i++)
+            for (var i = 0; i < value.Length; i++)
             {
                 var c = value[i];
                 if (i == 0 && char.IsLower(c))

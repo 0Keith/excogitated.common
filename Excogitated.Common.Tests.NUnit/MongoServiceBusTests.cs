@@ -1,27 +1,25 @@
-﻿using Excogitated.Common.Atomic;
-using Excogitated.ServiceBus;
+﻿using Excogitated.ServiceBus;
 using Excogitated.ServiceBus.Abstractions;
+using Excogitated.ServiceBus.Mongo;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NUnit.Framework;
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Excogitated.Tests.NUnit
 {
     [TestFixture]
     [NonParallelizable]
-    public class ServiceBusTests
+    public class MongoServiceBusTests
     {
         private static async Task<IHost> StartPublishEndpoint()
         {
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((c, s) => s.AddDefaultServiceBus()
-                .AddMemoryTransport()
-                //.AddAzureTransport()
+                .AddMongoTransport()
                 .AddHostedServiceBus())
                 .Build();
             await host.StartAsync();
@@ -33,8 +31,7 @@ namespace Excogitated.Tests.NUnit
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((c, s) => s.AddDefaultServiceBus()
                 .AddHostedServiceBus()
-                .AddMemoryTransport()
-                //.AddAzureTransport()
+                .AddMongoTransport()
                 .AddConsumers()
                 .AddConsumerRedelivery(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
                 .AddConsumerRetry(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
@@ -166,93 +163,4 @@ namespace Excogitated.Tests.NUnit
         }
     }
 
-    public abstract class TestObjectConsumerBase<TConsumer, TMessage>
-    {
-        protected static readonly SemaphoreSlim _sync = new(0);
-        protected static readonly AtomicInt32 _consumed = new();
-
-        public static TMessage LastMessage { get; protected set; }
-
-        public static int Remaining => _sync.CurrentCount;
-
-        public static int Consumed => _consumed.Value;
-
-        public static Task<bool> WaitAsync(int millisecondsTimeout)
-        {
-            return _sync.WaitAsync(Debugger.IsAttached ? millisecondsTimeout * 10 : millisecondsTimeout);
-        }
-
-        public static async Task ResetAsync()
-        {
-            while (Remaining > 0)
-            {
-                await _sync.WaitAsync(1000);
-            }
-            _consumed.Value = 0;
-        }
-    }
-
-    public class TestObjectCreatedConsumer : TestObjectConsumerBase<TestObjectCreatedConsumer, TestObjectCreated>, IConsumer<TestObjectCreated>
-    {
-        public static AtomicInt32 Redeliveries { get; } = new AtomicInt32();
-
-        public async ValueTask Consume(IConsumeContext context, TestObjectCreated message)
-        {
-            //await context.Publish(new TestObjectUpdated { Id = message.Id });
-
-            //if (context.Redeliveries < message.Redeliveries)
-            //{
-            //	Redeliveries.Increment();
-            //	throw new Exception($"Retry {context.Retries} of {message.Retries}");
-            //}
-
-            _consumed.Increment();
-            await context.Publish(new TestObjectUpdated { Id = message.Id });
-            LastMessage = message;
-            _sync.Release();
-        }
-    }
-
-    public class TestObjectCreatedConsumer2 : TestObjectConsumerBase<TestObjectCreatedConsumer2, TestObjectCreated>, IConsumer<TestObjectCreated>
-    {
-        public static AtomicInt32 Retries { get; } = new AtomicInt32();
-
-        public async ValueTask Consume(IConsumeContext context, TestObjectCreated message)
-        {
-            await context.Publish(new TestObjectUpdated { Id = message.Id });
-
-            if (context.Retries < message.Retries)
-            {
-                Retries.Increment();
-                throw new Exception($"Retry {context.Retries} of {message.Retries}");
-            }
-
-            _consumed.Increment();
-            LastMessage = message;
-            _sync.Release();
-        }
-    }
-
-    public class TestObjectUpdatedConsumer : TestObjectConsumerBase<TestObjectUpdatedConsumer, TestObjectUpdated>, IConsumer<TestObjectUpdated>
-    {
-        public ValueTask Consume(IConsumeContext context, TestObjectUpdated message)
-        {
-            _consumed.Increment();
-            LastMessage = message;
-            _sync.Release();
-            return new();
-        }
-    }
-
-    public class TestObjectUpdated
-    {
-        public Guid Id { get; set; }
-    }
-
-    public class TestObjectCreated
-    {
-        public Guid Id { get; set; }
-        public int Retries { get; set; }
-        public int Redeliveries { get; set; }
-    }
 }

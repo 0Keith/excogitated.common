@@ -1,4 +1,4 @@
-﻿using Excogitated.Common.Extensions;
+﻿using Excogitated.Extensions;
 using Excogitated.ServiceBus.Abstractions;
 using Excogitated.ServiceBus.Azure.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,7 +7,7 @@ namespace Excogitated.ServiceBus.Azure
 {
     public static class Bootstrapper
     {
-        public static IServiceBusConfigurator AddAzureTransport(this IServiceBusConfigurator config, string entityPrefix = null)
+        public static IServiceBusConfigurator AddAzureTransport(this IServiceBusConfigurator config)
         {
             return config.ThrowIfNull(nameof(config))
                 .AddPublisherTransport<AzurePublisherTransport>()

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\Common.xml" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\Excogitated.Common.Mongo\Excogitated.Mongo.csproj" />
+    <ProjectReference Include="..\Excogitated.ServiceBus\Excogitated.ServiceBus.csproj" />
+  </ItemGroup>
+
+</Project>

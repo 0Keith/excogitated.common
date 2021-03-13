@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Excogitated.Common.Extensions
+namespace Excogitated.Extensions
 {
     public static class Extensions_BigInteger
     {

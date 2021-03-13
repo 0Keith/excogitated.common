@@ -1,4 +1,4 @@
-﻿using Excogitated.Common.Extensions;
+﻿using Excogitated.Extensions;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using System;
@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Mongo
+namespace Excogitated.Mongo
 {
     public class AppSettingStore
     {

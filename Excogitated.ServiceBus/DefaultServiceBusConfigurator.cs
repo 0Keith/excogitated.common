@@ -1,4 +1,4 @@
-﻿using Excogitated.Common.Extensions;
+﻿using Excogitated.Extensions;
 using Excogitated.ServiceBus.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 

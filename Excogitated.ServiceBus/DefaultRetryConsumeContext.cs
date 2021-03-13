@@ -1,5 +1,5 @@
-﻿using Excogitated.Common.Atomic;
-using Excogitated.ServiceBus.Abstractions;
+﻿using Excogitated.ServiceBus.Abstractions;
+using Excogitated.Threading;
 using System;
 using System.Threading.Tasks;
 

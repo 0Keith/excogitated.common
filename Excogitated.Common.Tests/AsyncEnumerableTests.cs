@@ -1,11 +1,12 @@
 using Excogitated.Common.Extensions;
+using Excogitated.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Tests
+namespace Excogitated.Tests
 {
     [TestClass]
     public class AsyncEnumerableTests : TestsBase

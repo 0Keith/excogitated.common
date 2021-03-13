@@ -1,6 +1,6 @@
-﻿using Excogitated.Common.Atomic;
-using Excogitated.Common.Extensions;
-using Excogitated.Common.Models;
+﻿using Excogitated.Extensions;
+using Excogitated.Models;
+using Excogitated.Threading;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
@@ -13,7 +13,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Mongo
+namespace Excogitated.Mongo
 {
     public static class MongoExtensions
     {
@@ -63,7 +63,7 @@ namespace Excogitated.Common.Mongo
 
 
         private static readonly AtomicBool _initialized = new();
-        public static IMongoDatabase GetDatabase(this MongoStoreConfig config)
+        public static IMongoDatabase GetDatabase(this MongoStoreSettings config)
         {
             config.NotNull(nameof(config));
             if (_initialized.TrySet(true))

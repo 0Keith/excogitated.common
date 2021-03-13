@@ -1,5 +1,6 @@
-using Excogitated.Common.Extensions;
-using Excogitated.Common.Models;
+using Excogitated.Extensions;
+using Excogitated.Models;
+using Excogitated.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;

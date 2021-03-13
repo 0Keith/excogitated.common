@@ -10,13 +10,14 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="NUnit" Version="3.13.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Excogitated.Common.Scheduling\Excogitated.Scheduling.csproj" />
     <ProjectReference Include="..\Excogitated.Common\Excogitated.Common.csproj" />
     <ProjectReference Include="..\Excogitated.ServiceBus.Azure\Excogitated.ServiceBus.Azure.csproj" />
+    <ProjectReference Include="..\Excogitated.ServiceBus.Mongo\Excogitated.ServiceBus.Mongo.csproj" />
   </ItemGroup>
 
 </Project>

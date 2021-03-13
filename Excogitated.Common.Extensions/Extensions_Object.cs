@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Excogitated.Common.Extensions
+namespace Excogitated.Extensions
 {
     public static class Extensions_Object
     {

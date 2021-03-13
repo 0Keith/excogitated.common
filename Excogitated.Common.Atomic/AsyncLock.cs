@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Atomic
+namespace Excogitated.Threading
 {
     internal class AsyncLockExit : IDisposable
     {

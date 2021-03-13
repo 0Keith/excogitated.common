@@ -1,4 +1,4 @@
-﻿using Excogitated.Common.Extensions;
+﻿using Excogitated.Extensions;
 using System.Collections.Generic;
 
 namespace Excogitated.Common.Atomic.Collections

@@ -1,4 +1,4 @@
-﻿using Excogitated.Common.Extensions;
+﻿using Excogitated.Extensions;
 using System;
 
 namespace Excogitated.Common

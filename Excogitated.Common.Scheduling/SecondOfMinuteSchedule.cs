@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Excogitated.Common.Scheduling
+namespace Excogitated.Scheduling
 {
     internal class SecondOfMinuteSchedule : ISchedule
     {

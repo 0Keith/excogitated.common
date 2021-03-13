@@ -1,4 +1,6 @@
 using Excogitated.Common.Extensions;
+using Excogitated.Extensions;
+using Excogitated.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;

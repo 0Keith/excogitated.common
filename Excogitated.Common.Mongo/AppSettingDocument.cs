@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Excogitated.Common.Mongo
+namespace Excogitated.Mongo
 {
     /// <summary>
     /// Document for app settings stored in Mongo

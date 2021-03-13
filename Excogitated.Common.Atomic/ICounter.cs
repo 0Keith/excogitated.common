@@ -1,4 +1,4 @@
-﻿namespace Excogitated.Common.Atomic
+﻿namespace Excogitated.Threading
 {
     public interface ICounter<T>
     {

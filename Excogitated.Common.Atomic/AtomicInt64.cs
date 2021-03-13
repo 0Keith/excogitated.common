@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace Excogitated.Common.Atomic
+namespace Excogitated.Threading
 {
     public class AtomicInt64 : ICounter<long>
     {

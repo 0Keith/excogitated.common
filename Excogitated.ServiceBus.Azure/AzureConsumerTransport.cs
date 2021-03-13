@@ -1,7 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Excogitated.Common.Atomic;
 using Excogitated.ServiceBus.Abstractions;
 using Excogitated.ServiceBus.Azure.Abstractions;
+using Excogitated.Threading;
 using System;
 using System.Diagnostics;
 using System.Threading;

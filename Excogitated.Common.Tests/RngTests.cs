@@ -1,4 +1,5 @@
-using Excogitated.Common.Atomic;
+using Excogitated.Tests;
+using Excogitated.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;

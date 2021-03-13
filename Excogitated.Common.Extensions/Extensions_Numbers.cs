@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Excogitated.Common.Extensions
+namespace Excogitated.Extensions
 {
     public static class Extensions_Numbers
     {

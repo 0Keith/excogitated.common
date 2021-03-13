@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Excogitated.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Excogitated.Common.Extensions
+namespace Excogitated.Extensions
 {
     public static class Extensions_HashSet
     {

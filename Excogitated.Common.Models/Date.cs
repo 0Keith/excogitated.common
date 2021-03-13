@@ -1,9 +1,9 @@
-﻿using Excogitated.Common.Extensions;
+﻿using Excogitated.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Excogitated.Common.Models
+namespace Excogitated.Models
 {
     public static class Extensions_Date
     {

@@ -1,7 +1,7 @@
 ﻿using Excogitated.Common.Atomic.Collections;
-using Excogitated.Common.Extensions;
 using Excogitated.Common.Json;
 using Excogitated.Common.Logging;
+using Excogitated.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

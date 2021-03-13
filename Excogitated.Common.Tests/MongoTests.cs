@@ -1,5 +1,6 @@
-﻿using Excogitated.Common.Models;
-using Excogitated.Common.Mongo;
+﻿using Excogitated.Models;
+using Excogitated.Mongo;
+using Excogitated.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MongoDB.Driver;
 using System;
@@ -18,7 +19,7 @@ namespace Excogitated.Common.Tests
     [TestClass]
     public class MongoTests : TestsBase
     {
-        private readonly IMongoDatabase _db = new MongoStoreConfig
+        private readonly IMongoDatabase _db = new MongoStoreSettings
         {
             Server = "cluster0.y9pvv.mongodb.net",
             Database = "tests",

@@ -1,6 +1,6 @@
-﻿namespace Excogitated.Common.Mongo
+﻿namespace Excogitated.Mongo
 {
-    public class MongoStoreConfig
+    public class MongoStoreSettings
     {
         public string Server { get; set; }
         public string Username { get; set; }

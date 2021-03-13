@@ -1,6 +1,6 @@
-﻿using Excogitated.Common.Atomic;
-using Excogitated.Common.Extensions;
+﻿using Excogitated.Extensions;
 using Excogitated.ServiceBus.Abstractions;
+using Excogitated.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;

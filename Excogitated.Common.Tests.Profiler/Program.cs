@@ -1,5 +1,5 @@
-﻿using Excogitated.Common.Extensions;
-using Excogitated.Common.Logging;
+﻿using Excogitated.Common.Logging;
+using Excogitated.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;

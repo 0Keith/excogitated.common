@@ -1,6 +1,6 @@
 ﻿using Excogitated.Common.Atomic.Collections;
-using Excogitated.Common.Extensions;
-using Excogitated.Common.Models;
+using Excogitated.Extensions;
+using Excogitated.Models;
 using System;
 using System.IO;
 using System.IO.Compression;

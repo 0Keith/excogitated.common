@@ -1,5 +1,5 @@
-﻿using Excogitated.Common.Extensions;
-using Excogitated.Common.Models;
+﻿using Excogitated.Extensions;
+using Excogitated.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;

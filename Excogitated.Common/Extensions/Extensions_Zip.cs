@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using Excogitated.Extensions;
+using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
 

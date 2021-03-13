@@ -3,7 +3,7 @@ using Excogitated.Common.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 
-namespace Excogitated.Common.Tests
+namespace Excogitated.Tests
 {
     public abstract class TestsBase
     {
