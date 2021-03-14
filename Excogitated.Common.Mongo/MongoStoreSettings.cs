@@ -1,6 +1,6 @@
 ﻿namespace Excogitated.Mongo
 {
-    public class MongoStoreSettings
+    public struct MongoStoreSettings
     {
         public string Server { get; set; }
         public string Username { get; set; }

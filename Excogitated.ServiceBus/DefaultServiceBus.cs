@@ -19,10 +19,12 @@ namespace Excogitated.ServiceBus
         private readonly AtomicBool _stopped = new();
 
         public IServiceProvider Provider { get; }
+        public IConcurrencyLimiter ConcurrencyLimiter { get; }
 
-        public DefaultServiceBus(IServiceProvider provider)
+        public DefaultServiceBus(IServiceProvider provider, IConcurrencyLimiter concurrencyLimiter)
         {
             Provider = provider;
+            ConcurrencyLimiter = concurrencyLimiter;
         }
 
         async ValueTask IServiceBus.Publish<T>(T message, CancellationToken cancellationToken)
@@ -45,7 +47,8 @@ namespace Excogitated.ServiceBus
             }
             var serializer = Provider.GetRequiredService<IServiceBusSerializer>();
             var data = serializer.Serialize(message);
-            await transport.Publish(data, cancellationToken);
+            using (await ConcurrencyLimiter.AcquirePublishSlot())
+                await transport.Publish(data, cancellationToken);
         }
 
         public async ValueTask StartAsync(CancellationToken cancellationToken)

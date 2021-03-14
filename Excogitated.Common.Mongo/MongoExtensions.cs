@@ -99,5 +99,11 @@ namespace Excogitated.Mongo
             foreach (var db in dbs.Where(n => !_systemDbs.Contains(n)))
                 await client.DropDatabaseAsync(db);
         }
+
+        public static PipelineDefinition<ChangeStreamDocument<T>, ChangeStreamDocument<T>> ToChangeStream<T>(this IMongoCollection<T> collection)
+        {
+            collection.ThrowIfNull(nameof(collection));
+            return new EmptyPipelineDefinition<ChangeStreamDocument<T>>();
+        }
     }
 }

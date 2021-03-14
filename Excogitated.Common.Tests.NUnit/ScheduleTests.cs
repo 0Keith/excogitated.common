@@ -1,4 +1,4 @@
-﻿using Excogitated.Common.Scheduling;
+﻿using Excogitated.Scheduling;
 using NUnit.Framework;
 using System;
 using System.Linq;

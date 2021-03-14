@@ -8,10 +8,12 @@ namespace Excogitated.ServiceBus
     internal class DefaultConsumerPipeline : IConsumerPipeline
     {
         public IServiceProvider Provider { get; }
+        public IConcurrencyLimiter ConcurrencyLimiter { get; }
 
-        public DefaultConsumerPipeline(IServiceProvider provider)
+        public DefaultConsumerPipeline(IServiceProvider provider, IConcurrencyLimiter concurrencyLimiter)
         {
             Provider = provider;
+            ConcurrencyLimiter = concurrencyLimiter;
         }
 
         public async ValueTask Execute(IConsumeContext context, BinaryData message, ConsumerDefinition definition)
@@ -24,14 +26,15 @@ namespace Excogitated.ServiceBus
                 scope.ServiceProvider.GetService<IRetryPipelineFactory>(),
                 scope.ServiceProvider.GetService<IRedeliveryPipelineFactory>()
             };
-            foreach (var f in factories)
+            foreach (var factory in factories)
             {
-                if (f is not null)
+                if (factory is not null)
                 {
-                    pipeline = f.Create(pipeline);
+                    pipeline = factory.Create(pipeline);
                 }
             }
-            await pipeline.Execute(context, message, definition);
+            using (await ConcurrencyLimiter.AcquireConsumerSlot())
+                await pipeline.Execute(context, message, definition);
         }
     }
 }

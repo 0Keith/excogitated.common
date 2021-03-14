@@ -21,7 +21,6 @@ namespace Excogitated.Tests.NUnit
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((c, s) => s.AddDefaultServiceBus()
                 .AddMemoryTransport()
-                //.AddAzureTransport()
                 .AddHostedServiceBus())
                 .Build();
             await host.StartAsync();
@@ -34,8 +33,8 @@ namespace Excogitated.Tests.NUnit
                 .ConfigureServices((c, s) => s.AddDefaultServiceBus()
                 .AddHostedServiceBus()
                 .AddMemoryTransport()
-                //.AddAzureTransport()
                 .AddConsumers()
+                .AddConcurrencyLimiter(new ConcurrencyDefinition { PublishMaxConcurrency = 1, ConsumeMaxConcurrency = 1 })
                 .AddConsumerRedelivery(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
                 .AddConsumerRetry(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
                 .AddConsumerTransaction())

@@ -15,7 +15,8 @@ namespace Excogitated.ServiceBus
             services.AddSingleton<IServiceBus, DefaultServiceBus>();
             services.AddSingleton<IServiceBusSerializer, DefaultSerializer>();
             services.AddSingleton<IConsumerPipeline, DefaultConsumerPipeline>();
-            return new DefaultServiceBusConfigurator(services);
+            return new DefaultServiceBusConfigurator(services)
+                .AddConcurrencyLimiter(new());
         }
 
         public static IServiceBusConfigurator AddMemoryTransport(this IServiceBusConfigurator config)
@@ -54,18 +55,18 @@ namespace Excogitated.ServiceBus
             return config;
         }
 
-        public static IServiceBusConfigurator AddConsumerRedelivery(this IServiceBusConfigurator config, RetryDefinition retryDefinition)
+        public static IServiceBusConfigurator AddConsumerRedelivery(this IServiceBusConfigurator config, RetryDefinition definition)
         {
             config.ThrowIfNull(nameof(config));
-            config.ThrowIfNull(nameof(retryDefinition));
-            config.Services.AddSingleton<IRedeliveryPipelineFactory>(new DefaultRedeliveryPipelineFactory(retryDefinition));
+            config.ThrowIfNull(nameof(definition));
+            config.Services.AddSingleton<IRedeliveryPipelineFactory>(new DefaultRedeliveryPipelineFactory(definition));
             return config;
         }
 
-        public static IServiceBusConfigurator AddConsumerRetry(this IServiceBusConfigurator config, RetryDefinition retryDefinition)
+        public static IServiceBusConfigurator AddConsumerRetry(this IServiceBusConfigurator config, RetryDefinition definition)
         {
             config.ThrowIfNull(nameof(config));
-            config.Services.AddSingleton<IRetryPipelineFactory>(new DefaultRetryPipelineFactory(retryDefinition));
+            config.Services.AddSingleton<IRetryPipelineFactory>(new DefaultRetryPipelineFactory(definition));
             return config;
         }
 
@@ -94,6 +95,13 @@ namespace Excogitated.ServiceBus
         {
             config.ThrowIfNull(nameof(config));
             config.Services.AddTransient<IPublisherTransport, T>();
+            return config;
+        }
+
+        public static IServiceBusConfigurator AddConcurrencyLimiter(this IServiceBusConfigurator config, ConcurrencyDefinition definition)
+        {
+            config.ThrowIfNull(nameof(config));
+            config.Services.AddSingleton<IConcurrencyLimiter>(new DefaultConcurrencyLimiter(definition));
             return config;
         }
     }
