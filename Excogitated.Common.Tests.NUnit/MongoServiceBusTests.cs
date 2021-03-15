@@ -31,8 +31,8 @@ namespace Excogitated.Tests.NUnit
                 .AddMongoTransport(_settings)
                 .AddConcurrencyLimiter(new ConcurrencyDefinition
                 {
-                    PublishMaxConcurrency = 10,
-                    ConsumeMaxConcurrency = 10,
+                    PublishMaxRate = 10,
+                    PublishRateInterval = TimeSpan.FromSeconds(1)
                 })
                 .AddHostedServiceBus())
                 .Build();
@@ -52,8 +52,8 @@ namespace Excogitated.Tests.NUnit
                     .AddConsumerRetry(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(100) })
                     .AddConcurrencyLimiter(new ConcurrencyDefinition
                     {
-                        PublishMaxConcurrency = 10,
-                        ConsumeMaxConcurrency = 10,
+                        PublishMaxRate = 10,
+                        PublishRateInterval = TimeSpan.FromSeconds(1)
                     }))
                 .Build();
             await host.StartAsync();
@@ -77,16 +77,16 @@ namespace Excogitated.Tests.NUnit
         [Test]
         public async Task Publish_Consume_Performance()
         {
-            var publishedCount = 10;
+            var publishedCount = 100;
             var watch = Stopwatch.StartNew();
             using (var host = await StartPublishEndpoint())
             {
                 watch.Restart();
-                var endpoint = host.Services.GetRequiredService<IServiceBus>();
+                var bus = host.Services.GetRequiredService<IServiceBus>();
                 await Task.WhenAll(Enumerable.Range(0, publishedCount).Select(i => Task.Run(async () =>
                 {
                     var msg = new TestObjectUpdated { Id = Guid.NewGuid() };
-                    await endpoint.Publish(msg);
+                    await bus.Publish(msg);
                 })));
                 watch.Stop();
             }

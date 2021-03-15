@@ -4,6 +4,7 @@ using Excogitated.Threading;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,37 +18,22 @@ namespace Excogitated.ServiceBus.Mongo
 
         public IMongoDatabase Database { get; }
         public IServiceBus ServiceBus { get; }
+        public IConcurrencyLimiter ConcurrencyLimiter { get; }
 
         public ValueTask DisposeAsync() => StopAsync(default);
 
-        public MongoConsumerTransport(IMongoDatabase database, IServiceBus serviceBus)
+        public MongoConsumerTransport(IMongoDatabase database, IServiceBus serviceBus, IConcurrencyLimiter concurrencyLimiter)
         {
             Database = database;
             ServiceBus = serviceBus;
+            ConcurrencyLimiter = concurrencyLimiter;
         }
 
         public async ValueTask StartAsync(ConsumerDefinition consumerDefinition, IConsumerPipeline pipeline, CancellationToken cancellationToken)
         {
             if (_started.TrySet(true))
             {
-                var subs = Database.GetCollection<SubscriptionDocument>();
-                var queueName = consumerDefinition.ConsumerType.FullName;
-                var topicName = consumerDefinition.MessageType.FullName;
-                var subExists = await subs.AsQueryable()
-                    .Where(d => d.QueueName == queueName && d.TopicName == topicName)
-                    .AnyAsync();
-                if (!subExists)
-                {
-                    await subs.ReplaceOneAsync(d => d.QueueName == queueName && d.TopicName == topicName, new TopicDocument
-                    {
-                        Id = Guid.NewGuid(),
-                        QueueName = queueName,
-                        TopicName = topicName
-                    }, new ReplaceOptions
-                    {
-                        IsUpsert = true
-                    });
-                }
+                await BuildSubscription(consumerDefinition);
                 var messageType = consumerDefinition.MessageType.FullName;
                 var queue = Database.GetCollection<MessageDocument>(consumerDefinition.ConsumerType.FullName);
                 _processor = Task.Run(async () =>
@@ -61,7 +47,8 @@ namespace Excogitated.ServiceBus.Mongo
                             .ToListAsync();
                         if (messages.Count == 0)
                             await Task.Delay(1000);
-                        foreach (var message in messages)
+                        await Task.WhenAll(messages.Select(async message =>
+                        {
                             if (!_stopped)
                             {
                                 var update = Builders<MessageDocument>.Update.Set(d => d.LockExpiration, now.AddMinutes(1));
@@ -84,7 +71,31 @@ namespace Excogitated.ServiceBus.Mongo
                                     await queue.DeleteOneAsync(d => d.Id == message.Id);
                                 }
                             }
+                        }));
                     }
+                });
+            }
+        }
+
+        private async Task BuildSubscription(ConsumerDefinition consumerDefinition)
+        {
+            var topicName = consumerDefinition.MessageType.FullName;
+            var queueName = consumerDefinition.ConsumerType.FullName;
+            var subscriptions = Database.GetCollection<SubscriptionDocument>();
+            var subscriptionExists = await subscriptions.AsQueryable()
+                .Where(d => d.TopicName == topicName)
+                .Where(d => d.QueueName == queueName)
+                .AnyAsync();
+            if (!subscriptionExists)
+            {
+                await subscriptions.ReplaceOneAsync(d => d.TopicName == topicName && d.QueueName == queueName, new SubscriptionDocument
+                {
+                    Id = Guid.NewGuid(),
+                    TopicName = topicName,
+                    QueueName = queueName
+                }, new ReplaceOptions
+                {
+                    IsUpsert = true
                 });
             }
         }

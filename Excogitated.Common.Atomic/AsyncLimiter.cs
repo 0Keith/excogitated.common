@@ -19,7 +19,7 @@ namespace Excogitated.Threading
     public class AsyncLimiter
 
     {
-        private readonly AtomicBool _running = new();
+        private readonly AtomicBool _running = new(true);
         private readonly SemaphoreSlim _rateLimit;
         private readonly SemaphoreSlim _threadLimit;
         private readonly AsyncLimiterRelease _release;
