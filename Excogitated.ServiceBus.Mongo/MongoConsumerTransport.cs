@@ -9,18 +9,21 @@ using System.Threading.Tasks;
 
 namespace Excogitated.ServiceBus.Mongo
 {
-    internal class MongoConsumerTransport : IConsumerTransport
+    internal class MongoConsumerTransport : IConsumerTransport, IAsyncDisposable
     {
         private readonly AtomicBool _started = new();
         private readonly AtomicBool _stopped = new();
         private Task _processor;
 
         public IMongoDatabase Database { get; }
-        public IMongoCollection<MessageDocument> Queue { get; private set; }
+        public IServiceBus ServiceBus { get; }
 
-        public MongoConsumerTransport(IMongoDatabase database)
+        public ValueTask DisposeAsync() => StopAsync(default);
+
+        public MongoConsumerTransport(IMongoDatabase database, IServiceBus serviceBus)
         {
             Database = database;
+            ServiceBus = serviceBus;
         }
 
         public async ValueTask StartAsync(ConsumerDefinition consumerDefinition, IConsumerPipeline pipeline, CancellationToken cancellationToken)
@@ -35,7 +38,7 @@ namespace Excogitated.ServiceBus.Mongo
                     .AnyAsync();
                 if (!subExists)
                 {
-                    await subs.ReplaceOneAsync(d => d.QueueName == queueName && d.TopicName == topicName, new SubscriptionDocument
+                    await subs.ReplaceOneAsync(d => d.QueueName == queueName && d.TopicName == topicName, new TopicDocument
                     {
                         Id = Guid.NewGuid(),
                         QueueName = queueName,
@@ -46,15 +49,15 @@ namespace Excogitated.ServiceBus.Mongo
                     });
                 }
                 var messageType = consumerDefinition.MessageType.FullName;
-                Queue = Database.GetCollection<MessageDocument>(consumerDefinition.ConsumerType.FullName);
+                var queue = Database.GetCollection<MessageDocument>(consumerDefinition.ConsumerType.FullName);
                 _processor = Task.Run(async () =>
                 {
                     while (!_stopped)
                     {
                         var now = DateTimeOffset.Now;
-                        var messages = await Queue.AsQueryable()
+                        var messages = await queue.AsQueryable()
                             .Where(d => d.MessageType == messageType)
-                            //.Where(d => !(d.LockExpiration >= now))
+                            .Where(d => !(d.LockExpiration >= now))
                             .ToListAsync();
                         if (messages.Count == 0)
                             await Task.Delay(1000);
@@ -62,11 +65,10 @@ namespace Excogitated.ServiceBus.Mongo
                             if (!_stopped)
                             {
                                 var update = Builders<MessageDocument>.Update.Set(d => d.LockExpiration, now.AddMinutes(1));
-                                var result = await Queue.UpdateOneAsync(d => d.Id == message.Id, update);
-                                //var result = await Queue.UpdateOneAsync(d => d.Id == message.Id && !(d.LockExpiration >= now), update);
+                                var result = await queue.UpdateOneAsync(d => d.Id == message.Id && !(d.LockExpiration >= now), update);
                                 if (result.ModifiedCount > 0)
                                 {
-                                    var context = new MongoConsumerContext();
+                                    var context = new MongoConsumerContext(ServiceBus);
                                     var data = new BinaryData(message.Data);
                                     var task = pipeline.Execute(context, data, consumerDefinition).AsTask();
                                     while (!task.IsCompleted)
@@ -76,10 +78,10 @@ namespace Excogitated.ServiceBus.Mongo
                                         {
                                             now = DateTimeOffset.Now;
                                             update = Builders<MessageDocument>.Update.Set(d => d.LockExpiration, now.AddMinutes(1));
-                                            result = await Queue.UpdateOneAsync(d => d.Id == message.Id, update);
+                                            result = await queue.UpdateOneAsync(d => d.Id == message.Id, update);
                                         }
                                     }
-                                    await Queue.DeleteOneAsync(d => d.Id == message.Id);
+                                    await queue.DeleteOneAsync(d => d.Id == message.Id);
                                 }
                             }
                     }
@@ -94,5 +96,6 @@ namespace Excogitated.ServiceBus.Mongo
                 await _processor;
             }
         }
+
     }
 }

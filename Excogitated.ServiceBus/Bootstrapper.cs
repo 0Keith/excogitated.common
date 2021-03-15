@@ -26,6 +26,38 @@ namespace Excogitated.ServiceBus
                 .AddPublisherTransport<DefaultMemoryTransport>();
         }
 
+        public static IServiceBusConfigurator AddConsumer<T>(this IServiceBusConfigurator config) where T : IConsumer
+        {
+            return config.ThrowIfNull(nameof(config))
+                .AddConsumer(typeof(T));
+        }
+
+        public static IServiceBusConfigurator AddConsumer(this IServiceBusConfigurator config, Type consumerType)
+        {
+            config.ThrowIfNull(nameof(config));
+            consumerType.ThrowIfNull(nameof(consumerType));
+            if (!typeof(IConsumer).IsAssignableFrom(consumerType))
+                throw new ArgumentException($"Consumer must implement {typeof(IConsumer<>).FullName}");
+            if (!consumerType.IsClass)
+                throw new ArgumentException($"Consumer must be reference type.");
+            if (consumerType.IsAbstract)
+                throw new ArgumentException($"Consumer must not be abstract or static.");
+
+            var consumerEmptyInterface = typeof(IConsumer<>);
+            foreach (var consumerInterface in consumerType.GetInterfaces())
+            {
+                if (consumerInterface.GenericTypeArguments.Length > 0 && consumerEmptyInterface == consumerInterface.GetGenericTypeDefinition())
+                {
+                    var messageType = consumerInterface.GenericTypeArguments[0];
+                    var pipelineType = typeof(DefaultDeserializerPipeline<,>).MakeGenericType(consumerType, messageType);
+                    config.Services.AddSingleton(new ConsumerDefinition(consumerType, consumerInterface, messageType, pipelineType));
+                    config.Services.AddScoped(consumerType);
+                    config.Services.AddScoped(pipelineType);
+                }
+            }
+            return config;
+        }
+
         public static IServiceBusConfigurator AddConsumers(this IServiceBusConfigurator config, params Assembly[] consumerAssemblies)
         {
             config.ThrowIfNull(nameof(config));
@@ -39,19 +71,7 @@ namespace Excogitated.ServiceBus
                 .ToList();
             var consumerEmptyInterface = typeof(IConsumer<>);
             foreach (var consumerType in consumerTypes)
-            {
-                foreach (var consumerInterface in consumerType.GetInterfaces())
-                {
-                    if (consumerInterface.GenericTypeArguments.Length > 0 && consumerEmptyInterface == consumerInterface.GetGenericTypeDefinition())
-                    {
-                        var messageType = consumerInterface.GenericTypeArguments[0];
-                        var pipelineType = typeof(DefaultDeserializerPipeline<,>).MakeGenericType(consumerType, messageType);
-                        config.Services.AddSingleton(new ConsumerDefinition(consumerType, consumerInterface, messageType, pipelineType));
-                        config.Services.AddScoped(consumerType);
-                        config.Services.AddScoped(pipelineType);
-                    }
-                }
-            }
+                config.AddConsumer(consumerType);
             return config;
         }
 

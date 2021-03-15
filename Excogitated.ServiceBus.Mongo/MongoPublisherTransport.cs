@@ -48,11 +48,6 @@ namespace Excogitated.ServiceBus.Mongo
             if (_started.TrySet(true))
             {
                 _topicName = definition.MessageType.FullName;
-                //string topic = _messageType.FullName;
-                //var pipeline = Subscriptions.ToChangeStream()
-                //    .Match(d => d.FullDocument.Topic == topic)
-                //    .Project(d => d.FullDocument.Queue);
-                //_changes = await Subscriptions.WatchAsync(pipeline);
             }
         }
 

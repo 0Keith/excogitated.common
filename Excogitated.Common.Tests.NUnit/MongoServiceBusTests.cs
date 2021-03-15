@@ -31,8 +31,8 @@ namespace Excogitated.Tests.NUnit
                 .AddMongoTransport(_settings)
                 .AddConcurrencyLimiter(new ConcurrencyDefinition
                 {
-                    PublishMaxConcurrency = 1,
-                    ConsumeMaxConcurrency = 1,
+                    PublishMaxConcurrency = 10,
+                    ConsumeMaxConcurrency = 10,
                 })
                 .AddHostedServiceBus())
                 .Build();
@@ -48,12 +48,12 @@ namespace Excogitated.Tests.NUnit
                     .AddMongoTransport(_settings)
                     .AddConsumers()
                     .AddConsumerTransaction()
-                    .AddConsumerRedelivery(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
-                    .AddConsumerRetry(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(1) })
+                    .AddConsumerRedelivery(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(100) })
+                    .AddConsumerRetry(new RetryDefinition { MaxDuration = TimeSpan.FromSeconds(100) })
                     .AddConcurrencyLimiter(new ConcurrencyDefinition
                     {
-                        PublishMaxConcurrency = 1,
-                        ConsumeMaxConcurrency = 1,
+                        PublishMaxConcurrency = 10,
+                        ConsumeMaxConcurrency = 10,
                     }))
                 .Build();
             await host.StartAsync();
